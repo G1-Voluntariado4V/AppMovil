@@ -254,7 +254,7 @@
             android:text="@string/boton_finalizar_registro"
             android:textSize="16sp"
             android:textStyle="bold"
-            app:backgroundTint="#111526"
+            app:backgroundTint="#3D5AFE"
             app:cornerRadius="12dp"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/tilSobreTi" />
