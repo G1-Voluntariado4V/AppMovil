@@ -1,3 +1,6 @@
 <resources>
     <string name="app_name">Voluntariado4V</string>
+    <string name="mensaje_boton_google">Acceder con Google</string>
+    <string name="descripcion_auth_login">Únete a la red de voluntariado. Conecta, aprende y ayuda.</string>
+    <string name="titulo_auth_login">Tu tiempo es\nel cambio.</string>
 </resources>

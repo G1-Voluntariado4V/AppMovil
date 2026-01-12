@@ -12,7 +12,7 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.Voluntariado4V">
         <activity
-            android:name=".MainActivity"
+            android:name=".AuthLogin"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
