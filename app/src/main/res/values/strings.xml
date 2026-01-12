@@ -15,4 +15,6 @@
     <string name="titulo_tienes_coche">¿Tienes coche?</string>
     <string name="descripcion_tienes_coche">Para desplazamientos</string>
     <string name="boton_finalizar_registro">Finalizar Registro</string>
+    <string name="titulo_explorar">Explorar</string>
+    <string name="hint_buscar_actividad">Buscar actividad...</string>
 </resources>
