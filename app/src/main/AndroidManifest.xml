@@ -12,6 +12,9 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.Voluntariado4V">
         <activity
+            android:name=".AuthCompleteProfile"
+            android:exported="false" />
+        <activity
             android:name=".AuthLogin"
             android:exported="true">
             <intent-filter>

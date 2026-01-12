@@ -3,4 +3,16 @@
     <string name="mensaje_boton_google">Acceder con Google</string>
     <string name="descripcion_auth_login">Únete a la red de voluntariado. Conecta, aprende y ayuda.</string>
     <string name="titulo_auth_login">Tu tiempo es\nel cambio.</string>
+    <string name="titulo_auth_complete_profile">Datos adicionales</string>
+    <string name="descripcion_auth_complete_profile">Necesitamos unos datos adicionales para terminar de configurar tu perfil.</string>
+    <string name="ciclo_y_curso_academico">CICLO Y CURSO ACADÉMICO</string>
+    <string name="titulo_curso">Curso</string>
+    <string name="titulo_ciclo">Ciclo</string>
+    <string name="titulo_sobre_ti">SOBRE TI</string>
+    <string name="titulo_idiomas">Idiomas</string>
+    <string name="titulo_ultimo_paso">ÚLTIMO PASO</string>
+    <string name="titulo_habilidades_y_transporte"><![CDATA[HABILIDADES & TRANSPORTE]]></string>
+    <string name="titulo_tienes_coche">¿Tienes coche?</string>
+    <string name="descripcion_tienes_coche">Para desplazamientos</string>
+    <string name="boton_finalizar_registro">Finalizar Registro</string>
 </resources>
