@@ -1,0 +1,137 @@
+<com.google.android.material.card.MaterialCardView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginHorizontal="24dp"
+    android:layout_marginBottom="12dp"
+    app:cardCornerRadius="16dp"
+    app:cardElevation="0dp"
+    app:strokeWidth="1dp"
+    app:strokeColor="#E0E0E0"
+    app:cardBackgroundColor="#FFFFFF">
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="16dp">
+
+        <LinearLayout
+            android:id="@+id/dateBox"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:background="@drawable/bg_rounded_gray"
+            android:orientation="vertical"
+            android:gravity="center"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintVertical_bias="0.0">
+
+            <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="OCT"
+            android:textSize="10sp"
+            android:textStyle="bold"
+            android:textColor="#3D5AFE"/>
+
+            <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="15"
+            android:textSize="18sp"
+            android:textStyle="bold"
+            android:textColor="#3D5AFE"/>
+        </LinearLayout>
+
+        <TextView
+            android:id="@+id/tvTitleHistory"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="16dp"
+            android:layout_marginEnd="8dp"
+            android:text="Limpieza del Río\nArga"
+            android:textStyle="bold"
+            android:textSize="16sp"
+            android:textColor="#101828"
+            app:layout_constraintStart_toEndOf="@+id/dateBox"
+            app:layout_constraintEnd_toStartOf="@+id/tvStatus"
+            app:layout_constraintTop_toTopOf="parent"/>
+
+        <TextView
+            android:id="@+id/tvOrg"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            android:text="Cruz Roja"
+            android:textSize="12sp"
+            android:textColor="#667085"
+            android:textStyle="bold"
+            app:layout_constraintStart_toStartOf="@+id/tvTitleHistory"
+            app:layout_constraintTop_toBottomOf="@+id/tvTitleHistory"/>
+
+        <TextView
+            android:id="@+id/tvStatus"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="VALIDADO"
+            android:textSize="12sp"
+            android:textStyle="bold"
+            android:textColor="#00b300"
+            android:paddingHorizontal="10dp"
+            android:paddingVertical="4dp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent"/>
+
+        <ImageView
+            android:id="@+id/ivClock"
+            android:layout_width="16dp"
+            android:layout_height="16dp"
+            android:src="@drawable/ic_clock"
+            app:tint="#667085"
+            android:layout_marginTop="8dp"
+            app:layout_constraintStart_toStartOf="@+id/tvOrg"
+            app:layout_constraintTop_toBottomOf="@+id/tvOrg"
+            tools:ignore="ContentDescription" />
+
+        <TextView
+            android:id="@+id/tvTime"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="6dp"
+            android:text="4 h"
+            android:textSize="12sp"
+            android:textStyle="bold"
+            android:textColor="#101828"
+            app:layout_constraintBottom_toBottomOf="@+id/ivClock"
+            app:layout_constraintStart_toEndOf="@+id/ivClock"
+            app:layout_constraintTop_toTopOf="@+id/ivClock" />
+
+        <ImageView
+            android:id="@+id/ivPin"
+            android:layout_width="16dp"
+            android:layout_height="16dp"
+            android:layout_marginEnd="4dp"
+            android:src="@drawable/ic_location"
+            app:tint="#3D5AFE"
+            app:layout_constraintBottom_toBottomOf="@+id/tvLocation"
+            app:layout_constraintEnd_toStartOf="@+id/tvLocation"
+            app:layout_constraintTop_toTopOf="@+id/tvLocation"
+            tools:ignore="ContentDescription" />
+
+        <TextView
+        android:id="@+id/tvLocation"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Arga"
+        android:textSize="12sp"
+        android:textStyle="bold"
+        android:textColor="#101828"
+        app:layout_constraintBottom_toBottomOf="@+id/ivClock"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/ivClock" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</com.google.android.material.card.MaterialCardView>
