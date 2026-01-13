@@ -24,13 +24,13 @@
             android:name=".UserExplore"
             android:exported="false" />
         <activity
-            android:name=".UserDashboard"
+            android:name=".AuthLogin"
             android:exported="false" />
         <activity
             android:name=".AuthCompleteProfile"
             android:exported="false" />
         <activity
-            android:name=".AuthLogin"
+            android:name=".UserDashboard"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />

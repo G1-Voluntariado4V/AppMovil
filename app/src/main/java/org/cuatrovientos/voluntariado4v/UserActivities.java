@@ -1,107 +1,187 @@
 package org.cuatrovientos.voluntariado4v;
 
+import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.view.View;
+import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
+import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 
+import java.util.ArrayList;
+
 public class UserActivities extends AppCompatActivity {
 
-    // 1. Declaramos las variables de las vistas
     private BottomNavigationView bottomNav;
     private TextView tabActivas, tabHistorial;
     private RecyclerView rvActivas, rvHistorial;
+    private LinearLayout btnFilters;
+
+    // Listas de datos para el adaptador
+    private ArrayList<ActivityModel> listaActivas;
+    private ArrayList<ActivityModel> listaHistorial;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        EdgeToEdge.enable(this);
         setContentView(R.layout.activity_user_activities);
 
-        // 2. Inicializamos las vistas buscando por ID
+        // 1. Inicializar vistas
         bottomNav = findViewById(R.id.bottomNavigation);
         tabActivas = findViewById(R.id.tabActivas);
         tabHistorial = findViewById(R.id.tabHistorial);
         rvActivas = findViewById(R.id.rvActivas);
         rvHistorial = findViewById(R.id.rvHistorial);
+        btnFilters = findViewById(R.id.btnFilters); // Asegúrate de que este ID existe en tu XML
 
-        // Configuración del menú inferior
+        // 2. Configurar Navegación Inferior
         bottomNav.setSelectedItemId(R.id.nav_activities);
-        // Aquí deberías añadir el listener del bottomNav para navegar entre pantallas si hace falta
 
-        // 3. Configurar los Listeners (Clics) de las pestañas
-        tabActivas.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                cambiarPestana(true); // true = mostrar activas
+        bottomNav.setOnItemSelectedListener(item -> {
+            int itemId = item.getItemId();
+
+            if (itemId == R.id.nav_activities) return true;
+
+            if (itemId == R.id.nav_home) {
+                startActivity(new Intent(getApplicationContext(), UserDashboard.class));
+                overridePendingTransition(0, 0);
+                return true;
+            } else if (itemId == R.id.nav_explore) {
+                startActivity(new Intent(getApplicationContext(), UserExplore.class));
+                overridePendingTransition(0, 0);
+                return true;
+            } else if (itemId == R.id.nav_profile) {
+                startActivity(new Intent(getApplicationContext(), UserProfile.class));
+                overridePendingTransition(0, 0);
+                return true;
             }
+            return false;
         });
 
-        tabHistorial.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                cambiarPestana(false); // false = mostrar historial
-            }
-        });
+        // 3. Configurar Listas y Adaptadores (Reutilizando ActivitiesAdapter)
+        setupLists();
 
-        // 4. Estado inicial: Mostrar siempre "Activas" al abrir la pantalla
+        // 4. Configurar Listeners de las Pestañas
+        tabActivas.setOnClickListener(v -> cambiarPestana(true));
+        tabHistorial.setOnClickListener(v -> cambiarPestana(false));
+
+        // 5. Configurar Botón Filtros
+        if (btnFilters != null) {
+            btnFilters.setVisibility(View.VISIBLE);
+            btnFilters.setOnClickListener(v -> {
+                // Abrir diálogo de filtros
+                FilterDialog dialog = new FilterDialog();
+                dialog.show(getSupportFragmentManager(), "FilterDialog");
+            });
+        }
+
+        // 6. Estado inicial: Mostrar pestaña "Activas"
         cambiarPestana(true);
+    }
 
-        // TODO: Aquí deberías inicializar tus Adapters y asignarlos a rvActivas y rvHistorial
-        // cargarDatosActivas();
-        // cargarDatosHistorial();
+    private void setupLists() {
+        // --- LISTA 1: ACTIVAS (Tarjetas Grandes) ---
+        listaActivas = new ArrayList<>();
+        // Datos de prueba (Hardcoded)
+        listaActivas.add(new ActivityModel(
+                "Recogida Alimentos",
+                "Banco Alimentos",
+                "Berriozar",
+                "20 Jun",
+                "Ayuda logística en almacén.",
+                R.drawable.activities2));
 
-        // 1. Localizar el botón de Filtros
-        // IMPORTANTE: En tu XML este ID era un LinearLayout llamado "btnFilters"
-        // y tenía visibility="gone". Asegúrate de ponerlo "visible" en el XML.
-        View btnFilters = findViewById(R.id.btnFilters);
-        btnFilters.setVisibility(View.VISIBLE); // Forzamos que se vea
+        listaActivas.add(new ActivityModel(
+                "Carrera Solidaria",
+                "ANFAS",
+                "Antoniutti",
+                "24 Jun",
+                "Organización y staff del evento.",
+                R.drawable.activities1));
 
-        // 2. Abrir el diálogo al hacer clic
-        btnFilters.setOnClickListener(v -> {
-            FilterDialog dialog = new FilterDialog();
-            dialog.show(getSupportFragmentManager(), "FilterDialog");
+        // Configurar RecyclerView Activas
+        rvActivas.setLayoutManager(new LinearLayoutManager(this));
+
+        // Instanciamos el adaptador con TYPE_BIG_CARD
+        ActivitiesAdapter adapterActivas = new ActivitiesAdapter(listaActivas, ActivitiesAdapter.TYPE_BIG_CARD, new ActivitiesAdapter.OnItemClickListener() {
+            @Override
+            public void onItemClick(ActivityModel item, int position) {
+                Toast.makeText(UserActivities.this, "Activa seleccionada: " + item.getTitle(), Toast.LENGTH_SHORT).show();
+                // Aquí podrías abrir el detalle:
+                // startActivity(new Intent(UserActivities.this, DetailActivity.class));
+            }
         });
+        rvActivas.setAdapter(adapterActivas);
+
+
+        // --- LISTA 2: HISTORIAL (Tarjetas Pequeñas) ---
+        listaHistorial = new ArrayList<>();
+        // Datos de prueba
+        listaHistorial.add(new ActivityModel(
+                "Limpieza Río",
+                "GreenPeace",
+                "Arga",
+                "15 Oct",
+                "Limpieza de orillas.",
+                R.drawable.carousel1));
+
+        listaHistorial.add(new ActivityModel(
+                "Apoyo Escolar",
+                "Paris 365",
+                "Rochapea",
+                "10 Sep",
+                "Clases de refuerzo.",
+                R.drawable.carousel2));
+
+        // Configurar RecyclerView Historial
+        rvHistorial.setLayoutManager(new LinearLayoutManager(this));
+
+        // Instanciamos EL MISMO adaptador pero con TYPE_SMALL_CARD
+        ActivitiesAdapter adapterHistorial = new ActivitiesAdapter(listaHistorial, ActivitiesAdapter.TYPE_SMALL_CARD, new ActivitiesAdapter.OnItemClickListener() {
+            @Override
+            public void onItemClick(ActivityModel item, int position) {
+                Toast.makeText(UserActivities.this, "Historial seleccionado: " + item.getTitle(), Toast.LENGTH_SHORT).show();
+            }
+        });
+        rvHistorial.setAdapter(adapterHistorial);
     }
 
     /**
-     * Metodo para alternar entre la vista de Activas y Historial
-     * @param mostrarActivas true para ver activas, false para ver historial
+     * Alterna la visibilidad y estilos entre las pestañas Activas e Historial
      */
     private void cambiarPestana(boolean mostrarActivas) {
         if (mostrarActivas) {
-            // A. MOSTRAR ACTIVAS
-
-            // 1. Visibilidad de las listas
+            // Mostrar Activas
             rvActivas.setVisibility(View.VISIBLE);
             rvHistorial.setVisibility(View.GONE);
 
-            // 2. Estilo Pestaña Activas (Seleccionada)
+            // Estilos Pestaña Activas (Seleccionada)
             tabActivas.setBackgroundResource(R.drawable.bg_tab_selected);
-            tabActivas.setTextColor(Color.parseColor("#3D5AFE")); // Azul
+            tabActivas.setTextColor(Color.parseColor("#3D5AFE")); // Azul principal
 
-            // 3. Estilo Pestaña Historial (Deseleccionada)
-            tabHistorial.setBackground(null); // Sin fondo blanco
+            // Estilos Pestaña Historial (Deseleccionada)
+            tabHistorial.setBackground(null);
             tabHistorial.setTextColor(Color.parseColor("#667085")); // Gris
-
         } else {
-            // B. MOSTRAR HISTORIAL
-
-            // 1. Visibilidad de las listas
+            // Mostrar Historial
             rvActivas.setVisibility(View.GONE);
             rvHistorial.setVisibility(View.VISIBLE);
 
-            // 2. Estilo Pestaña Activas (Deseleccionada)
+            // Estilos Pestaña Activas (Deseleccionada)
             tabActivas.setBackground(null);
             tabActivas.setTextColor(Color.parseColor("#667085")); // Gris
 
-            // 3. Estilo Pestaña Historial (Seleccionada)
+            // Estilos Pestaña Historial (Seleccionada)
             tabHistorial.setBackgroundResource(R.drawable.bg_tab_selected);
-            tabHistorial.setTextColor(Color.parseColor("#3D5AFE")); // Azul
+            tabHistorial.setTextColor(Color.parseColor("#3D5AFE")); // Azul principal
         }
     }
 }

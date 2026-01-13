@@ -11,35 +11,58 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import java.util.ArrayList;
 
-public class ActivitiesAdapter extends RecyclerView.Adapter<ActivitiesAdapter.RecyclerDataHolder> {
+public class ActivitiesAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
+
+    // Constantes para definir el tipo de vista
+    public static final int TYPE_BIG_CARD = 0;
+    public static final int TYPE_SMALL_CARD = 1;
 
     private ArrayList<ActivityModel> listData;
     private OnItemClickListener itemListener;
+    private int layoutType; // Variable para saber qué diseño usar
 
-    // Interfaz para gestionar el click
+    // Interfaz común
     public interface OnItemClickListener {
         void onItemClick(ActivityModel item, int position);
     }
 
-    // Constructor que recibe la lista y el listener
-    public ActivitiesAdapter(ArrayList<ActivityModel> listData, OnItemClickListener listener) {
+    // Constructor modificado: ahora recibe el 'type'
+    public ActivitiesAdapter(ArrayList<ActivityModel> listData, int type, OnItemClickListener listener) {
         this.listData = listData;
+        this.layoutType = type;
         this.itemListener = listener;
     }
 
     @NonNull
     @Override
-    public RecyclerDataHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        // Inflamos el layout 'item_big_card_activity'
-        View view = LayoutInflater.from(parent.getContext())
-                .inflate(R.layout.item_big_card_activity, parent, false);
-        return new RecyclerDataHolder(view);
+    public RecyclerView.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+        // Aquí decidimos qué XML inflar según el tipo
+        if (viewType == TYPE_BIG_CARD) {
+            View view = LayoutInflater.from(parent.getContext())
+                    .inflate(R.layout.item_big_card_activity, parent, false);
+            return new BigCardHolder(view);
+        } else {
+            View view = LayoutInflater.from(parent.getContext())
+                    .inflate(R.layout.item_small_card_activity, parent, false);
+            return new SmallCardHolder(view);
+        }
     }
 
     @Override
-    public void onBindViewHolder(@NonNull RecyclerDataHolder holder, int position) {
-        // Llamamos a assignData pasando el objeto y el listener
-        holder.assignData(listData.get(position), itemListener);
+    public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, int position) {
+        // Detectamos qué tipo de Holder es y llamamos a su assignData
+        if (getItemViewType(position) == TYPE_BIG_CARD) {
+            ((BigCardHolder) holder).assignData(listData.get(position), itemListener);
+        } else {
+            ((SmallCardHolder) holder).assignData(listData.get(position), itemListener);
+        }
+    }
+
+    @Override
+    public int getItemViewType(int position) {
+        // Le dice al RecyclerView qué tipo es este item.
+        // En este caso, toda la lista es del mismo tipo definido en el constructor.
+        return layoutType;
     }
 
     @Override
@@ -47,14 +70,13 @@ public class ActivitiesAdapter extends RecyclerView.Adapter<ActivitiesAdapter.Re
         return listData.size();
     }
 
-    // Clase Holder interna (pág 12)
-    public class RecyclerDataHolder extends RecyclerView.ViewHolder {
+    // --- HOLDER 1: Tarjeta Grande (Explore y Activas) ---
+    public class BigCardHolder extends RecyclerView.ViewHolder {
         TextView tvTitle, tvOrg, tvLocation, tvDate, tvDesc;
         ImageView imgLogo;
 
-        public RecyclerDataHolder(@NonNull View itemView) {
+        public BigCardHolder(@NonNull View itemView) {
             super(itemView);
-            // Localizamos los elementos visuales del XML
             tvTitle = itemView.findViewById(R.id.tvTitle);
             tvOrg = itemView.findViewById(R.id.tvOrgName);
             tvLocation = itemView.findViewById(R.id.tvLocation);
@@ -63,26 +85,39 @@ public class ActivitiesAdapter extends RecyclerView.Adapter<ActivitiesAdapter.Re
             imgLogo = itemView.findViewById(R.id.imgLogo);
         }
 
-        // Metodo assignData modificado para recibir el Listener
-        public void assignData(final ActivityModel item, final OnItemClickListener onItemClickListener) {
+        public void assignData(final ActivityModel item, final OnItemClickListener listener) {
             tvTitle.setText(item.getTitle());
             tvOrg.setText(item.getOrganization());
             tvLocation.setText(item.getLocation());
             tvDate.setText(item.getDate());
-            tvDesc.setText(item.getDescription());
+            if(tvDesc != null) tvDesc.setText(item.getDescription());
+            if (item.getImageResource() != 0) imgLogo.setImageResource(item.getImageResource());
 
-            // Verificamos si la imagen es válida (diferente de 0) para evitar errores
-            if (item.getImageResource() != 0) {
-                imgLogo.setImageResource(item.getImageResource());
-            }
+            itemView.setOnClickListener(v -> listener.onItemClick(item, getAdapterPosition()));
+        }
+    }
 
-            // Configuramos el click en el item
-            itemView.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    onItemClickListener.onItemClick(item, getAdapterPosition());
-                }
-            });
+    // --- HOLDER 2: Tarjeta Pequeña (Historial) ---
+    public class SmallCardHolder extends RecyclerView.ViewHolder {
+        TextView tvTitle, tvOrg, tvLocation, tvStatus;
+
+        public SmallCardHolder(@NonNull View itemView) {
+            super(itemView);
+            // IDs del layout item_small_card_activity.xml
+            tvTitle = itemView.findViewById(R.id.tvTitleHistory);
+            tvOrg = itemView.findViewById(R.id.tvOrg);
+            tvLocation = itemView.findViewById(R.id.tvLocation);
+            tvStatus = itemView.findViewById(R.id.tvStatus);
+        }
+
+        public void assignData(final ActivityModel item, final OnItemClickListener listener) {
+            tvTitle.setText(item.getTitle());
+            tvOrg.setText(item.getOrganization());
+            tvLocation.setText(item.getLocation());
+            // Simulamos estado
+            if(tvStatus != null) tvStatus.setText("FINALIZADO");
+
+            itemView.setOnClickListener(v -> listener.onItemClick(item, getAdapterPosition()));
         }
     }
 }
