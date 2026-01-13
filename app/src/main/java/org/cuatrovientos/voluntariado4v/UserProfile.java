@@ -10,19 +10,20 @@ import androidx.core.view.WindowInsetsCompat;
 
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 
-public class UserExplore extends AppCompatActivity {
+public class UserProfile extends AppCompatActivity {
 
     BottomNavigationView bottomNav;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_user_explore);
+        EdgeToEdge.enable(this);
+        setContentView(R.layout.activity_user_profile);
 
         // 1. Localizar la barra de navegación
         bottomNav = findViewById(R.id.bottomNavigation);
 
-        // 2. Marcar el 2º icono como seleccionado
-        bottomNav.setSelectedItemId(R.id.nav_explore);
+        // 2. Marcar el 4º icono como seleccionado
+        bottomNav.setSelectedItemId(R.id.nav_profile);
     }
 }

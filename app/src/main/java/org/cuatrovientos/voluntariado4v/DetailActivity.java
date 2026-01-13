@@ -8,11 +8,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.Button;
 
-import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.graphics.Insets;
-import androidx.core.view.ViewCompat;
-import androidx.core.view.WindowInsetsCompat;
 
 public class DetailActivity extends AppCompatActivity {
 
@@ -38,7 +34,7 @@ public class DetailActivity extends AppCompatActivity {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
 
         // "Inflar" (convertir XML a Vista) nuestro diseño personalizado
-        View dialogView = LayoutInflater.from(this).inflate(R.layout.item_dialog_success, null);
+        View dialogView = LayoutInflater.from(this).inflate(R.layout.dialog_success, null);
         builder.setView(dialogView);
 
         // Crear el diálogo y configurar fondo transparente

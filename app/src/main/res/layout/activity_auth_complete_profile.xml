@@ -238,7 +238,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:gravity="top|start"
-                android:text="Cuéntanos tus intereses, hobbies, algo que debamos saber..."
+                android:hint="Tus intereses, algo que debamos saber..."
                 android:textColor="#9E9E9E"
                 android:inputType="textMultiLine"
                 android:minLines="4"

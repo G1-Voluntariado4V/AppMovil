@@ -12,6 +12,9 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.Voluntariado4V">
         <activity
+            android:name=".UserProfile"
+            android:exported="false" />
+        <activity
             android:name=".DetailActivity"
             android:exported="false" />
         <activity
