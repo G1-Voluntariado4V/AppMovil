@@ -149,7 +149,6 @@ public class LanguageDialog extends DialogFragment {
             public ViewHolder(@NonNull View itemView) {
                 super(itemView);
                 tvName = itemView.findViewById(R.id.tvLanguageName);
-                btnDelete = itemView.findViewById(R.id.btnDeleteRow);
             }
         }
     }

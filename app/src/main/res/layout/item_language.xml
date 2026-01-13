@@ -17,10 +17,11 @@
         android:orientation="horizontal"
         android:padding="12dp">
 
-        <View
+        <ImageView
+            android:id="@+id/ivLanguageImage"
             android:layout_width="32dp"
             android:layout_height="32dp"
-            android:background="@drawable/bg_circle_light_blue"/>
+            android:background="@drawable/bg_circle_light_blue" />
 
         <TextView
             android:id="@+id/tvLanguageName"
@@ -31,13 +32,6 @@
             android:text="Inglés"
             android:textColor="#101828"
             android:textStyle="bold" />
-
-        <ImageView
-            android:id="@+id/btnDeleteRow"
-            android:layout_width="20dp"
-            android:layout_height="20dp"
-            android:src="@android:drawable/ic_menu_delete"
-            android:tint="#3D5AFE" />
 
     </LinearLayout>
 </com.google.android.material.card.MaterialCardView>
