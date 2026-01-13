@@ -1,6 +1,7 @@
 package org.cuatrovientos.voluntariado4v;
 
 import android.app.AlertDialog;
+import android.content.res.ColorStateList; // IMPORTANTE: Necesario para cambiar el color del botón
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
@@ -27,7 +28,6 @@ public class DetailActivity extends AppCompatActivity {
 
         initViews();
 
-        // Recibimos el objeto enviado desde UserExplore
         ActivityModel activity = (ActivityModel) getIntent().getSerializableExtra("extra_activity");
 
         if (activity != null) {
@@ -41,17 +41,12 @@ public class DetailActivity extends AppCompatActivity {
     }
 
     private void initViews() {
-        // IDs que ya tenías
         tvTitle = findViewById(R.id.tvMainTitle);
         imgHeader = findViewById(R.id.imgLogoHeader);
         btnBack = findViewById(R.id.btnBack);
         btnJoin = findViewById(R.id.btnJoin);
         tvPlazas = findViewById(R.id.tvPlazasCount);
-
-        // El ID de la etiqueta (social, medioambiente...)
         tvCategory = findViewById(R.id.tvTagSocial);
-
-        // IDs nuevos que añadiste al XML
         tvDate = findViewById(R.id.tvDetailDate);
         tvLocation = findViewById(R.id.tvDetailLocation);
         tvOrg = findViewById(R.id.tvDetailOrg);
@@ -65,7 +60,27 @@ public class DetailActivity extends AppCompatActivity {
         if (tvDate != null) tvDate.setText(activity.getDate());
         if (tvDesc != null) tvDesc.setText(activity.getDescription());
 
-        // CATEGORÍA (Texto y Color)
+        // 1. Mostrar texto de plazas (Ej: 15/20)
+        if (tvPlazas != null) {
+            String plazasInfo = activity.getOccupiedSeats() + "/" + activity.getTotalSeats();
+            tvPlazas.setText(plazasInfo);
+        }
+
+        // 2. LÓGICA DEL BOTÓN: Comprobar si está lleno
+        if (btnJoin != null) {
+            if (activity.getOccupiedSeats() >= activity.getTotalSeats()) {
+                // CASO: ESTÁ LLENO
+                btnJoin.setEnabled(false); // Desactiva el click
+                btnJoin.setText("Completo");
+                btnJoin.setBackgroundTintList(ColorStateList.valueOf(Color.parseColor("#98A2B3"))); // Color Gris
+            } else {
+                // CASO: HAY SITIO
+                btnJoin.setEnabled(true);
+                btnJoin.setText("¡Apuntarme!");
+                btnJoin.setBackgroundTintList(ColorStateList.valueOf(Color.parseColor("#4E6AF3"))); // Color Azul Original
+            }
+        }
+
         if (tvCategory != null) {
             tvCategory.setText(activity.getCategory());
             updateCategoryColor(activity.getCategory());
@@ -76,11 +91,8 @@ public class DetailActivity extends AppCompatActivity {
         }
     }
 
-    // Cambia el color del fondo de la etiqueta según el texto
     private void updateCategoryColor(String category) {
         if (category == null) return;
-
-        // Asegúrate de tener estos drawables creados (o usa el azul por defecto)
         switch (category.toLowerCase()) {
             case "medioambiente":
                 tvCategory.setBackgroundResource(R.drawable.bg_tag_green);
@@ -96,9 +108,12 @@ public class DetailActivity extends AppCompatActivity {
     }
 
     private void setupListeners() {
+        // Volver atrás
         if (btnBack != null) {
-            btnBack.setOnClickListener(v -> getOnBackPressedDispatcher().onBackPressed());
+            btnBack.setOnClickListener(v -> finish());
         }
+
+        // Apuntarse (Solo funcionará si está habilitado por la lógica de arriba)
         if (btnJoin != null) {
             btnJoin.setOnClickListener(v -> mostrarPopupExito());
         }

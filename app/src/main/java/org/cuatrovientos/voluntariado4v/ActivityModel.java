@@ -8,11 +8,15 @@ public class ActivityModel implements Serializable {
     private String location;
     private String date;
     private String description;
-    private String category; // NUEVO: Categoría (Social, Medioambiente, etc.)
+    private String category;
     private int imageResource;
 
-    // Constructor actualizado con 'category'
-    public ActivityModel(String title, String organization, String location, String date, String description, String category, int imageResource) {
+    // NUEVOS CAMPOS: Plazas
+    private int occupiedSeats;
+    private int totalSeats;
+
+    // Constructor actualizado (añadimos los dos int al final)
+    public ActivityModel(String title, String organization, String location, String date, String description, String category, int imageResource, int occupiedSeats, int totalSeats) {
         this.title = title;
         this.organization = organization;
         this.location = location;
@@ -20,14 +24,20 @@ public class ActivityModel implements Serializable {
         this.description = description;
         this.category = category;
         this.imageResource = imageResource;
+        this.occupiedSeats = occupiedSeats;
+        this.totalSeats = totalSeats;
     }
 
-    // Getters
+    // Getters existentes
     public String getTitle() { return title; }
     public String getOrganization() { return organization; }
     public String getLocation() { return location; }
     public String getDate() { return date; }
     public String getDescription() { return description; }
-    public String getCategory() { return category; } // Nuevo getter
+    public String getCategory() { return category; }
     public int getImageResource() { return imageResource; }
+
+    // NUEVOS GETTERS
+    public int getOccupiedSeats() { return occupiedSeats; }
+    public int getTotalSeats() { return totalSeats; }
 }
