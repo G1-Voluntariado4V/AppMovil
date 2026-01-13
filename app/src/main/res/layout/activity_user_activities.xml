@@ -30,12 +30,15 @@
         app:layout_constraintTop_toBottomOf="@+id/tvTitle">
 
         <LinearLayout
+            android:id="@+id/searchContainer"
             android:layout_width="0dp"
             android:layout_height="50dp"
             android:layout_weight="1"
             android:background="@drawable/bg_search_rounded"
             android:gravity="center_vertical"
-            android:paddingHorizontal="16dp">
+            android:paddingHorizontal="16dp"
+            android:clickable="true"
+            android:focusable="true">
 
             <ImageView
                 android:layout_width="20dp"
@@ -44,6 +47,7 @@
                 app:tint="#98A2B3" />
 
             <EditText
+                android:id="@+id/etSearch"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="12dp"
@@ -51,7 +55,10 @@
                 android:hint="Buscar actividad..."
                 android:textColor="#101828"
                 android:textColorHint="#98A2B3"
-                android:textSize="14sp" />
+                android:textSize="14sp"
+                android:inputType="text"
+                android:focusable="true"
+                android:focusableInTouchMode="true"/>
         </LinearLayout>
 
         <LinearLayout
