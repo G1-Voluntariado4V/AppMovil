@@ -20,7 +20,7 @@ public class ActivitiesAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
     private OnItemClickListener itemListener;
     private int layoutType;
 
-    // Interfaz (puede ser null ahora)
+    // Interfaz para clicks
     public interface OnItemClickListener {
         void onItemClick(ActivityModel item, int position);
     }
@@ -64,7 +64,7 @@ public class ActivitiesAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
         return listData.size();
     }
 
-    // --- HOLDER 1: Tarjeta Grande ---
+    // --- HOLDER 1: Tarjeta Grande (Dashboard / Mis Actividades) ---
     public class BigCardHolder extends RecyclerView.ViewHolder {
         TextView tvTitle, tvOrg, tvLocation, tvDate, tvDesc, tvCategory;
         ImageView imgLogo;
@@ -86,21 +86,25 @@ public class ActivitiesAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
             tvLocation.setText(item.getLocation());
             tvDate.setText(item.getDate());
             if(tvDesc != null) tvDesc.setText(item.getDescription());
-            if (item.getImageResource() != 0) imgLogo.setImageResource(item.getImageResource());
 
-            // Asignar Categoría y Color
+            // Cargar imagen
+            if (item.getImageResource() != 0) {
+                imgLogo.setImageResource(item.getImageResource());
+            }
+
+            // Categoría y color
             if (tvCategory != null) {
                 tvCategory.setText(item.getCategory());
                 updateCategoryColor(item.getCategory(), tvCategory);
             }
 
-            // LÓGICA DE CLICK: Solo si hay listener, si es null no hace nada
+            // Click listener
             if (listener != null) {
                 itemView.setOnClickListener(v -> listener.onItemClick(item, getAdapterPosition()));
                 itemView.setClickable(true);
             } else {
                 itemView.setOnClickListener(null);
-                itemView.setClickable(false); // Desactiva el efecto visual de click
+                itemView.setClickable(false);
             }
         }
 
@@ -114,19 +118,35 @@ public class ActivitiesAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
         }
     }
 
-    // --- HOLDER 2: Tarjeta Pequeña ---
+    // --- HOLDER 2: Tarjeta Pequeña (Perfil Org) ---
     public class SmallCardHolder extends RecyclerView.ViewHolder {
-        TextView tvTitle, tvOrg, tvLocation, tvStatus;
+        TextView tvTitle, tvLocation, tvDate; // AÑADIDO: tvDate
+        ImageView imgActivity; // AÑADIDO: imgActivity para cargar la foto pequeña
 
         public SmallCardHolder(@NonNull View itemView) {
             super(itemView);
-            tvTitle = itemView.findViewById(R.id.tvTitleHistory);
+            // CORREGIDO: Usamos R.id.tvTitle (el del XML) en vez de R.id.tvTitleHistory
+            tvTitle = itemView.findViewById(R.id.tvTitle);
             tvLocation = itemView.findViewById(R.id.tvLocation);
+
+            // AÑADIDO: Vinculamos la fecha y la imagen
+            tvDate = itemView.findViewById(R.id.tvDate);
+            imgActivity = itemView.findViewById(R.id.imgActivity);
         }
 
         public void assignData(final ActivityModel item, final OnItemClickListener listener) {
             tvTitle.setText(item.getTitle());
             tvLocation.setText(item.getLocation());
+
+            // AÑADIDO: Asignamos el texto de la fecha
+            if (tvDate != null) {
+                tvDate.setText(item.getDate());
+            }
+
+            // AÑADIDO: Asignamos la imagen
+            if (imgActivity != null && item.getImageResource() != 0) {
+                imgActivity.setImageResource(item.getImageResource());
+            }
 
             if (listener != null) {
                 itemView.setOnClickListener(v -> listener.onItemClick(item, getAdapterPosition()));

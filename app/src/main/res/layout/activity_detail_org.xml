@@ -104,6 +104,7 @@
                         android:gravity="center"
                         android:orientation="vertical">
                         <TextView
+                            android:id="@+id/tvStatActivities"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="15"
@@ -127,6 +128,7 @@
                         android:gravity="center"
                         android:orientation="vertical">
                         <TextView
+                            android:id="@+id/tvStatVolunteers"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="120"
@@ -150,6 +152,7 @@
                         android:gravity="center"
                         android:orientation="vertical">
                         <TextView
+                            android:id="@+id/tvStatRating"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="4.8"
@@ -210,9 +213,10 @@
             app:layout_constraintTop_toBottomOf="@id/lblAbout">
 
             <TextView
+                android:id="@+id/tvOrgDescription"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Somos una organización dedicada a prevenir y aliviar el sufrimiento humano. Trabajamos en cooperación con voluntarios para mejorar la vida de las personas vulnerables en nuestra comunidad."
+                android:text="Somos una organización dedicada..."
                 android:textColor="#667085"
                 android:lineSpacingExtra="6dp"
                 android:textSize="14sp" />
