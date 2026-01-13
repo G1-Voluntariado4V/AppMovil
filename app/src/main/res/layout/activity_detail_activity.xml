@@ -73,15 +73,15 @@
                 android:minHeight="300dp">
 
                 <ImageView
-                android:id="@+id/imgLogoHeader"
-                android:layout_width="match_parent"
-                android:layout_height="0dp"
-                android:src="@drawable/activities1"
-                android:scaleType="centerCrop"
-                app:layout_constraintTop_toTopOf="parent"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintEnd_toEndOf="parent" />
+                    android:id="@+id/imgLogoHeader"
+                    android:layout_width="match_parent"
+                    android:layout_height="0dp"
+                    android:src="@drawable/activities1"
+                    android:scaleType="centerCrop"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent" />
 
                 <View
                     android:layout_width="match_parent"
@@ -180,7 +180,9 @@
                                 android:textSize="8sp"
                                 android:textColor="#98A2B3"
                                 android:textStyle="bold"/>
+
                             <TextView
+                                android:id="@+id/tvDetailDate"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:text="01 Jun"
@@ -218,7 +220,9 @@
                                 android:textSize="8sp"
                                 android:textColor="#98A2B3"
                                 android:textStyle="bold"/>
+
                             <TextView
+                                android:id="@+id/tvDetailLocation"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:text="Pamplona"
@@ -259,7 +263,9 @@
                             android:textSize="8sp"
                             android:textColor="#98A2B3"
                             android:textStyle="bold"/>
+
                         <TextView
+                            android:id="@+id/tvDetailOrg"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="Amavir"
@@ -291,6 +297,7 @@
                     android:textStyle="bold"/>
 
                 <TextView
+                    android:id="@+id/tvDetailDesc"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="12dp"

@@ -1,12 +1,15 @@
 package org.cuatrovientos.voluntariado4v;
 
-public class ActivityModel {
+import java.io.Serializable;
+
+// IMPLEMENTAMOS Serializable para poder pasar este objeto en un Intent
+public class ActivityModel implements Serializable {
     private String title;
     private String organization;
     private String location;
     private String date;
     private String description;
-    private int imageResource; // Referencia a R.drawable
+    private int imageResource;
 
     public ActivityModel(String title, String organization, String location, String date, String description, int imageResource) {
         this.title = title;
