@@ -121,16 +121,12 @@ public class ActivitiesAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
         public SmallCardHolder(@NonNull View itemView) {
             super(itemView);
             tvTitle = itemView.findViewById(R.id.tvTitleHistory);
-            tvOrg = itemView.findViewById(R.id.tvOrg);
             tvLocation = itemView.findViewById(R.id.tvLocation);
-            tvStatus = itemView.findViewById(R.id.tvStatus);
         }
 
         public void assignData(final ActivityModel item, final OnItemClickListener listener) {
             tvTitle.setText(item.getTitle());
-            tvOrg.setText(item.getOrganization());
             tvLocation.setText(item.getLocation());
-            if(tvStatus != null) tvStatus.setText("FINALIZADO");
 
             if (listener != null) {
                 itemView.setOnClickListener(v -> listener.onItemClick(item, getAdapterPosition()));
