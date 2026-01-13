@@ -13,20 +13,18 @@ import java.util.ArrayList;
 
 public class ActivitiesAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
-    // Constantes para definir el tipo de vista
     public static final int TYPE_BIG_CARD = 0;
     public static final int TYPE_SMALL_CARD = 1;
 
     private ArrayList<ActivityModel> listData;
     private OnItemClickListener itemListener;
-    private int layoutType; // Variable para saber qué diseño usar
+    private int layoutType;
 
-    // Interfaz común
+    // Interfaz (puede ser null ahora)
     public interface OnItemClickListener {
         void onItemClick(ActivityModel item, int position);
     }
 
-    // Constructor modificado: ahora recibe el 'type'
     public ActivitiesAdapter(ArrayList<ActivityModel> listData, int type, OnItemClickListener listener) {
         this.listData = listData;
         this.layoutType = type;
@@ -36,7 +34,6 @@ public class ActivitiesAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
     @NonNull
     @Override
     public RecyclerView.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        // Aquí decidimos qué XML inflar según el tipo
         if (viewType == TYPE_BIG_CARD) {
             View view = LayoutInflater.from(parent.getContext())
                     .inflate(R.layout.item_big_card_activity, parent, false);
@@ -50,7 +47,6 @@ public class ActivitiesAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
 
     @Override
     public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, int position) {
-        // Detectamos qué tipo de Holder es y llamamos a su assignData
         if (getItemViewType(position) == TYPE_BIG_CARD) {
             ((BigCardHolder) holder).assignData(listData.get(position), itemListener);
         } else {
@@ -60,8 +56,6 @@ public class ActivitiesAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
 
     @Override
     public int getItemViewType(int position) {
-        // Le dice al RecyclerView qué tipo es este item.
-        // En este caso, toda la lista es del mismo tipo definido en el constructor.
         return layoutType;
     }
 
@@ -70,9 +64,9 @@ public class ActivitiesAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
         return listData.size();
     }
 
-    // --- HOLDER 1: Tarjeta Grande (Explore y Activas) ---
+    // --- HOLDER 1: Tarjeta Grande ---
     public class BigCardHolder extends RecyclerView.ViewHolder {
-        TextView tvTitle, tvOrg, tvLocation, tvDate, tvDesc;
+        TextView tvTitle, tvOrg, tvLocation, tvDate, tvDesc, tvCategory;
         ImageView imgLogo;
 
         public BigCardHolder(@NonNull View itemView) {
@@ -83,6 +77,7 @@ public class ActivitiesAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
             tvDate = itemView.findViewById(R.id.tvDate);
             tvDesc = itemView.findViewById(R.id.tvDesc);
             imgLogo = itemView.findViewById(R.id.imgLogo);
+            tvCategory = itemView.findViewById(R.id.tvTagCategory);
         }
 
         public void assignData(final ActivityModel item, final OnItemClickListener listener) {
@@ -93,17 +88,38 @@ public class ActivitiesAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
             if(tvDesc != null) tvDesc.setText(item.getDescription());
             if (item.getImageResource() != 0) imgLogo.setImageResource(item.getImageResource());
 
-            itemView.setOnClickListener(v -> listener.onItemClick(item, getAdapterPosition()));
+            // Asignar Categoría y Color
+            if (tvCategory != null) {
+                tvCategory.setText(item.getCategory());
+                updateCategoryColor(item.getCategory(), tvCategory);
+            }
+
+            // LÓGICA DE CLICK: Solo si hay listener, si es null no hace nada
+            if (listener != null) {
+                itemView.setOnClickListener(v -> listener.onItemClick(item, getAdapterPosition()));
+                itemView.setClickable(true);
+            } else {
+                itemView.setOnClickListener(null);
+                itemView.setClickable(false); // Desactiva el efecto visual de click
+            }
+        }
+
+        private void updateCategoryColor(String category, TextView tv) {
+            if (category == null) return;
+            switch (category.toLowerCase()) {
+                case "medioambiente": tv.setBackgroundResource(R.drawable.bg_tag_green); break;
+                case "educación": tv.setBackgroundResource(R.drawable.bg_tag_orange); break;
+                case "social": default: tv.setBackgroundResource(R.drawable.bg_tag_blue); break;
+            }
         }
     }
 
-    // --- HOLDER 2: Tarjeta Pequeña (Historial) ---
+    // --- HOLDER 2: Tarjeta Pequeña ---
     public class SmallCardHolder extends RecyclerView.ViewHolder {
         TextView tvTitle, tvOrg, tvLocation, tvStatus;
 
         public SmallCardHolder(@NonNull View itemView) {
             super(itemView);
-            // IDs del layout item_small_card_activity.xml
             tvTitle = itemView.findViewById(R.id.tvTitleHistory);
             tvOrg = itemView.findViewById(R.id.tvOrg);
             tvLocation = itemView.findViewById(R.id.tvLocation);
@@ -114,10 +130,15 @@ public class ActivitiesAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
             tvTitle.setText(item.getTitle());
             tvOrg.setText(item.getOrganization());
             tvLocation.setText(item.getLocation());
-            // Simulamos estado
             if(tvStatus != null) tvStatus.setText("FINALIZADO");
 
-            itemView.setOnClickListener(v -> listener.onItemClick(item, getAdapterPosition()));
+            if (listener != null) {
+                itemView.setOnClickListener(v -> listener.onItemClick(item, getAdapterPosition()));
+                itemView.setClickable(true);
+            } else {
+                itemView.setOnClickListener(null);
+                itemView.setClickable(false);
+            }
         }
     }
 }
