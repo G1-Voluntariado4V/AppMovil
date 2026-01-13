@@ -1,7 +1,8 @@
 package org.cuatrovientos.voluntariado4v;
 
 import android.app.AlertDialog;
-import android.content.res.ColorStateList; // IMPORTANTE: Necesario para cambiar el color del botón
+import android.content.Intent; // Necesario para el Intent
+import android.content.res.ColorStateList;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
@@ -19,7 +20,8 @@ public class DetailActivity extends AppCompatActivity {
 
     private TextView tvTitle, tvOrg, tvLocation, tvDate, tvDesc, tvPlazas, tvCategory;
     private ImageView imgHeader, btnBack;
-    private MaterialButton btnJoin;
+    private MaterialButton btnJoin, btnOrgProfile; // Añadido el botón de perfil
+    private ActivityModel currentActivity; // Variable global para acceder en los listeners
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -28,10 +30,11 @@ public class DetailActivity extends AppCompatActivity {
 
         initViews();
 
-        ActivityModel activity = (ActivityModel) getIntent().getSerializableExtra("extra_activity");
+        // Guardamos la actividad en la variable global
+        currentActivity = (ActivityModel) getIntent().getSerializableExtra("extra_activity");
 
-        if (activity != null) {
-            populateData(activity);
+        if (currentActivity != null) {
+            populateData(currentActivity);
         } else {
             Toast.makeText(this, "Error al cargar datos", Toast.LENGTH_SHORT).show();
             finish();
@@ -51,6 +54,9 @@ public class DetailActivity extends AppCompatActivity {
         tvLocation = findViewById(R.id.tvDetailLocation);
         tvOrg = findViewById(R.id.tvDetailOrg);
         tvDesc = findViewById(R.id.tvDetailDesc);
+
+        // Inicializamos el botón de ver perfil
+        btnOrgProfile = findViewById(R.id.btnOrgProfile);
     }
 
     private void populateData(ActivityModel activity) {
@@ -60,24 +66,22 @@ public class DetailActivity extends AppCompatActivity {
         if (tvDate != null) tvDate.setText(activity.getDate());
         if (tvDesc != null) tvDesc.setText(activity.getDescription());
 
-        // 1. Mostrar texto de plazas (Ej: 15/20)
+        // Mostrar plazas
         if (tvPlazas != null) {
             String plazasInfo = activity.getOccupiedSeats() + "/" + activity.getTotalSeats();
             tvPlazas.setText(plazasInfo);
         }
 
-        // 2. LÓGICA DEL BOTÓN: Comprobar si está lleno
+        // Lógica botón "Apuntarme"
         if (btnJoin != null) {
             if (activity.getOccupiedSeats() >= activity.getTotalSeats()) {
-                // CASO: ESTÁ LLENO
-                btnJoin.setEnabled(false); // Desactiva el click
+                btnJoin.setEnabled(false);
                 btnJoin.setText("Completo");
-                btnJoin.setBackgroundTintList(ColorStateList.valueOf(Color.parseColor("#98A2B3"))); // Color Gris
+                btnJoin.setBackgroundTintList(ColorStateList.valueOf(Color.parseColor("#98A2B3")));
             } else {
-                // CASO: HAY SITIO
                 btnJoin.setEnabled(true);
                 btnJoin.setText("¡Apuntarme!");
-                btnJoin.setBackgroundTintList(ColorStateList.valueOf(Color.parseColor("#4E6AF3"))); // Color Azul Original
+                btnJoin.setBackgroundTintList(ColorStateList.valueOf(Color.parseColor("#4E6AF3")));
             }
         }
 
@@ -108,14 +112,24 @@ public class DetailActivity extends AppCompatActivity {
     }
 
     private void setupListeners() {
-        // Volver atrás
         if (btnBack != null) {
             btnBack.setOnClickListener(v -> finish());
         }
 
-        // Apuntarse (Solo funcionará si está habilitado por la lógica de arriba)
         if (btnJoin != null) {
             btnJoin.setOnClickListener(v -> mostrarPopupExito());
+        }
+
+        // NUEVO: Listener para abrir el perfil de la organización
+        if (btnOrgProfile != null) {
+            btnOrgProfile.setOnClickListener(v -> {
+                if (currentActivity != null) {
+                    Intent intent = new Intent(DetailActivity.this, DetailOrg.class);
+                    // Pasamos el nombre de la organización a la siguiente pantalla
+                    intent.putExtra("ORG_NAME", currentActivity.getOrganization());
+                    startActivity(intent);
+                }
+            });
         }
     }
 

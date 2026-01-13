@@ -71,10 +71,10 @@ public class MockDataProvider {
 
     // --- NUEVOS MÉTODOS PARA PERFIL DE ORGANIZACIÓN ---
 
-    public static DetailOrg getOrganizationDetails(String orgName) {
+    public static OrganizationModel getOrganizationDetails(String orgName) {
         // Simulamos la búsqueda. Si es Amavir devolvemos sus datos.
         if (orgName != null && orgName.equalsIgnoreCase("Amavir")) {
-            return new DetailOrg(
+            return new OrganizationModel(
                     "Amavir",
                     "ORGANIZACIÓN HUMANITARIA",
                     "Somos una organización dedicada a mejorar la calidad de vida de las personas mayores y dependientes. Trabajamos con voluntarios para ofrecer compañía, apoyo y alegría a nuestros residentes.",
@@ -87,7 +87,7 @@ public class MockDataProvider {
         }
 
         // Retorno genérico para pruebas si no es Amavir
-        return new DetailOrg(
+        return new OrganizationModel(
                 "Organización",
                 "ONG",
                 "Descripción genérica de la organización.",
