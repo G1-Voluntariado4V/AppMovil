@@ -5,7 +5,7 @@
     <string name="titulo_auth_login">Tu tiempo es\nel cambio.</string>
     <string name="titulo_auth_complete_profile">Datos adicionales</string>
     <string name="descripcion_auth_complete_profile">Necesitamos unos datos adicionales para terminar de configurar tu perfil.</string>
-    <string name="ciclo_y_curso_academico">CICLO Y CURSO ACADÉMICO</string>
+    <string name="datos_academicos">DATOS ACADÉMICOS</string>
     <string name="titulo_curso">Curso</string>
     <string name="titulo_ciclo">Ciclo</string>
     <string name="titulo_sobre_ti">SOBRE TI</string>
