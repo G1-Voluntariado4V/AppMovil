@@ -1,115 +1,189 @@
 package org.cuatrovientos.voluntariado4v;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 public class MockDataProvider {
 
-    public static ArrayList<ActivityModel> getActivities() {
-        ArrayList<ActivityModel> dataList = new ArrayList<>();
+    private static List<OrganizationModel> organizations;
+    private static List<ActivityModel> activities;
 
-        // --- AÑADIDO: Actividad de Amavir para probar el perfil ---
-        dataList.add(new ActivityModel(
-                "Paseo con Mayores", "Amavir", "Residencia Amavir", "18 Jun",
-                "Acompañamiento en paseos por los jardines de la residencia para mejorar la movilidad y el ánimo de los residentes.",
-                "Social", R.drawable.amavir, // Usamos su logo o una foto genérica
-                5, 10));
-        // ----------------------------------------------------------
+    // Bloque estático para inicializar los datos una sola vez
+    static {
+        initOrganizations();
+        initActivities();
+    }
 
-        dataList.add(new ActivityModel(
-                "Gran Recogida", "Banco Alimentos", "Berriozar", "20 Jun",
-                "Colabora en la recogida anual de alimentos para las familias más necesitadas.",
-                "Social", R.drawable.activities2,
-                20, 20));
+    private static void initOrganizations() {
+        organizations = new ArrayList<>();
 
-        dataList.add(new ActivityModel(
-                "Acompañamiento", "Cruz Roja", "Pamplona", "22 Jun",
-                "Programa de acompañamiento a personas mayores que sufren soledad no deseada.",
-                "Social", R.drawable.activities1,
-                2, 5));
+        organizations.add(new OrganizationModel(
+                "Amavir",
+                "RESIDENCIA DE MAYORES",
+                "Dedicados a mejorar la calidad de vida de las personas mayores y dependientes. Buscamos dar vida a los años.",
+                "info@amavir.es",
+                R.drawable.amavir,
+                R.drawable.activities1,
+                120, 4.8));
 
-        dataList.add(new ActivityModel(
-                "Limpieza Río Arga", "GreenPeace", "Rochapea", "25 Jun",
+        organizations.add(new OrganizationModel(
+                "Banco de Alimentos",
+                "ORGANIZACIÓN BENÉFICA",
+                "Luchamos contra el hambre y el desperdicio de alimentos en nuestra comunidad mediante la recogida y distribución.",
+                "contacto@bancoalimentos.org",
+                R.drawable.squarelogo, // Placeholder
+                R.drawable.activities2,
+                350, 4.9));
+
+        organizations.add(new OrganizationModel(
+                "Cruz Roja",
+                "AYUDA HUMANITARIA",
+                "Prevenimos y aliviamos el sufrimiento humano en todas las circunstancias, protegiendo la vida y la salud.",
+                "voluntariado@cruzroja.es",
+                R.drawable.squarelogo, // Placeholder
+                R.drawable.news1,
+                500, 4.7));
+
+        organizations.add(new OrganizationModel(
+                "GreenPeace",
+                "MEDIOAMBIENTE",
+                "Utilizamos la acción directa no violenta para atraer la atención pública hacia los problemas globales del medio ambiente.",
+                "unete@greenpeace.org",
+                R.drawable.squarelogo, // Placeholder
+                R.drawable.carousel1,
+                2000, 4.5));
+
+        organizations.add(new OrganizationModel(
+                "Paris 365",
+                "COMEDOR SOLIDARIO",
+                "Garantizamos tres comidas al día a personas que no pueden acceder a ellas por razones económicas.",
+                "ayuda@paris365.org",
+                R.drawable.squarelogo, // Placeholder
+                R.drawable.carousel2,
+                80, 4.9));
+
+        organizations.add(new OrganizationModel(
+                "Solera Asistencial",
+                "TERCERA EDAD",
+                "Servicios asistenciales para la tercera edad, centrados en la atención integral y centrada en la persona.",
+                "rrhh@solera.es",
+                R.drawable.solera,
+                R.drawable.activities1,
+                95, 4.6));
+    }
+
+    private static void initActivities() {
+        activities = new ArrayList<>();
+
+        // AMAVIR
+        activities.add(new ActivityModel(
+                "Paseo con Mayores", "Amavir", "Residencia Oblatas", "18 Jun",
+                "Acompañamiento en paseos por los jardines de la residencia para mejorar la movilidad y el ánimo.",
+                "Social", R.drawable.activities1, 10, 10));
+
+        activities.add(new ActivityModel(
+                "Taller de Lectura", "Amavir", "Mutilva", "22 Jun",
+                "Lectura compartida de prensa y libros clásicos para estimular cognitivamente a los residentes.",
+                "Cultural", R.drawable.news2, 2, 5));
+
+        // BANCO DE ALIMENTOS
+        activities.add(new ActivityModel(
+                "Gran Recogida", "Banco de Alimentos", "Supermercados Varios", "20 Jun",
+                "Colabora en la recogida anual de alimentos informando a los clientes y recogiendo donaciones.",
+                "Social", R.drawable.activities2, 20, 20)); // COMPLETO
+
+        // CRUZ ROJA
+        activities.add(new ActivityModel(
+                "Acompañamiento", "Cruz Roja", "Pamplona Centro", "22 Jun",
+                "Programa de acompañamiento a personas mayores que sufren soledad no deseada en sus domicilios.",
+                "Social", R.drawable.news3, 2, 5));
+
+        activities.add(new ActivityModel(
+                "Reparto de Juguetes", "Cruz Roja", "Rochapea", "15 Dic",
+                "Clasificación y entrega de juguetes nuevos para niños de familias vulnerables.",
+                "Social", R.drawable.news4, 0, 15));
+
+        // GREENPEACE
+        activities.add(new ActivityModel(
+                "Limpieza Río Arga", "GreenPeace", "Paseo del Arga", "25 Jun",
                 "Jornada de limpieza y concienciación ambiental en las orillas del Río Arga.",
-                "Medioambiente", R.drawable.carousel1,
-                45, 50));
+                "Medioambiente", R.drawable.carousel1, 45, 50));
 
-        dataList.add(new ActivityModel(
+        // PARIS 365
+        activities.add(new ActivityModel(
                 "Clases de Apoyo", "Paris 365", "Casco Viejo", "30 Jun",
                 "Ayuda escolar a niños y niñas de primaria en riesgo de exclusión social.",
-                "Educación", R.drawable.carousel2,
-                0, 10));
+                "Educación", R.drawable.carousel2, 0, 10));
 
-        return dataList;
+        activities.add(new ActivityModel(
+                "Servicio de Cenas", "Paris 365", "Calle San Lorenzo", "Diario",
+                "Apoyo en el servicio de cenas del comedor solidario (preparación mesas y servicio).",
+                "Social", R.drawable.carousel3, 3, 3)); // COMPLETO
+
+        // SOLERA
+        activities.add(new ActivityModel(
+                "Bingo Solidario", "Solera Asistencial", "Ensanche", "05 Jul",
+                "Organización y animación de una tarde de bingo para los usuarios del centro de día.",
+                "Ocio", R.drawable.activities1, 1, 4));
+    }
+
+    // --- MÉTODOS PÚBLICOS ---
+
+    public static ArrayList<ActivityModel> getActivities() {
+        return new ArrayList<>(activities); // Devolvemos copia para proteger original
+    }
+
+    public static OrganizationModel getOrganizationDetails(String orgName) {
+        if (orgName == null) return null;
+
+        // Búsqueda insensible a mayúsculas/minúsculas
+        for (OrganizationModel org : organizations) {
+            if (org.getName().equalsIgnoreCase(orgName)) {
+                return org;
+            }
+        }
+
+        // Si no se encuentra, devolvemos una genérica para no romper la app
+        return new OrganizationModel(
+                orgName, "Organización", "Información no disponible.", "contacto@voluntariado.org",
+                R.drawable.squarelogo, R.drawable.activities1, 0, 0.0);
+    }
+
+    public static ArrayList<ActivityModel> getActivitiesByOrganization(String orgName) {
+        ArrayList<ActivityModel> filtered = new ArrayList<>();
+        if (orgName == null) return filtered;
+
+        for (ActivityModel act : activities) {
+            if (act.getOrganization().equalsIgnoreCase(orgName)) {
+                filtered.add(act);
+            }
+        }
+        return filtered;
     }
 
     public static ArrayList<ActivityModel> getMyActivities() {
         ArrayList<ActivityModel> myList = new ArrayList<>();
-        ArrayList<ActivityModel> all = getActivities();
-        // Simulamos inscripción en algunas
-        if (all.size() > 1) myList.add(all.get(1));
-        if (all.size() > 3) myList.add(all.get(3));
+        // Simulamos que el usuario está apuntado a la 1ª y la 3ª actividad
+        if (activities.size() > 0) myList.add(activities.get(0));
+        if (activities.size() > 2) myList.add(activities.get(2));
+        if (activities.size() > 5) myList.add(activities.get(5));
         return myList;
     }
 
     public static ArrayList<ActivityModel> getHistoryActivities() {
         ArrayList<ActivityModel> historyList = new ArrayList<>();
-
+        // Datos estáticos históricos
         historyList.add(new ActivityModel(
-                "Maratón Solidario", "Ayuda en Acción", "Pamplona", "10 Ene",
+                "Maratón Solidario", "Cruz Roja", "Pamplona", "10 Ene",
                 "Reparto de dorsales y avituallamiento para los corredores.",
-                "Deporte", R.drawable.activities1,
-                100, 100));
+                "Deporte", R.drawable.activities1, 100, 100));
 
         historyList.add(new ActivityModel(
                 "Reforestación", "Ayto. Pamplona", "Mendillorri", "05 Feb",
                 "Jornada de plantación de árboles autóctonos.",
-                "Medioambiente", R.drawable.carousel1,
-                20, 30));
-
+                "Medioambiente", R.drawable.carousel1, 20, 30));
         return historyList;
-    }
-
-    // --- NUEVOS MÉTODOS PARA PERFIL DE ORGANIZACIÓN ---
-
-    public static OrganizationModel getOrganizationDetails(String orgName) {
-        // Simulamos la búsqueda. Si es Amavir devolvemos sus datos.
-        if (orgName != null && orgName.equalsIgnoreCase("Amavir")) {
-            return new OrganizationModel(
-                    "Amavir",
-                    "ORGANIZACIÓN HUMANITARIA",
-                    "Somos una organización dedicada a mejorar la calidad de vida de las personas mayores y dependientes. Trabajamos con voluntarios para ofrecer compañía, apoyo y alegría a nuestros residentes.",
-                    "info@amavir.es",
-                    R.drawable.amavir,      // Logo
-                    R.drawable.activities1, // Cabecera (usamos una foto genérica existente)
-                    120,
-                    4.8
-            );
-        }
-
-        // Retorno genérico para pruebas si no es Amavir
-        return new OrganizationModel(
-                "Organización",
-                "ONG",
-                "Descripción genérica de la organización.",
-                "contacto@ong.org",
-                R.drawable.nouser,
-                R.drawable.activities2,
-                0,
-                0.0
-        );
-    }
-
-    public static ArrayList<ActivityModel> getActivitiesByOrganization(String orgName) {
-        ArrayList<ActivityModel> allActivities = getActivities();
-        ArrayList<ActivityModel> filteredList = new ArrayList<>();
-
-        if (orgName == null) return filteredList;
-
-        for (ActivityModel activity : allActivities) {
-            if (activity.getOrganization().equalsIgnoreCase(orgName)) {
-                filteredList.add(activity);
-            }
-        }
-        return filteredList;
     }
 }

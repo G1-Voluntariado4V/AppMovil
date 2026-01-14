@@ -20,7 +20,7 @@ public class DetailActivity extends AppCompatActivity {
 
     private TextView tvTitle, tvOrg, tvLocation, tvDate, tvDesc, tvPlazas, tvCategory;
     private ImageView imgHeader, btnBack;
-    private MaterialButton btnJoin, btnOrgProfile; // Añadido el botón de perfil
+    private MaterialButton btnJoin, btnOrgProfile;
     private ActivityModel currentActivity; // Variable global para acceder en los listeners
 
     @Override
@@ -120,7 +120,7 @@ public class DetailActivity extends AppCompatActivity {
             btnJoin.setOnClickListener(v -> mostrarPopupExito());
         }
 
-        // NUEVO: Listener para abrir el perfil de la organización
+        // Listener para abrir el perfil de la organización
         if (btnOrgProfile != null) {
             btnOrgProfile.setOnClickListener(v -> {
                 if (currentActivity != null) {
