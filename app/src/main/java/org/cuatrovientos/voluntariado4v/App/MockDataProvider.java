@@ -5,6 +5,8 @@ import org.cuatrovientos.voluntariado4v.Models.OrganizationModel;
 import org.cuatrovientos.voluntariado4v.R;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
 public class MockDataProvider {
@@ -28,7 +30,7 @@ public class MockDataProvider {
                 "info@amavir.es",
                 R.drawable.amavir,
                 R.drawable.activities1,
-                120, 4.8));
+                500, 4.8));
 
         organizations.add(new OrganizationModel(
                 "Banco de Alimentos",
@@ -53,7 +55,7 @@ public class MockDataProvider {
                 "MEDIOAMBIENTE",
                 "Utilizamos la acción directa no violenta para atraer la atención pública hacia los problemas globales del medio ambiente.",
                 "unete@greenpeace.org",
-                R.drawable.squarelogo, // Placeholder
+                R.drawable.news5, // Placeholder
                 R.drawable.carousel1,
                 2000, 4.5));
 
@@ -73,7 +75,7 @@ public class MockDataProvider {
                 "rrhh@solera.es",
                 R.drawable.solera,
                 R.drawable.activities1,
-                95, 4.6));
+                600, 4.6));
     }
 
     private static void initActivities() {
@@ -134,20 +136,16 @@ public class MockDataProvider {
     // --- MÉTODOS PÚBLICOS ---
 
     public static ArrayList<ActivityModel> getActivities() {
-        return new ArrayList<>(activities); // Devolvemos copia para proteger original
+        return new ArrayList<>(activities);
     }
 
     public static OrganizationModel getOrganizationDetails(String orgName) {
         if (orgName == null) return null;
-
-        // Búsqueda insensible a mayúsculas/minúsculas
         for (OrganizationModel org : organizations) {
             if (org.getName().equalsIgnoreCase(orgName)) {
                 return org;
             }
         }
-
-        // Si no se encuentra, devolvemos una genérica para no romper la app
         return new OrganizationModel(
                 orgName, "Organización", "Información no disponible.", "contacto@voluntariado.org",
                 R.drawable.squarelogo, R.drawable.activities1, 0, 0.0);
@@ -156,7 +154,6 @@ public class MockDataProvider {
     public static ArrayList<ActivityModel> getActivitiesByOrganization(String orgName) {
         ArrayList<ActivityModel> filtered = new ArrayList<>();
         if (orgName == null) return filtered;
-
         for (ActivityModel act : activities) {
             if (act.getOrganization().equalsIgnoreCase(orgName)) {
                 filtered.add(act);
@@ -167,7 +164,6 @@ public class MockDataProvider {
 
     public static ArrayList<ActivityModel> getMyActivities() {
         ArrayList<ActivityModel> myList = new ArrayList<>();
-        // Simulamos que el usuario está apuntado a la 1ª y la 3ª actividad
         if (!activities.isEmpty()) myList.add(activities.get(0));
         if (activities.size() > 2) myList.add(activities.get(2));
         if (activities.size() > 5) myList.add(activities.get(5));
@@ -176,16 +172,36 @@ public class MockDataProvider {
 
     public static ArrayList<ActivityModel> getHistoryActivities() {
         ArrayList<ActivityModel> historyList = new ArrayList<>();
-        // Datos estáticos históricos
         historyList.add(new ActivityModel(
                 "Maratón Solidario", "Cruz Roja", "Pamplona", "10 Ene",
                 "Reparto de dorsales y avituallamiento para los corredores.",
                 "Deporte", R.drawable.activities1, 100, 100));
-
         historyList.add(new ActivityModel(
                 "Reforestación", "Ayto. Pamplona", "Mendillorri", "05 Feb",
                 "Jornada de plantación de árboles autóctonos.",
                 "Medioambiente", R.drawable.carousel1, 20, 30));
         return historyList;
+    }
+
+    /**
+     * Devuelve las 3 organizaciones con mayor número de voluntarios.
+     */
+    public static List<OrganizationModel> getTopOrganizations() {
+        // Creamos una copia para no alterar el orden original si fuera necesario preservarlo
+        List<OrganizationModel> sortedList = new ArrayList<>(organizations);
+
+        // Ordenar descendente por voluntarios
+        Collections.sort(sortedList, new Comparator<OrganizationModel>() {
+            @Override
+            public int compare(OrganizationModel o1, OrganizationModel o2) {
+                return Integer.compare(o2.getVolunteersCount(), o1.getVolunteersCount());
+            }
+        });
+
+        // Devolver solo las 3 primeras (o menos si no hay suficientes)
+        if (sortedList.size() > 3) {
+            return sortedList.subList(0, 3);
+        }
+        return sortedList;
     }
 }
