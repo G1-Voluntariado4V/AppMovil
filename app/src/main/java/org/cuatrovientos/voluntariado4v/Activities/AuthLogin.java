@@ -1,14 +1,15 @@
-package org.cuatrovientos.voluntariado4v;
+package org.cuatrovientos.voluntariado4v.Activities;
 
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
-import android.widget.Button;
 
 import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.google.android.material.button.MaterialButton; // Importante para el botón de Google
+
+import org.cuatrovientos.voluntariado4v.R;
 
 public class AuthLogin extends AppCompatActivity {
 

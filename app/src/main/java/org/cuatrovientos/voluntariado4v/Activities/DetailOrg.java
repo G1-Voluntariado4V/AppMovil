@@ -1,4 +1,4 @@
-package org.cuatrovientos.voluntariado4v;
+package org.cuatrovientos.voluntariado4v.Activities;
 
 import android.content.Intent;
 import android.net.Uri;
@@ -13,6 +13,12 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.material.button.MaterialButton;
+
+import org.cuatrovientos.voluntariado4v.Adapters.ActivitiesAdapter;
+import org.cuatrovientos.voluntariado4v.App.MockDataProvider;
+import org.cuatrovientos.voluntariado4v.Models.ActivityModel;
+import org.cuatrovientos.voluntariado4v.Models.OrganizationModel;
+import org.cuatrovientos.voluntariado4v.R;
 
 import java.util.ArrayList;
 

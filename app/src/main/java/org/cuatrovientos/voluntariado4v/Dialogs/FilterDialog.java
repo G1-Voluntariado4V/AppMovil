@@ -1,4 +1,4 @@
-package org.cuatrovientos.voluntariado4v;
+package org.cuatrovientos.voluntariado4v.Dialogs;
 
 import android.app.Dialog;
 import android.graphics.Color;
@@ -17,6 +17,8 @@ import androidx.fragment.app.DialogFragment;
 
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.chip.ChipGroup;
+
+import org.cuatrovientos.voluntariado4v.R;
 
 public class FilterDialog extends DialogFragment {
 

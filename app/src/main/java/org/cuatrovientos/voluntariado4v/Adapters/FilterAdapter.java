@@ -1,4 +1,4 @@
-package org.cuatrovientos.voluntariado4v;
+package org.cuatrovientos.voluntariado4v.Adapters;
 
 import android.graphics.Color;
 import android.view.LayoutInflater;
@@ -8,6 +8,9 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 import com.google.android.material.card.MaterialCardView;
+
+import org.cuatrovientos.voluntariado4v.R;
+
 import java.util.List;
 
 public class FilterAdapter extends RecyclerView.Adapter<FilterAdapter.FilterViewHolder> {

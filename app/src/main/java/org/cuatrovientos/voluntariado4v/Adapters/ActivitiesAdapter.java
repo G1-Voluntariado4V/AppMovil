@@ -1,4 +1,4 @@
-package org.cuatrovientos.voluntariado4v;
+package org.cuatrovientos.voluntariado4v.Adapters;
 
 import android.view.LayoutInflater;
 import android.view.View;
@@ -8,6 +8,9 @@ import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
+
+import org.cuatrovientos.voluntariado4v.Models.ActivityModel;
+import org.cuatrovientos.voluntariado4v.R;
 
 import java.util.ArrayList;
 

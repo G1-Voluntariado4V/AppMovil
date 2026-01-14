@@ -1,4 +1,4 @@
-package org.cuatrovientos.voluntariado4v;
+package org.cuatrovientos.voluntariado4v.Activities;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -9,6 +9,13 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
+
+import org.cuatrovientos.voluntariado4v.Adapters.ActivitiesAdapter;
+import org.cuatrovientos.voluntariado4v.Adapters.FilterAdapter;
+import org.cuatrovientos.voluntariado4v.App.MockDataProvider;
+import org.cuatrovientos.voluntariado4v.Models.ActivityModel;
+import org.cuatrovientos.voluntariado4v.R;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;

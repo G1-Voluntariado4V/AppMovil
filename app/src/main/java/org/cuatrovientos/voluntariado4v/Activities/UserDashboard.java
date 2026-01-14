@@ -1,9 +1,12 @@
-package org.cuatrovientos.voluntariado4v;
+package org.cuatrovientos.voluntariado4v.Activities;
 
 import android.os.Bundle;
 import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
+
+import org.cuatrovientos.voluntariado4v.App.NavigationUtils;
+import org.cuatrovientos.voluntariado4v.R;
 
 public class UserDashboard extends AppCompatActivity {
 

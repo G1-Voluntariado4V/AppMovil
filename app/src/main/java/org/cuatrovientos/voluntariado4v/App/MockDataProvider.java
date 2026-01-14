@@ -1,9 +1,11 @@
-package org.cuatrovientos.voluntariado4v;
+package org.cuatrovientos.voluntariado4v.App;
+
+import org.cuatrovientos.voluntariado4v.Models.ActivityModel;
+import org.cuatrovientos.voluntariado4v.Models.OrganizationModel;
+import org.cuatrovientos.voluntariado4v.R;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 public class MockDataProvider {
 
@@ -166,7 +168,7 @@ public class MockDataProvider {
     public static ArrayList<ActivityModel> getMyActivities() {
         ArrayList<ActivityModel> myList = new ArrayList<>();
         // Simulamos que el usuario está apuntado a la 1ª y la 3ª actividad
-        if (activities.size() > 0) myList.add(activities.get(0));
+        if (!activities.isEmpty()) myList.add(activities.get(0));
         if (activities.size() > 2) myList.add(activities.get(2));
         if (activities.size() > 5) myList.add(activities.get(5));
         return myList;

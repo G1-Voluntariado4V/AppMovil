@@ -1,4 +1,4 @@
-package org.cuatrovientos.voluntariado4v;
+package org.cuatrovientos.voluntariado4v.Dialogs;
 
 import android.app.Dialog;
 import android.graphics.Color;
@@ -21,6 +21,8 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.material.button.MaterialButton;
+
+import org.cuatrovientos.voluntariado4v.R;
 
 import java.util.ArrayList;
 import java.util.List;

@@ -12,28 +12,28 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.Voluntariado4V">
         <activity
-            android:name=".DetailOrg"
+            android:name=".Activities.DetailOrg"
             android:exported="false" />
         <activity
-            android:name=".UserProfile"
+            android:name=".Activities.UserProfile"
             android:exported="false" />
         <activity
-            android:name=".DetailActivity"
+            android:name=".Activities.DetailActivity"
             android:exported="false" />
         <activity
-            android:name=".UserActivities"
+            android:name=".Activities.UserActivities"
             android:exported="false" />
         <activity
-            android:name=".UserExplore"
+            android:name=".Activities.UserExplore"
             android:exported="false" />
         <activity
-            android:name=".AuthLogin"
+            android:name=".Activities.AuthLogin"
             android:exported="false" />
         <activity
-            android:name=".AuthCompleteProfile"
+            android:name=".Activities.AuthCompleteProfile"
             android:exported="false" />
         <activity
-            android:name=".UserDashboard"
+            android:name=".Activities.UserDashboard"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />

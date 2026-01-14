@@ -1,9 +1,14 @@
-package org.cuatrovientos.voluntariado4v;
+package org.cuatrovientos.voluntariado4v.App;
 
-import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
+
+import org.cuatrovientos.voluntariado4v.Activities.UserActivities;
+import org.cuatrovientos.voluntariado4v.Activities.UserDashboard;
+import org.cuatrovientos.voluntariado4v.Activities.UserExplore;
+import org.cuatrovientos.voluntariado4v.Activities.UserProfile;
+import org.cuatrovientos.voluntariado4v.R;
 
 public class NavigationUtils {
 
