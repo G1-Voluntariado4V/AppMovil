@@ -4,32 +4,41 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.util.Log;
 import android.widget.EditText;
+import android.widget.Toast;
+
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 
-import org.cuatrovientos.voluntariado4v.Adapters.ActivitiesAdapter;
+import org.cuatrovientos.voluntariado4v.Adapters.ActividadesApiAdapter;
 import org.cuatrovientos.voluntariado4v.Adapters.FilterAdapter;
-import org.cuatrovientos.voluntariado4v.App.MockDataProvider;
-import org.cuatrovientos.voluntariado4v.Models.ActivityModel;
+import org.cuatrovientos.voluntariado4v.Models.ActividadResponse;
 import org.cuatrovientos.voluntariado4v.R;
+import org.cuatrovientos.voluntariado4v.api.ApiClient;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
+
 public class UserExplore extends AppCompatActivity {
 
-    BottomNavigationView bottomNav;
-    RecyclerView rvActivities, rvFilters;
-    EditText etSearch;
+    private static final String TAG = "UserExplore";
 
-    // Lista Maestra (Todos los datos) y variables de filtro
-    ArrayList<ActivityModel> masterList;
-    String currentSearchText = "";
-    String currentCategory = "Todos";
+    private RecyclerView rvActivities, rvFilters;
+    private EditText etSearch;
+    private ActividadesApiAdapter adapter;
+
+    private List<ActividadResponse> masterList = new ArrayList<>();
+    private String currentSearchText = "";
+    private String currentCategory = "Todos";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -37,29 +46,50 @@ public class UserExplore extends AppCompatActivity {
         setContentView(R.layout.activity_user_explore);
 
         initViews();
-        masterList = MockDataProvider.getActivities(); // Cargar datos iniciales
-
         setupNavigation();
-        setupFilters(); // Barra horizontal de categorías
-        setupSearch();  // Buscador de texto
-
-        updateList();   // Mostrar lista inicial
+        setupFilters();
+        setupSearch();
+        loadActividades();
     }
 
     private void initViews() {
         rvActivities = findViewById(R.id.rvActivities);
         rvFilters = findViewById(R.id.rvFilters);
-        etSearch = findViewById(R.id.etSearch); // Asegúrate que este ID esté en tu XML
+        etSearch = findViewById(R.id.etSearch);
+
+        rvActivities.setLayoutManager(new LinearLayoutManager(this));
+        adapter = new ActividadesApiAdapter(new ArrayList<>(), this::onActividadClick);
+        rvActivities.setAdapter(adapter);
+    }
+
+    private void loadActividades() {
+        ApiClient.getService().getActividades().enqueue(new Callback<List<ActividadResponse>>() {
+            @Override
+            public void onResponse(Call<List<ActividadResponse>> call, Response<List<ActividadResponse>> response) {
+                if (response.isSuccessful() && response.body() != null) {
+                    masterList = response.body();
+                    applyFilters();
+                    Log.d(TAG, "Cargadas " + masterList.size() + " actividades");
+                } else {
+                    Log.e(TAG, "Error: " + response.code());
+                    Toast.makeText(UserExplore.this, "Error al cargar actividades", Toast.LENGTH_SHORT).show();
+                }
+            }
+
+            @Override
+            public void onFailure(Call<List<ActividadResponse>> call, Throwable t) {
+                Log.e(TAG, "Error de conexión", t);
+                Toast.makeText(UserExplore.this, "Error de conexión con el servidor", Toast.LENGTH_SHORT).show();
+            }
+        });
     }
 
     private void setupFilters() {
         List<String> categories = Arrays.asList("Todos", "Social", "Medioambiente", "Educación", "Deporte");
         rvFilters.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false));
-
-        // Reutilizamos el FilterAdapter
         FilterAdapter filterAdapter = new FilterAdapter(categories, category -> {
             currentCategory = category;
-            updateList();
+            applyFilters();
         });
         rvFilters.setAdapter(filterAdapter);
     }
@@ -67,57 +97,56 @@ public class UserExplore extends AppCompatActivity {
     private void setupSearch() {
         etSearch.addTextChangedListener(new TextWatcher() {
             @Override
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+            }
+
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
                 currentSearchText = s.toString().toLowerCase();
-                updateList();
+                applyFilters();
             }
+
             @Override
-            public void afterTextChanged(Editable s) {}
+            public void afterTextChanged(Editable s) {
+            }
         });
     }
 
-    private void updateList() {
-        ArrayList<ActivityModel> filteredList = new ArrayList<>();
-
-        for (ActivityModel item : masterList) {
-            boolean matchesSearch = item.getTitle().toLowerCase().contains(currentSearchText);
-            boolean matchesCategory = currentCategory.equals("Todos") || item.getCategory().equalsIgnoreCase(currentCategory);
-
+    private void applyFilters() {
+        List<ActividadResponse> filtered = new ArrayList<>();
+        for (ActividadResponse item : masterList) {
+            boolean matchesSearch = item.getTitulo().toLowerCase().contains(currentSearchText);
+            boolean matchesCategory = currentCategory.equals("Todos");
             if (matchesSearch && matchesCategory) {
-                filteredList.add(item);
+                filtered.add(item);
             }
         }
+        adapter.updateData(filtered);
+    }
 
-        rvActivities.setLayoutManager(new LinearLayoutManager(this));
-
-        // Configurar adaptador con click listener para ir al detalle
-        ActivitiesAdapter adapter = new ActivitiesAdapter(filteredList, ActivitiesAdapter.TYPE_BIG_CARD, (item, position) -> {
-            Intent intent = new Intent(UserExplore.this, DetailActivity.class);
-            intent.putExtra("extra_activity", item);
-            startActivity(intent);
-        });
-
-        rvActivities.setAdapter(adapter);
+    private void onActividadClick(ActividadResponse actividad, int position) {
+        Intent intent = new Intent(this, DetailActivity.class);
+        intent.putExtra("actividad", actividad);
+        startActivity(intent);
     }
 
     private void setupNavigation() {
-        bottomNav = findViewById(R.id.bottomNavigation);
+        BottomNavigationView bottomNav = findViewById(R.id.bottomNavigation);
         bottomNav.setSelectedItemId(R.id.nav_explore);
         bottomNav.setOnItemSelectedListener(item -> {
             int itemId = item.getItemId();
-            if (itemId == R.id.nav_explore) return true;
+            if (itemId == R.id.nav_explore)
+                return true;
             if (itemId == R.id.nav_home) {
-                startActivity(new Intent(getApplicationContext(), UserDashboard.class));
+                startActivity(new Intent(this, UserDashboard.class));
                 overridePendingTransition(0, 0);
                 return true;
             } else if (itemId == R.id.nav_activities) {
-                startActivity(new Intent(getApplicationContext(), UserActivities.class));
+                startActivity(new Intent(this, UserActivities.class));
                 overridePendingTransition(0, 0);
                 return true;
             } else if (itemId == R.id.nav_profile) {
-                startActivity(new Intent(getApplicationContext(), UserProfile.class));
+                startActivity(new Intent(this, UserProfile.class));
                 overridePendingTransition(0, 0);
                 return true;
             }

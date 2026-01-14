@@ -1,0 +1,104 @@
+package org.cuatrovientos.voluntariado4v.Adapters;
+
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.ImageView;
+import android.widget.TextView;
+
+import androidx.annotation.NonNull;
+import androidx.recyclerview.widget.RecyclerView;
+
+import com.bumptech.glide.Glide;
+
+import org.cuatrovientos.voluntariado4v.Models.ActividadResponse;
+import org.cuatrovientos.voluntariado4v.R;
+
+import java.util.ArrayList;
+import java.util.List;
+
+public class ActividadesApiAdapter extends RecyclerView.Adapter<ActividadesApiAdapter.ViewHolder> {
+
+    private List<ActividadResponse> actividades;
+    private OnItemClickListener listener;
+
+    public interface OnItemClickListener {
+        void onItemClick(ActividadResponse actividad, int position);
+    }
+
+    public ActividadesApiAdapter(List<ActividadResponse> actividades, OnItemClickListener listener) {
+        this.actividades = actividades != null ? actividades : new ArrayList<>();
+        this.listener = listener;
+    }
+
+    @NonNull
+    @Override
+    public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+        View view = LayoutInflater.from(parent.getContext())
+                .inflate(R.layout.item_big_card_activity, parent, false);
+        return new ViewHolder(view);
+    }
+
+    @Override
+    public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
+        holder.bind(actividades.get(position), listener);
+    }
+
+    @Override
+    public int getItemCount() {
+        return actividades.size();
+    }
+
+    public void updateData(List<ActividadResponse> newData) {
+        this.actividades = newData != null ? newData : new ArrayList<>();
+        notifyDataSetChanged();
+    }
+
+    static class ViewHolder extends RecyclerView.ViewHolder {
+        TextView tvTitle, tvOrg, tvLocation, tvDate, tvDesc, tvCategory;
+        ImageView imgLogo;
+
+        ViewHolder(@NonNull View itemView) {
+            super(itemView);
+            tvTitle = itemView.findViewById(R.id.tvTitle);
+            tvOrg = itemView.findViewById(R.id.tvOrgName);
+            tvLocation = itemView.findViewById(R.id.tvLocation);
+            tvDate = itemView.findViewById(R.id.tvDate);
+            tvDesc = itemView.findViewById(R.id.tvDesc);
+            imgLogo = itemView.findViewById(R.id.imgLogo);
+            tvCategory = itemView.findViewById(R.id.tvTagCategory);
+        }
+
+        void bind(ActividadResponse item, OnItemClickListener listener) {
+            tvTitle.setText(item.getTitulo());
+            tvOrg.setText(item.getNombreOrganizacion());
+            tvLocation.setText(item.getUbicacion());
+            tvDate.setText(formatFecha(item.getFechaInicio()));
+            if (tvDesc != null)
+                tvDesc.setText(item.getDescripcion());
+
+            Glide.with(itemView.getContext())
+                    .load(item.getImageUrl())
+                    .placeholder(R.drawable.squarelogo)
+                    .into(imgLogo);
+
+            if (tvCategory != null) {
+                tvCategory.setText(item.getDuracionHoras() + "h");
+            }
+
+            if (listener != null) {
+                itemView.setOnClickListener(v -> listener.onItemClick(item, getAdapterPosition()));
+            }
+        }
+
+        private String formatFecha(String fechaCompleta) {
+            if (fechaCompleta == null || fechaCompleta.isEmpty())
+                return "";
+            try {
+                return fechaCompleta.substring(0, 10);
+            } catch (Exception e) {
+                return fechaCompleta;
+            }
+        }
+    }
+}

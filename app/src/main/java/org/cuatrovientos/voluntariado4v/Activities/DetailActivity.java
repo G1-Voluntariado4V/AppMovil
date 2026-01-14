@@ -1,7 +1,7 @@
 package org.cuatrovientos.voluntariado4v.Activities;
 
 import android.app.AlertDialog;
-import android.content.Intent; // Necesario para el Intent
+import android.content.Intent;
 import android.content.res.ColorStateList;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
@@ -14,9 +14,11 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
+
+import com.bumptech.glide.Glide;
 import com.google.android.material.button.MaterialButton;
 
-import org.cuatrovientos.voluntariado4v.Models.ActivityModel;
+import org.cuatrovientos.voluntariado4v.Models.ActividadResponse;
 import org.cuatrovientos.voluntariado4v.R;
 
 public class DetailActivity extends AppCompatActivity {
@@ -24,7 +26,7 @@ public class DetailActivity extends AppCompatActivity {
     private TextView tvTitle, tvOrg, tvLocation, tvDate, tvDesc, tvPlazas, tvCategory;
     private ImageView imgHeader, btnBack;
     private MaterialButton btnJoin, btnOrgProfile;
-    private ActivityModel currentActivity; // Variable global para acceder en los listeners
+    private ActividadResponse currentActivity;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -33,8 +35,7 @@ public class DetailActivity extends AppCompatActivity {
 
         initViews();
 
-        // Guardamos la actividad en la variable global
-        currentActivity = (ActivityModel) getIntent().getSerializableExtra("extra_activity");
+        currentActivity = (ActividadResponse) getIntent().getSerializableExtra("actividad");
 
         if (currentActivity != null) {
             populateData(currentActivity);
@@ -57,27 +58,28 @@ public class DetailActivity extends AppCompatActivity {
         tvLocation = findViewById(R.id.tvDetailLocation);
         tvOrg = findViewById(R.id.tvDetailOrg);
         tvDesc = findViewById(R.id.tvDetailDesc);
-
-        // Inicializamos el botón de ver perfil
         btnOrgProfile = findViewById(R.id.btnOrgProfile);
     }
 
-    private void populateData(ActivityModel activity) {
-        if (tvTitle != null) tvTitle.setText(activity.getTitle());
-        if (tvOrg != null) tvOrg.setText(activity.getOrganization());
-        if (tvLocation != null) tvLocation.setText(activity.getLocation());
-        if (tvDate != null) tvDate.setText(activity.getDate());
-        if (tvDesc != null) tvDesc.setText(activity.getDescription());
+    private void populateData(ActividadResponse activity) {
+        if (tvTitle != null)
+            tvTitle.setText(activity.getTitulo());
+        if (tvOrg != null)
+            tvOrg.setText(activity.getNombreOrganizacion());
+        if (tvLocation != null)
+            tvLocation.setText(activity.getUbicacion());
+        if (tvDate != null)
+            tvDate.setText(formatFecha(activity.getFechaInicio()));
+        if (tvDesc != null)
+            tvDesc.setText(activity.getDescripcion());
 
-        // Mostrar plazas
         if (tvPlazas != null) {
-            String plazasInfo = activity.getOccupiedSeats() + "/" + activity.getTotalSeats();
+            String plazasInfo = activity.getInscritosConfirmados() + "/" + activity.getCupoMaximo();
             tvPlazas.setText(plazasInfo);
         }
 
-        // Lógica botón "Apuntarme"
         if (btnJoin != null) {
-            if (activity.getOccupiedSeats() >= activity.getTotalSeats()) {
+            if (!activity.hayPlazasDisponibles()) {
                 btnJoin.setEnabled(false);
                 btnJoin.setText("Completo");
                 btnJoin.setBackgroundTintList(ColorStateList.valueOf(Color.parseColor("#98A2B3")));
@@ -89,28 +91,24 @@ public class DetailActivity extends AppCompatActivity {
         }
 
         if (tvCategory != null) {
-            tvCategory.setText(activity.getCategory());
-            updateCategoryColor(activity.getCategory());
+            tvCategory.setText(activity.getDuracionHoras() + "h");
         }
 
-        if (imgHeader != null && activity.getImageResource() != 0) {
-            imgHeader.setImageResource(activity.getImageResource());
+        if (imgHeader != null) {
+            Glide.with(this)
+                    .load(activity.getImageUrl())
+                    .placeholder(R.drawable.squarelogo)
+                    .into(imgHeader);
         }
     }
 
-    private void updateCategoryColor(String category) {
-        if (category == null) return;
-        switch (category.toLowerCase()) {
-            case "medioambiente":
-                tvCategory.setBackgroundResource(R.drawable.bg_tag_green);
-                break;
-            case "educación":
-                tvCategory.setBackgroundResource(R.drawable.bg_tag_orange);
-                break;
-            case "social":
-            default:
-                tvCategory.setBackgroundResource(R.drawable.bg_tag_blue);
-                break;
+    private String formatFecha(String fechaCompleta) {
+        if (fechaCompleta == null || fechaCompleta.isEmpty())
+            return "";
+        try {
+            return fechaCompleta.substring(0, 10);
+        } catch (Exception e) {
+            return fechaCompleta;
         }
     }
 
@@ -123,13 +121,11 @@ public class DetailActivity extends AppCompatActivity {
             btnJoin.setOnClickListener(v -> mostrarPopupExito());
         }
 
-        // Listener para abrir el perfil de la organización
         if (btnOrgProfile != null) {
             btnOrgProfile.setOnClickListener(v -> {
                 if (currentActivity != null) {
                     Intent intent = new Intent(DetailActivity.this, DetailOrg.class);
-                    // Pasamos el nombre de la organización a la siguiente pantalla
-                    intent.putExtra("ORG_NAME", currentActivity.getOrganization());
+                    intent.putExtra("ORG_NAME", currentActivity.getNombreOrganizacion());
                     startActivity(intent);
                 }
             });

@@ -1,5 +1,6 @@
 plugins {
     alias(libs.plugins.android.application)
+    id("com.google.gms.google-services")
 }
 
 android {
@@ -50,6 +51,9 @@ dependencies {
     implementation(platform("com.google.firebase:firebase-bom:33.0.0"))
     implementation("com.google.firebase:firebase-auth")
 
-    // Google Sign-In (para mostrar el selector de cuentas)
+    // Google Sign-In
     implementation("com.google.android.gms:play-services-auth:21.0.0")
+
+    // Glide - Cargar imágenes desde URL
+    implementation("com.github.bumptech.glide:glide:4.16.0")
 }
