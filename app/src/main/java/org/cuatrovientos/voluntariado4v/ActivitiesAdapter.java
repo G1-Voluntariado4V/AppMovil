@@ -157,4 +157,10 @@ public class ActivitiesAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
             }
         }
     }
+
+    // Metodo para actualizar la lista al filtrar
+    public void updateData(ArrayList<ActivityModel> newList) {
+        this.listData = newList;
+        notifyDataSetChanged();
+    }
 }
