@@ -5,127 +5,116 @@ import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.widget.EditText;
-
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
-
 import com.google.android.material.bottomnavigation.BottomNavigationView;
-
 import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.Arrays;
+import java.util.List;
 
 public class UserExplore extends AppCompatActivity {
 
-    private RecyclerView rvActivities, rvFilters;
-    private ActivitiesAdapter activitiesAdapter;
-    private ArrayList<ActivityModel> allActivities;
-    private ArrayList<String> categoryList;
+    BottomNavigationView bottomNav;
+    RecyclerView rvActivities, rvFilters;
+    EditText etSearch;
 
-    // Variables de estado para combinar filtros
-    private String currentCategory = "Todo";
-    private String currentSearchText = "";
+    // Lista Maestra (Todos los datos) y variables de filtro
+    ArrayList<ActivityModel> masterList;
+    String currentSearchText = "";
+    String currentCategory = "Todos";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_user_explore);
 
-        // 1. Navegación
-        BottomNavigationView bottomNav = findViewById(R.id.bottomNavigation);
-        NavigationUtils.setupNavigation(this, bottomNav, R.id.nav_explore);
+        initViews();
+        masterList = MockDataProvider.getActivities(); // Cargar datos iniciales
 
-        // 2. Cargar datos
-        allActivities = MockDataProvider.getActivities();
+        setupNavigation();
+        setupFilters(); // Barra horizontal de categorías
+        setupSearch();  // Buscador de texto
 
-        // 3. Configurar RecyclerView de Actividades
+        updateList();   // Mostrar lista inicial
+    }
+
+    private void initViews() {
         rvActivities = findViewById(R.id.rvActivities);
-        rvActivities.setLayoutManager(new LinearLayoutManager(this));
-
-        activitiesAdapter = new ActivitiesAdapter(allActivities, ActivitiesAdapter.TYPE_BIG_CARD, (item, position) -> {
-            Intent intent = new Intent(UserExplore.this, DetailActivity.class);
-            intent.putExtra("extra_activity", item);
-            startActivity(intent);
-        });
-        rvActivities.setAdapter(activitiesAdapter);
-
-        // 4. Configurar Filtros
-        setupFilters();
-        setupSearch();
+        rvFilters = findViewById(R.id.rvFilters);
+        etSearch = findViewById(R.id.etSearch); // Asegúrate que este ID esté en tu XML
     }
 
     private void setupFilters() {
-        rvFilters = findViewById(R.id.rvFilters);
-
-        // Generar categorías únicas
-        categoryList = new ArrayList<>();
-        categoryList.add("Todo");
-
-        Set<String> uniqueCategories = new HashSet<>();
-        for (ActivityModel activity : allActivities) {
-            if (activity.getCategory() != null) {
-                uniqueCategories.add(activity.getCategory());
-            }
-        }
-        categoryList.addAll(uniqueCategories);
-
-        CategoriesAdapter categoriesAdapter = new CategoriesAdapter(categoryList, category -> {
-            currentCategory = category;
-            applyFilters(); // Aplicamos ambos filtros
-        });
-
+        List<String> categories = Arrays.asList("Todos", "Social", "Medioambiente", "Educación", "Deporte");
         rvFilters.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false));
-        rvFilters.setAdapter(categoriesAdapter);
+
+        // Reutilizamos el FilterAdapter
+        FilterAdapter filterAdapter = new FilterAdapter(categories, category -> {
+            currentCategory = category;
+            updateList();
+        });
+        rvFilters.setAdapter(filterAdapter);
     }
 
     private void setupSearch() {
-        // Buscamos el EditText dentro del layout de búsqueda
-        // Nota: Si usas el XML anterior, el EditText es el segundo hijo del LinearLayout 'searchContainer'
-        // Lo ideal es darle ID al EditText en el XML, pero esto funcionará con tu código actual
-        EditText etSearch = findViewById(R.id.searchContainer).getClass().equals(EditText.class) ?
-                (EditText) findViewById(R.id.searchContainer) :
-                (EditText) ((android.view.ViewGroup)findViewById(R.id.searchContainer)).getChildAt(1);
-
-        if (etSearch != null) {
-            etSearch.addTextChangedListener(new TextWatcher() {
-                @Override
-                public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
-
-                @Override
-                public void onTextChanged(CharSequence s, int start, int before, int count) {
-                    currentSearchText = s.toString().toLowerCase().trim();
-                    applyFilters(); // Aplicamos ambos filtros cada vez que se escribe
-                }
-
-                @Override
-                public void afterTextChanged(Editable s) {}
-            });
-        }
+        etSearch.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                currentSearchText = s.toString().toLowerCase();
+                updateList();
+            }
+            @Override
+            public void afterTextChanged(Editable s) {}
+        });
     }
 
-    /**
-     * Aplica la combinación de Categoría + Búsqueda
-     */
-    private void applyFilters() {
+    private void updateList() {
         ArrayList<ActivityModel> filteredList = new ArrayList<>();
 
-        for (ActivityModel item : allActivities) {
-            // 1. Comprobar Categoría
-            boolean matchesCategory = currentCategory.equals("Todo") ||
-                    item.getCategory().equalsIgnoreCase(currentCategory);
+        for (ActivityModel item : masterList) {
+            boolean matchesSearch = item.getTitle().toLowerCase().contains(currentSearchText);
+            boolean matchesCategory = currentCategory.equals("Todos") || item.getCategory().equalsIgnoreCase(currentCategory);
 
-            // 2. Comprobar Texto (Buscamos en título u organización)
-            boolean matchesSearch = currentSearchText.isEmpty() ||
-                    item.getTitle().toLowerCase().contains(currentSearchText) ||
-                    item.getOrganization().toLowerCase().contains(currentSearchText);
-
-            // 3. Si cumple AMBAS, se añade
-            if (matchesCategory && matchesSearch) {
+            if (matchesSearch && matchesCategory) {
                 filteredList.add(item);
             }
         }
 
-        activitiesAdapter.updateData(filteredList);
+        rvActivities.setLayoutManager(new LinearLayoutManager(this));
+
+        // Configurar adaptador con click listener para ir al detalle
+        ActivitiesAdapter adapter = new ActivitiesAdapter(filteredList, ActivitiesAdapter.TYPE_BIG_CARD, (item, position) -> {
+            Intent intent = new Intent(UserExplore.this, DetailActivity.class);
+            intent.putExtra("extra_activity", item);
+            startActivity(intent);
+        });
+
+        rvActivities.setAdapter(adapter);
+    }
+
+    private void setupNavigation() {
+        bottomNav = findViewById(R.id.bottomNavigation);
+        bottomNav.setSelectedItemId(R.id.nav_explore);
+        bottomNav.setOnItemSelectedListener(item -> {
+            int itemId = item.getItemId();
+            if (itemId == R.id.nav_explore) return true;
+            if (itemId == R.id.nav_home) {
+                startActivity(new Intent(getApplicationContext(), UserDashboard.class));
+                overridePendingTransition(0, 0);
+                return true;
+            } else if (itemId == R.id.nav_activities) {
+                startActivity(new Intent(getApplicationContext(), UserActivities.class));
+                overridePendingTransition(0, 0);
+                return true;
+            } else if (itemId == R.id.nav_profile) {
+                startActivity(new Intent(getApplicationContext(), UserProfile.class));
+                overridePendingTransition(0, 0);
+                return true;
+            }
+            return false;
+        });
     }
 }

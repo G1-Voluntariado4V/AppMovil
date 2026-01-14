@@ -163,4 +163,8 @@ public class ActivitiesAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
         this.listData = newList;
         notifyDataSetChanged();
     }
+
+    public ArrayList<ActivityModel> getDataList() {
+        return listData;
+    }
 }
