@@ -155,14 +155,14 @@
                             android:id="@+id/tvStatRating"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="4.8"
+                            android:text="5"
                             android:textStyle="bold"
                             android:textSize="20sp"
                             android:textColor="#101828"/>
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="VALORACIÓN"
+                            android:text="RANKING"
                             android:textSize="10sp"
                             android:textColor="#98A2B3"
                             android:textStyle="bold"

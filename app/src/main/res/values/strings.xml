@@ -9,7 +9,7 @@
     <string name="titulo_curso">Curso</string>
     <string name="titulo_ciclo">Ciclo</string>
     <string name="titulo_sobre_ti">SOBRE TI</string>
-    <string name="titulo_idiomas">Idiomas</string>
+    <string name="titulo_idioma_nativo">Idioma Nativo</string>
     <string name="titulo_ultimo_paso">ÚLTIMO PASO</string>
     <string name="titulo_habilidades_y_transporte"><![CDATA[HABILIDADES & TRANSPORTE]]></string>
     <string name="titulo_tienes_coche">¿Tienes coche?</string>

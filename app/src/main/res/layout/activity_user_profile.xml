@@ -171,26 +171,62 @@
                             </LinearLayout>
                         </LinearLayout>
 
-                        <TextView
-                            android:text="DNI / Documento"
-                            android:textColor="#344054"
-                            android:textSize="12sp"
-                            android:layout_marginTop="16dp"
-                            android:layout_marginBottom="6dp"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"/>
-
-                        <EditText
-                            android:text="12345678A"
-                            android:textColor="#101828"
-                            android:textSize="14sp"
-                            android:background="@drawable/bg_circle_white"
-                            android:padding="10dp"
+                        <LinearLayout
                             android:layout_width="match_parent"
-                            android:layout_height="wrap_content"/>
+                            android:layout_height="wrap_content"
+                            android:orientation="horizontal"
+                            android:layout_marginTop="16dp">
+
+                            <LinearLayout
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_marginEnd="6dp"
+                                android:layout_weight="1"
+                                android:orientation="vertical">
+                                <TextView
+                                    android:text="DNI / Documento"
+                                    android:textColor="#344054"
+                                    android:textSize="12sp"
+                                    android:layout_marginBottom="6dp"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"/>
+                                <EditText
+                                    android:text="12345678A"
+                                    android:textColor="#101828"
+                                    android:textSize="14sp"
+                                    android:background="@drawable/bg_circle_white"
+                                    android:padding="10dp"
+                                    android:layout_width="match_parent"
+                                    android:layout_height="wrap_content"/>
+                            </LinearLayout>
+
+                            <LinearLayout
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_marginStart="6dp"
+                                android:layout_weight="1"
+                                android:orientation="vertical">
+                                <TextView
+                                    android:text="Teléfono"
+                                    android:textColor="#344054"
+                                    android:textSize="12sp"
+                                    android:layout_marginBottom="6dp"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"/>
+                                <EditText
+                                    android:text="+34 635147895"
+                                    android:textColor="#101828"
+                                    android:textSize="14sp"
+                                    android:background="@drawable/bg_circle_white"
+                                    android:padding="10dp"
+                                    android:inputType="phone"
+                                    android:layout_width="match_parent"
+                                    android:layout_height="wrap_content"/>
+                            </LinearLayout>
+                        </LinearLayout>
 
                         <TextView
-                            android:text="Teléfono"
+                            android:text="Fecha de Nacimiento"
                             android:textColor="#344054"
                             android:textSize="12sp"
                             android:layout_marginTop="16dp"
@@ -199,14 +235,17 @@
                             android:layout_height="wrap_content"/>
 
                         <EditText
-                            android:text="+34 600 123 456"
+                            android:id="@+id/etFechaNacimiento"
+                            android:text="12/06/1990"
                             android:textColor="#101828"
                             android:textSize="14sp"
                             android:background="@drawable/bg_circle_white"
                             android:padding="10dp"
-                            android:drawableStart="@drawable/ic_phone"
+                            android:drawableEnd="@drawable/ic_history"
                             android:drawableTint="#4E6AF3"
                             android:drawablePadding="8dp"
+                            android:clickable="true"
+                            android:focusable="false"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"/>
 
@@ -307,7 +346,8 @@
                         <com.google.android.material.switchmaterial.SwitchMaterial
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:checked="false" />
+                            android:checked="true"
+                            app:thumbTint="@color/switch_selector" />
                     </LinearLayout>
                 </com.google.android.material.card.MaterialCardView>
 
