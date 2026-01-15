@@ -85,7 +85,7 @@ public class UserExplore extends AppCompatActivity {
     }
 
     private void setupFilters() {
-        List<String> categories = Arrays.asList("Todos", "Social", "Medioambiente", "Educación", "Deporte");
+        List<String> categories = Arrays.asList("Todos", "Social", "Medioambiente", "Educación", "Deporte", "General");
         rvFilters.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false));
         FilterAdapter filterAdapter = new FilterAdapter(categories, category -> {
             currentCategory = category;
@@ -116,12 +116,18 @@ public class UserExplore extends AppCompatActivity {
         List<ActividadResponse> filtered = new ArrayList<>();
         for (ActividadResponse item : masterList) {
             boolean matchesSearch = item.getTitulo().toLowerCase().contains(currentSearchText);
-            boolean matchesCategory = currentCategory.equals("Todos");
+
+            // Usamos contains para coincidir con tipos parciales (ej: "Medioambiente"
+            // coincide con "Medioambiente tecnologico digital")
+            boolean matchesCategory = currentCategory.equals("Todos") ||
+                    (item.getTipo() != null && item.getTipo().toLowerCase().contains(currentCategory.toLowerCase()));
+
             if (matchesSearch && matchesCategory) {
                 filtered.add(item);
             }
         }
         adapter.updateData(filtered);
+        Log.d(TAG, "Filtrados: " + filtered.size() + " de " + masterList.size() + " (cat=" + currentCategory + ")");
     }
 
     private void onActividadClick(ActividadResponse actividad, int position) {

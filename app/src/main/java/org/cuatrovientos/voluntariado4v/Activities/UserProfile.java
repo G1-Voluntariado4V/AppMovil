@@ -1,12 +1,13 @@
 package org.cuatrovientos.voluntariado4v.Activities;
 
 import android.app.DatePickerDialog;
+import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.text.InputType;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -18,28 +19,40 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.google.android.gms.auth.api.signin.GoogleSignIn;
+import com.google.android.gms.auth.api.signin.GoogleSignInClient;
+import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.switchmaterial.SwitchMaterial;
 
-import org.cuatrovientos.voluntariado4v.App.MockDataProvider;
 import org.cuatrovientos.voluntariado4v.App.NavigationUtils;
 import org.cuatrovientos.voluntariado4v.Dialogs.LanguageDialog;
+import org.cuatrovientos.voluntariado4v.Models.VoluntarioResponse;
 import org.cuatrovientos.voluntariado4v.R;
+import org.cuatrovientos.voluntariado4v.api.ApiClient;
 
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
 
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
+
 public class UserProfile extends AppCompatActivity implements LanguageDialog.OnLanguagesSavedListener {
+
+    private static final String TAG = "UserProfile";
 
     // Vistas de Header
     private TextView tvUserName, tvUserRole;
+    private ImageView btnLogout;
 
     // Campos de Información Personal
     private EditText etNombre, etApellidos, etDni, etTelefono, etFechaNacimiento;
     private ImageView btnEditInfo;
     private boolean isEditingInfo = false;
 
-    // Campos de Observaciones
+    // Campos de Observaciones (Solo visual, no API)
     private EditText etObservaciones;
     private ImageView btnEditObs;
     private boolean isEditingObs = false;
@@ -47,10 +60,13 @@ public class UserProfile extends AppCompatActivity implements LanguageDialog.OnL
     // Info Adicional
     private SwitchMaterial switchCoche;
 
-    // Idiomas
+    // Idiomas (Vacío por ahora, API no provee)
     private RecyclerView rvLanguages;
     private ImageView btnEditLanguage;
     private SimpleLanguageAdapter languageAdapter;
+    private List<String> listaIdiomas = new ArrayList<>();
+
+    private GoogleSignInClient googleSignInClient;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -58,15 +74,22 @@ public class UserProfile extends AppCompatActivity implements LanguageDialog.OnL
         EdgeToEdge.enable(this);
         setContentView(R.layout.activity_user_profile);
 
+        setupGoogleSignIn();
         initViews();
         setupNavigation();
         setupDatePicker();
 
-        // Cargar datos iniciales
-        loadUserData();
+        // Cargar datos reales de la API
+        loadUserDataFromApi();
 
-        // Configurar botones de edición
         setupEditLogic();
+    }
+
+    private void setupGoogleSignIn() {
+        GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
+                .requestEmail()
+                .build();
+        googleSignInClient = GoogleSignIn.getClient(this, gso);
     }
 
     private void initViews() {
@@ -87,150 +110,186 @@ public class UserProfile extends AppCompatActivity implements LanguageDialog.OnL
 
         rvLanguages = findViewById(R.id.rvLanguages);
         btnEditLanguage = findViewById(R.id.btnEditLanguage);
+
+        View btnLogoutView = findViewById(R.id.btnLogout);
+        if (btnLogoutView != null) {
+            btnLogoutView.setOnClickListener(v -> logout());
+        }
     }
 
-    private void loadUserData() {
-        MockDataProvider.MockUser user = MockDataProvider.getLoggedUser();
+    private void loadUserDataFromApi() {
+        SharedPreferences prefs = getSharedPreferences("VoluntariadoPrefs", MODE_PRIVATE);
+        int userId = prefs.getInt("user_id", -1);
+        String savedRole = prefs.getString("rol", "Voluntario");
 
-        // Header
-        tvUserName.setText(user.nombre + " " + user.apellidos);
-        tvUserRole.setText(user.rol);
+        Log.d(TAG, "Cargando perfil para userId=" + userId);
+        tvUserRole.setText(savedRole);
 
-        // Info Personal
-        etNombre.setText(user.nombre);
-        etApellidos.setText(user.apellidos);
-        etDni.setText(user.dni);
-        etTelefono.setText(user.telefono);
-        etFechaNacimiento.setText(user.fechaNacimiento);
+        if (userId != -1) {
+            ApiClient.getService().getVoluntario(userId).enqueue(new Callback<VoluntarioResponse>() {
+                @Override
+                public void onResponse(Call<VoluntarioResponse> call, Response<VoluntarioResponse> response) {
+                    Log.d(TAG, "Respuesta API: code=" + response.code());
+                    if (response.isSuccessful() && response.body() != null) {
+                        VoluntarioResponse user = response.body();
+                        Log.d(TAG,
+                                "Datos recibidos: nombre=" + user.getNombre() + ", apellidos=" + user.getApellidos());
+                        populateData(user);
+                    } else if (response.code() == 404) {
+                        Log.w(TAG, "Perfil 404 - No existe. Redirigiendo a completar perfil.");
+                        Toast.makeText(UserProfile.this, "Perfil no encontrado. Completa tus datos.", Toast.LENGTH_LONG)
+                                .show();
+                        Intent intent = new Intent(UserProfile.this, AuthCompleteProfile.class);
+                        startActivity(intent);
+                        finish();
+                    } else {
+                        Log.e(TAG, "Error API: " + response.code() + " - " + response.message());
+                        Toast.makeText(UserProfile.this, "Error cargando perfil: " + response.code(),
+                                Toast.LENGTH_SHORT).show();
+                    }
+                }
 
-        // Observaciones
-        etObservaciones.setText(user.observaciones);
+                @Override
+                public void onFailure(Call<VoluntarioResponse> call, Throwable t) {
+                    Log.e(TAG, "Fallo red perfil", t);
+                    Toast.makeText(UserProfile.this, "Sin conexión. Mostrando caché local...", Toast.LENGTH_SHORT)
+                            .show();
+                }
+            });
+        } else {
+            Log.e(TAG, "userId es -1, no se puede cargar perfil");
+            Toast.makeText(this, "Sesión inválida. Por favor, inicia sesión.", Toast.LENGTH_LONG).show();
+        }
+    }
 
-        // Coche
-        switchCoche.setChecked(user.cochePropio);
+    private void populateData(VoluntarioResponse user) {
+        tvUserName.setText(user.getNombreCompleto());
+        etNombre.setText(user.getNombre());
+        etApellidos.setText(user.getApellidos());
+        etDni.setText(user.getDni());
+        etTelefono.setText(user.getTelefono());
 
-        // Idiomas
-        setupLanguagesRecycler(user.idiomas);
+        // Formatear fecha para visualización (YYYY-MM-DD -> DD/MM/YYYY)
+        etFechaNacimiento.setText(formatDateForDisplay(user.getFechaNac()));
 
-        // Asegurar estado inicial (bloqueado)
+        switchCoche.setChecked(user.isCarnetConducir());
+
+        // Campos no disponibles en API (Observaciones / Idiomas) -> Vacíos
+        etObservaciones.setText("");
+        setupLanguagesRecycler(new ArrayList<>());
+
+        // Bloquear edición al inicio
         setFieldsEnabled(false, etNombre, etApellidos, etDni, etTelefono, etFechaNacimiento);
         setFieldsEnabled(false, etObservaciones);
-        switchCoche.setEnabled(false); // Asumimos que también se bloquea hasta editar algo, o se deja libre.
-        // Si quieres que el switch sea editable solo con botón, habría que añadir un botón para esa sección o meterlo en Info Personal.
-        // Por simplicidad, lo dejaremos habilitado siempre o lo vincularemos a Info Personal.
-        switchCoche.setEnabled(true);
+        switchCoche.setEnabled(false);
+    }
+
+    private String formatDateForDisplay(String apiDate) {
+        // API: 2000-12-25 -> Display: 25/12/2000
+        if (apiDate == null || !apiDate.contains("-"))
+            return apiDate;
+        try {
+            String[] parts = apiDate.split("-");
+            if (parts.length == 3) {
+                return parts[2] + "/" + parts[1] + "/" + parts[0];
+            }
+        } catch (Exception e) {
+        }
+        return apiDate;
     }
 
     private void setupLanguagesRecycler(List<String> idiomas) {
-        languageAdapter = new SimpleLanguageAdapter(idiomas);
+        listaIdiomas = idiomas;
+        languageAdapter = new SimpleLanguageAdapter(listaIdiomas);
         rvLanguages.setLayoutManager(new LinearLayoutManager(this));
         rvLanguages.setAdapter(languageAdapter);
     }
 
     private void setupEditLogic() {
-        // --- Lógica Editar Info Personal ---
+        // Info Personal
         btnEditInfo.setOnClickListener(v -> {
             if (!isEditingInfo) {
-                // Activar Edición
                 isEditingInfo = true;
                 setFieldsEnabled(true, etNombre, etApellidos, etDni, etTelefono, etFechaNacimiento);
-                btnEditInfo.setImageResource(R.drawable.ic_check_circle); // Cambiar icono a guardar (necesitas un icono de check)
-                btnEditInfo.setBackgroundResource(R.drawable.bg_tag_green); // Cambiar color a verde
+                switchCoche.setEnabled(true);
+                btnEditInfo.setImageResource(R.drawable.ic_check_circle);
                 etNombre.requestFocus();
             } else {
-                // Guardar Cambios
-                savePersonalInfo();
+                // Guardar (Mock por ahora, API no tiene PUT implementado en Service)
+                Toast.makeText(this, "Guardado no disponible en API aún", Toast.LENGTH_SHORT).show();
+
                 isEditingInfo = false;
                 setFieldsEnabled(false, etNombre, etApellidos, etDni, etTelefono, etFechaNacimiento);
-                btnEditInfo.setImageResource(R.drawable.ic_edit); // Volver icono editar
-                btnEditInfo.setBackgroundResource(R.drawable.bg_tag_blue); // Volver color azul
-                Toast.makeText(this, "Datos guardados correctamente", Toast.LENGTH_SHORT).show();
+                switchCoche.setEnabled(false);
+                btnEditInfo.setImageResource(R.drawable.ic_edit);
             }
         });
 
-        // --- Lógica Editar Observaciones ---
+        // Observaciones (Mock)
         btnEditObs.setOnClickListener(v -> {
             if (!isEditingObs) {
                 isEditingObs = true;
                 setFieldsEnabled(true, etObservaciones);
                 btnEditObs.setImageResource(R.drawable.ic_check_circle);
-                btnEditObs.setBackgroundResource(R.drawable.bg_tag_green);
-                etObservaciones.requestFocus();
             } else {
-                saveObservations();
                 isEditingObs = false;
                 setFieldsEnabled(false, etObservaciones);
                 btnEditObs.setImageResource(R.drawable.ic_edit);
-                btnEditObs.setBackgroundResource(R.drawable.bg_tag_blue);
-                Toast.makeText(this, "Observaciones actualizadas", Toast.LENGTH_SHORT).show();
             }
         });
 
-        // --- Lógica Editar Idiomas (Abre Dialog) ---
+        // Idiomas Dialog
         btnEditLanguage.setOnClickListener(v -> {
             LanguageDialog dialog = new LanguageDialog();
             dialog.show(getSupportFragmentManager(), "LanguageDialog");
         });
-
-        // Listener para cambio en el Switch de coche (se guarda al momento)
-        switchCoche.setOnCheckedChangeListener((buttonView, isChecked) -> {
-            MockDataProvider.getLoggedUser().cochePropio = isChecked;
-        });
     }
 
-    private void savePersonalInfo() {
-        MockDataProvider.MockUser user = MockDataProvider.getLoggedUser();
-        user.nombre = etNombre.getText().toString();
-        user.apellidos = etApellidos.getText().toString();
-        user.dni = etDni.getText().toString();
-        user.telefono = etTelefono.getText().toString();
-        user.fechaNacimiento = etFechaNacimiento.getText().toString();
-
-        // Actualizar header también por si cambió el nombre
-        tvUserName.setText(user.nombre + " " + user.apellidos);
-    }
-
-    private void saveObservations() {
-        MockDataProvider.getLoggedUser().observaciones = etObservaciones.getText().toString();
-    }
-
-    // Helper para activar/desactivar edición
     private void setFieldsEnabled(boolean enabled, EditText... fields) {
         for (EditText field : fields) {
             field.setFocusable(enabled);
             field.setFocusableInTouchMode(enabled);
             field.setClickable(enabled);
             field.setCursorVisible(enabled);
-            // Opcional: Cambiar visualmente el fondo para indicar que es editable
             if (enabled) {
-                field.setBackgroundResource(R.drawable.bg_tab_selected); // Borde visible
+                field.setBackgroundResource(R.drawable.bg_tab_selected);
             } else {
-                field.setBackground(null); // Transparente o estilo plano
+                field.setBackground(null);
             }
         }
-        // El campo fecha siempre requiere click especial, así que si está disabled, anulamos su click listener
         etFechaNacimiento.setClickable(enabled);
     }
 
     private void setupDatePicker() {
         etFechaNacimiento.setOnClickListener(v -> {
-            if (!isEditingInfo) return; // Solo abrir si estamos editando
+            if (!isEditingInfo)
+                return;
 
             final Calendar calendar = Calendar.getInstance();
             int year = calendar.get(Calendar.YEAR);
             int month = calendar.get(Calendar.MONTH);
             int day = calendar.get(Calendar.DAY_OF_MONTH);
 
-            DatePickerDialog datePickerDialog = new DatePickerDialog(
-                    UserProfile.this,
+            DatePickerDialog datePickerDialog = new DatePickerDialog(UserProfile.this,
                     (view, selectedYear, selectedMonth, selectedDay) -> {
                         String selectedDate = selectedDay + "/" + (selectedMonth + 1) + "/" + selectedYear;
                         etFechaNacimiento.setText(selectedDate);
-                    },
-                    year, month, day
-            );
+                    }, year, month, day);
             datePickerDialog.getDatePicker().setMaxDate(System.currentTimeMillis());
             datePickerDialog.show();
+        });
+    }
+
+    // Auth Logic
+    private void logout() {
+        googleSignInClient.signOut().addOnCompleteListener(this, task -> {
+            SharedPreferences prefs = getSharedPreferences("VoluntariadoPrefs", MODE_PRIVATE);
+            prefs.edit().clear().apply();
+
+            Intent intent = new Intent(this, AuthLogin.class);
+            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+            startActivity(intent);
+            finish();
         });
     }
 
@@ -239,15 +298,13 @@ public class UserProfile extends AppCompatActivity implements LanguageDialog.OnL
         NavigationUtils.setupNavigation(this, bottomNav, R.id.nav_profile);
     }
 
-    // Implementación de la interfaz del Dialog para refrescar la lista
     @Override
     public void onLanguagesSaved() {
-        // Recargar la lista desde MockData
-        List<String> updatedLanguages = MockDataProvider.getLoggedUser().idiomas;
-        setupLanguagesRecycler(updatedLanguages);
+        // Callback del dialogo (Mock)
+        Toast.makeText(this, "Idiomas actualizados (Visual)", Toast.LENGTH_SHORT).show();
     }
 
-    // --- Adapter Interno Sencillo para Mostrar Idiomas (Solo lectura) ---
+    // Adapter
     private class SimpleLanguageAdapter extends RecyclerView.Adapter<SimpleLanguageAdapter.ViewHolder> {
         private List<String> languages;
 
@@ -265,10 +322,8 @@ public class UserProfile extends AppCompatActivity implements LanguageDialog.OnL
         @Override
         public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
             holder.tvName.setText(languages.get(position));
-            // En la vista de perfil no mostramos el botón de borrar, eso es solo en el diálogo
-            if (holder.btnDelete != null) {
+            if (holder.btnDelete != null)
                 holder.btnDelete.setVisibility(View.GONE);
-            }
         }
 
         @Override
@@ -278,13 +333,12 @@ public class UserProfile extends AppCompatActivity implements LanguageDialog.OnL
 
         class ViewHolder extends RecyclerView.ViewHolder {
             TextView tvName;
-            View btnDelete; // Referencia al botón borrar si existe en el layout
+            View btnDelete;
 
             public ViewHolder(@NonNull View itemView) {
                 super(itemView);
                 tvName = itemView.findViewById(R.id.tvLanguageName);
-                // Intentamos buscar el botón borrar para ocultarlo
-                btnDelete = itemView.findViewById(R.id.btnDelete); // Asegúrate que tu item_language tiene este ID
+                btnDelete = itemView.findViewById(R.id.btnDelete);
             }
         }
     }

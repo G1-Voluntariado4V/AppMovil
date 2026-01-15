@@ -1,11 +1,14 @@
 package org.cuatrovientos.voluntariado4v.api;
 
 import org.cuatrovientos.voluntariado4v.Models.ActividadResponse;
+import org.cuatrovientos.voluntariado4v.Models.CursoResponse;
 import org.cuatrovientos.voluntariado4v.Models.HistorialResponse;
 import org.cuatrovientos.voluntariado4v.Models.LoginRequest;
 import org.cuatrovientos.voluntariado4v.Models.LoginResponse;
 import org.cuatrovientos.voluntariado4v.Models.MensajeResponse;
+import org.cuatrovientos.voluntariado4v.Models.RegisterRequest;
 import org.cuatrovientos.voluntariado4v.Models.VoluntarioResponse;
+import org.cuatrovientos.voluntariado4v.Models.OrganizacionResponse;
 
 import java.util.List;
 
@@ -19,11 +22,17 @@ import retrofit2.http.Query;
 
 public interface VoluntariadoApiService {
 
-        @POST("api/auth/login")
+        @POST("auth/login")
         Call<LoginResponse> login(@Body LoginRequest request);
 
-        @POST("api/auth/register")
-        Call<LoginResponse> register(@Body LoginRequest request);
+        @POST("voluntarios")
+        Call<VoluntarioResponse> register(@Body RegisterRequest request);
+
+        @GET("catalogos/cursos")
+        Call<List<CursoResponse>> getCursos();
+
+        @GET("catalogos/idiomas")
+        Call<List<org.cuatrovientos.voluntariado4v.Models.IdiomaResponse>> getIdiomas();
 
         @GET("actividades")
         Call<List<ActividadResponse>> getActividades();
@@ -54,4 +63,10 @@ public interface VoluntariadoApiService {
         Call<MensajeResponse> desapuntarse(
                         @Path("idVol") int idVoluntario,
                         @Path("idAct") int idActividad);
+
+        @GET("api/organizaciones/{id}")
+        Call<OrganizacionResponse> getOrganizacion(@Path("id") int id);
+
+        @GET("api/organizaciones/{id}/actividades")
+        Call<List<ActividadResponse>> getActividadesOrganizacion(@Path("id") int id);
 }

@@ -95,10 +95,9 @@ public class DetailActivity extends AppCompatActivity {
         }
 
         if (imgHeader != null) {
-            Glide.with(this)
-                    .load(activity.getImageUrl())
-                    .placeholder(R.drawable.squarelogo)
-                    .into(imgHeader);
+            // Usamos recurso local siempre para evitar errores de Glide con URLs externas
+            // en el emulador
+            imgHeader.setImageResource(R.drawable.activities1);
         }
     }
 
@@ -125,6 +124,7 @@ public class DetailActivity extends AppCompatActivity {
             btnOrgProfile.setOnClickListener(v -> {
                 if (currentActivity != null) {
                     Intent intent = new Intent(DetailActivity.this, DetailOrg.class);
+                    intent.putExtra("ORG_ID", currentActivity.getIdOrganizacion());
                     intent.putExtra("ORG_NAME", currentActivity.getNombreOrganizacion());
                     startActivity(intent);
                 }

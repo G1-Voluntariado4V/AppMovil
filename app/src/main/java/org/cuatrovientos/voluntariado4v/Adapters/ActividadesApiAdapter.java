@@ -77,13 +77,12 @@ public class ActividadesApiAdapter extends RecyclerView.Adapter<ActividadesApiAd
             if (tvDesc != null)
                 tvDesc.setText(item.getDescripcion());
 
-            Glide.with(itemView.getContext())
-                    .load(item.getImageUrl())
-                    .placeholder(R.drawable.squarelogo)
-                    .into(imgLogo);
+            // Imagen local sin red para evitar errores de conectividad del emulador
+            imgLogo.setImageResource(R.drawable.activities1);
 
             if (tvCategory != null) {
-                tvCategory.setText(item.getDuracionHoras() + "h");
+                String tipo = item.getTipo();
+                tvCategory.setText(tipo != null && !tipo.isEmpty() ? tipo : "General");
             }
 
             if (listener != null) {

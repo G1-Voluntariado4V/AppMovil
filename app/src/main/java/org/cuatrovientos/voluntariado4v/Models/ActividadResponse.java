@@ -38,8 +38,22 @@ public class ActividadResponse implements Serializable {
     @SerializedName("estado_publicacion")
     private String estadoPublicacion;
 
+    @SerializedName("tipo")
+    private String tipo;
+
+    @SerializedName("id_organizacion")
+    private int idOrganizacion;
+
+    public int getIdOrganizacion() {
+        return idOrganizacion;
+    }
+
     public int getIdActividad() {
         return idActividad;
+    }
+
+    public String getTipo() {
+        return tipo;
     }
 
     public String getTitulo() {

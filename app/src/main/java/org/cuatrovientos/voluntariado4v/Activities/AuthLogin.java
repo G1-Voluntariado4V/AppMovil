@@ -35,7 +35,7 @@ public class AuthLogin extends AppCompatActivity {
     // ═══════════════════════════════════════════════════════════════════
     // DEBUG MODE: Cambiar a false para usar Google Sign-In real
     // ═══════════════════════════════════════════════════════════════════
-    private static final boolean DEBUG_MODE = true;
+    private static final boolean DEBUG_MODE = false;
     private static final int DEBUG_USER_ID = 1;
 
     private GoogleSignInClient googleSignInClient;
@@ -102,7 +102,12 @@ public class AuthLogin extends AppCompatActivity {
         }
     }
 
-    private void loginWithApi(String googleId, String email) {
+    private void loginWithApi(String rawGoogleId, String rawEmail) {
+        final String googleId = rawGoogleId != null ? rawGoogleId.trim() : null;
+        final String email = rawEmail != null ? rawEmail.trim() : null;
+
+        Log.d(TAG, "Login API: ID=" + googleId + ", Email=" + email);
+
         LoginRequest request = new LoginRequest(googleId, email);
 
         ApiClient.getService().login(request).enqueue(new Callback<LoginResponse>() {
