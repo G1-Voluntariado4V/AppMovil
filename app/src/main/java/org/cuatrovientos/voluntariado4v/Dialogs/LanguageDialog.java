@@ -1,6 +1,7 @@
 package org.cuatrovientos.voluntariado4v.Dialogs;
 
 import android.app.Dialog;
+import android.content.Context;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
@@ -22,6 +23,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.material.button.MaterialButton;
 
+import org.cuatrovientos.voluntariado4v.App.MockDataProvider;
 import org.cuatrovientos.voluntariado4v.R;
 
 import java.util.ArrayList;
@@ -29,8 +31,24 @@ import java.util.List;
 
 public class LanguageDialog extends DialogFragment {
 
-    private ArrayList<String> misIdiomas; // Lista del usuario
+    private ArrayList<String> misIdiomas; // Copia temporal para editar
     private LanguageAdapter adapter;
+    private OnLanguagesSavedListener listener;
+
+    // Interfaz para comunicar cambios a la Activity
+    public interface OnLanguagesSavedListener {
+        void onLanguagesSaved();
+    }
+
+    @Override
+    public void onAttach(@NonNull Context context) {
+        super.onAttach(context);
+        if (context instanceof OnLanguagesSavedListener) {
+            listener = (OnLanguagesSavedListener) context;
+        } else {
+            throw new RuntimeException(context.toString() + " must implement OnLanguagesSavedListener");
+        }
+    }
 
     public LanguageDialog() {
         // Constructor vacío requerido
@@ -39,17 +57,15 @@ public class LanguageDialog extends DialogFragment {
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        // Inflamos el XML que acabamos de crear
         View view = inflater.inflate(R.layout.dialog_edit_lenguages, container, false);
 
-        // 1. Localizar componentes
         ImageView btnClose = view.findViewById(R.id.btnClose);
         AutoCompleteTextView dropdown = view.findViewById(R.id.etInput);
         MaterialButton btnAdd = view.findViewById(R.id.btnAdd);
         RecyclerView recyclerView = view.findViewById(R.id.rvEditList);
         MaterialButton btnSave = view.findViewById(R.id.btnSave);
 
-        // 2. Configurar el Desplegable (Opciones disponibles)
+        // Opciones disponibles
         String[] idiomasDisponibles = new String[]{
                 "Español", "Inglés", "Francés", "Alemán",
                 "Italiano", "Portugués", "Euskera", "Catalán", "Gallego"
@@ -57,41 +73,40 @@ public class LanguageDialog extends DialogFragment {
         ArrayAdapter<String> dropdownAdapter = new ArrayAdapter<>(requireContext(), android.R.layout.simple_dropdown_item_1line, idiomasDisponibles);
         dropdown.setAdapter(dropdownAdapter);
 
-        // 3. Inicializar datos del usuario (Simulado)
-        misIdiomas = new ArrayList<>();
-        misIdiomas.add("Español");
-        misIdiomas.add("Inglés");
+        // Cargar datos actuales del usuario (creamos una nueva lista para no modificar la original hasta guardar)
+        misIdiomas = new ArrayList<>(MockDataProvider.getLoggedUser().idiomas);
 
-        // 4. Configurar RecyclerView
         adapter = new LanguageAdapter(misIdiomas);
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
         recyclerView.setAdapter(adapter);
 
-        // 5. Botón Añadir (+)
         btnAdd.setOnClickListener(v -> {
             String seleccion = dropdown.getText().toString();
             if (!seleccion.isEmpty()) {
                 if (!misIdiomas.contains(seleccion)) {
                     misIdiomas.add(seleccion);
                     adapter.notifyItemInserted(misIdiomas.size() - 1);
-                    dropdown.setText(""); // Limpiar input
+                    dropdown.setText("");
                 } else {
                     Toast.makeText(getContext(), "Ya tienes este idioma añadido", Toast.LENGTH_SHORT).show();
                 }
             }
         });
 
-        // 6. Botón Guardar
         btnSave.setOnClickListener(v -> {
-            // TODO: Enviar 'misIdiomas' a la API
+            // Guardar cambios en el MockData
+            MockDataProvider.getLoggedUser().idiomas = new ArrayList<>(misIdiomas);
+
+            // Notificar a la actividad principal para que refresque la pantalla
+            if (listener != null) {
+                listener.onLanguagesSaved();
+            }
             Toast.makeText(getContext(), "Idiomas guardados", Toast.LENGTH_SHORT).show();
             dismiss();
         });
 
-        // 7. Botón Cerrar
         btnClose.setOnClickListener(v -> dismiss());
 
-        // Hacer fondo transparente para las esquinas redondeadas
         if (getDialog() != null && getDialog().getWindow() != null) {
             getDialog().getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
             getDialog().getWindow().requestFeature(Window.FEATURE_NO_TITLE);
@@ -103,7 +118,6 @@ public class LanguageDialog extends DialogFragment {
     @Override
     public void onStart() {
         super.onStart();
-        // Ajustar ancho al 90% de la pantalla
         Dialog dialog = getDialog();
         if (dialog != null) {
             int width = (int) (getResources().getDisplayMetrics().widthPixels * 0.90);
@@ -111,7 +125,6 @@ public class LanguageDialog extends DialogFragment {
         }
     }
 
-    // --- ADAPTER INTERNO ---
     private class LanguageAdapter extends RecyclerView.Adapter<LanguageAdapter.ViewHolder> {
         private List<String> datos;
 
@@ -122,7 +135,6 @@ public class LanguageDialog extends DialogFragment {
         @NonNull
         @Override
         public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-            // Usamos el diseño de fila con papelera (item_edit_preference_row o item_preference si tiene papelera)
             View v = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_language, parent, false);
             return new ViewHolder(v);
         }
@@ -131,6 +143,7 @@ public class LanguageDialog extends DialogFragment {
         public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
             String item = datos.get(position);
             holder.tvName.setText(item);
+            holder.btnDelete.setVisibility(View.VISIBLE); // En este diálogo permitimos borrar
 
             holder.btnDelete.setOnClickListener(v -> {
                 datos.remove(position);
@@ -151,6 +164,8 @@ public class LanguageDialog extends DialogFragment {
             public ViewHolder(@NonNull View itemView) {
                 super(itemView);
                 tvName = itemView.findViewById(R.id.tvLanguageName);
+                btnDelete = itemView.findViewById(R.id.btnDelete); // Asegúrate que existe en item_language.xml
+                if(btnDelete == null) btnDelete = itemView; // Fallback
             }
         }
     }

@@ -5,6 +5,7 @@ import org.cuatrovientos.voluntariado4v.Models.OrganizationModel;
 import org.cuatrovientos.voluntariado4v.R;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
@@ -13,12 +14,63 @@ public class MockDataProvider {
 
     private static List<OrganizationModel> organizations;
     private static List<ActivityModel> activities;
+    private static MockUser loggedUser; // Usuario simulado
 
     // Bloque estático para inicializar los datos una sola vez
     static {
         initOrganizations();
         initActivities();
+        initUser();
     }
+
+    // --- NUEVO: Simulación de Usuario ---
+    public static class MockUser {
+        public String nombre;
+        public String apellidos;
+        public String dni;
+        public String telefono;
+        public String fechaNacimiento;
+        public String observaciones;
+        public boolean cochePropio;
+        public List<String> idiomas;
+        public String rol;
+        public String email;
+
+        public MockUser(String nombre, String apellidos, String dni, String telefono, String fechaNacimiento, String observaciones, boolean cochePropio, List<String> idiomas, String rol, String email) {
+            this.nombre = nombre;
+            this.apellidos = apellidos;
+            this.dni = dni;
+            this.telefono = telefono;
+            this.fechaNacimiento = fechaNacimiento;
+            this.observaciones = observaciones;
+            this.cochePropio = cochePropio;
+            this.idiomas = new ArrayList<>(idiomas); // Copia mutable
+            this.rol = rol;
+            this.email = email;
+        }
+    }
+
+    private static void initUser() {
+        // Inicializamos un usuario de prueba
+        loggedUser = new MockUser(
+                "Carlos",
+                "Rodríguez",
+                "12345678A",
+                "+34 635147895",
+                "12/06/1990",
+                "Soy alérgico al queso, tengo asma y aracnofobia.",
+                true,
+                Arrays.asList("Español", "Inglés"),
+                "Voluntario Activo",
+                "carlos.rod@email.com"
+        );
+    }
+
+    public static MockUser getLoggedUser() {
+        return loggedUser;
+    }
+
+    // --- FIN NUEVO ---
 
     private static void initOrganizations() {
         organizations = new ArrayList<>();
