@@ -141,7 +141,6 @@
                                     android:text="Carlos"
                                     android:textColor="#101828"
                                     android:textSize="14sp"
-                                    android:background="@drawable/bg_circle_white"
                                     android:padding="10dp"
                                     android:layout_width="match_parent"
                                     android:layout_height="wrap_content"/>
@@ -166,7 +165,6 @@
                                     android:text="Rodríguez"
                                     android:textColor="#101828"
                                     android:textSize="14sp"
-                                    android:background="@drawable/bg_circle_white"
                                     android:padding="10dp"
                                     android:layout_width="match_parent"
                                     android:layout_height="wrap_content"/>
@@ -197,7 +195,6 @@
                                     android:text="12345678A"
                                     android:textColor="#101828"
                                     android:textSize="14sp"
-                                    android:background="@drawable/bg_circle_white"
                                     android:padding="10dp"
                                     android:layout_width="match_parent"
                                     android:layout_height="wrap_content"/>
@@ -221,7 +218,6 @@
                                     android:text="+34 635147895"
                                     android:textColor="#101828"
                                     android:textSize="14sp"
-                                    android:background="@drawable/bg_circle_white"
                                     android:padding="10dp"
                                     android:inputType="phone"
                                     android:layout_width="match_parent"
@@ -243,7 +239,6 @@
                             android:text="12/06/1990"
                             android:textColor="#101828"
                             android:textSize="14sp"
-                            android:background="@drawable/bg_circle_white"
                             android:padding="10dp"
                             android:drawableEnd="@drawable/ic_history"
                             android:drawableTint="#4E6AF3"

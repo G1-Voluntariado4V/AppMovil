@@ -14,6 +14,9 @@ public class OrganizacionResponse implements Serializable {
     @SerializedName("descripcion")
     private String descripcion;
 
+    @SerializedName("email")
+    private String email; // Añadido campo email
+
     @SerializedName("sitio_web")
     private String sitioWeb;
 
@@ -23,30 +26,12 @@ public class OrganizacionResponse implements Serializable {
     @SerializedName("direccion")
     private String direccion;
 
-    // Estadísticas (vienen en otro endpoint, pero por si acaso las quieres aquí)
-    // De momento dejaremos lo básico
-
-    public int getId() {
-        return id;
-    }
-
-    public String getNombre() {
-        return nombre;
-    }
-
-    public String getDescripcion() {
-        return descripcion;
-    }
-
-    public String getSitioWeb() {
-        return sitioWeb;
-    }
-
-    public String getTelefono() {
-        return telefono;
-    }
-
-    public String getDireccion() {
-        return direccion;
-    }
+    // Getters
+    public int getId() { return id; }
+    public String getNombre() { return nombre; }
+    public String getDescripcion() { return descripcion; }
+    public String getEmail() { return email; }
+    public String getSitioWeb() { return sitioWeb; }
+    public String getTelefono() { return telefono; }
+    public String getDireccion() { return direccion; }
 }

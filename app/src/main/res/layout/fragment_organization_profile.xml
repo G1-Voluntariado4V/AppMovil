@@ -41,7 +41,7 @@
                         android:layout_width="40dp"
                         android:layout_height="40dp"
                         android:layout_gravity="center"
-                        android:src="@drawable/ic_user"
+                        android:src="@drawable/ic_group"
                         app:tint="#4A7DFF" />
                 </FrameLayout>
 
@@ -50,7 +50,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="12dp"
-                    android:text="Nombre Organización"
+                    android:text="Cargando..."
                     android:textColor="#101828"
                     android:textSize="20sp"
                     android:textStyle="bold" />
@@ -98,7 +98,7 @@
                             <ImageView
                                 android:layout_width="24dp"
                                 android:layout_height="24dp"
-                                android:src="@drawable/ic_user"
+                                android:src="@drawable/ic_content"
                                 app:tint="#4A7DFF"/>
 
                             <TextView
@@ -125,22 +125,17 @@
                             android:text="Nombre Organización"
                             android:textColor="#344054"
                             android:textSize="12sp"
-                            android:layout_marginTop="16dp"
                             android:layout_marginBottom="6dp"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"/>
 
                         <EditText
                             android:id="@+id/etOrgName"
-                            android:text="Amavir"
                             android:inputType="textPersonName"
                             android:textColor="#101828"
                             android:textSize="14sp"
-                            android:background="@drawable/bg_card_outline"
                             android:padding="10dp"
-                            android:drawableTint="#4E6AF3"
-                            android:drawablePadding="8dp"
-                            android:clickable="true"
+                            android:clickable="false"
                             android:focusable="false"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"/>
@@ -156,15 +151,11 @@
 
                         <EditText
                             android:id="@+id/etOrgAddress"
-                            android:text="Calle Ejemplo 123"
                             android:inputType="textPostalAddress"
                             android:textColor="#101828"
                             android:textSize="14sp"
-                            android:background="@drawable/bg_circle_white"
                             android:padding="10dp"
-                            android:drawableTint="#4E6AF3"
-                            android:drawablePadding="8dp"
-                            android:clickable="true"
+                            android:clickable="false"
                             android:focusable="false"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"/>
@@ -180,15 +171,11 @@
 
                         <EditText
                             android:id="@+id/etOrgEmail"
-                            android:text="info@organizacion.com"
                             android:inputType="textEmailAddress"
                             android:textColor="#101828"
                             android:textSize="14sp"
-                            android:background="@drawable/bg_circle_white"
                             android:padding="10dp"
-                            android:drawableTint="#4E6AF3"
-                            android:drawablePadding="8dp"
-                            android:clickable="true"
+                            android:clickable="false"
                             android:focusable="false"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"/>
@@ -204,15 +191,11 @@
 
                         <EditText
                             android:id="@+id/etOrgWeb"
-                            android:text="www.misitio.com"
                             android:inputType="textUri"
                             android:textColor="#101828"
                             android:textSize="14sp"
-                            android:background="@drawable/bg_circle_white"
                             android:padding="10dp"
-                            android:drawableTint="#4E6AF3"
-                            android:drawablePadding="8dp"
-                            android:clickable="true"
+                            android:clickable="false"
                             android:focusable="false"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"/>
@@ -247,7 +230,7 @@
                                 android:layout_width="0dp"
                                 android:layout_height="wrap_content"
                                 android:layout_weight="1"
-                                android:text="Descripción de la organización:"
+                                android:text="Descripción:"
                                 android:textColor="#344054"
                                 android:textSize="16sp"
                                 android:textStyle="bold" />
@@ -266,12 +249,11 @@
                             android:id="@+id/etOrgDesc"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:text="Descripción breve de la organización..."
-                            android:textColor="#101828"
+                            android:hint="Sin descripción"
                             android:background="@null"
                             android:textSize="16sp"
                             android:padding="14dp"
-                            android:clickable="true"
+                            android:clickable="false"
                             android:focusable="false"/>
 
                     </LinearLayout>
