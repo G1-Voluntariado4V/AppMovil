@@ -39,8 +39,8 @@ public interface VoluntariadoApiService {
 
         @GET("actividades")
         Call<List<ActividadResponse>> getActividadesFiltradas(
-                        @Query("ods_id") Integer odsId,
-                        @Query("tipo_id") Integer tipoId);
+                @Query("ods_id") Integer odsId,
+                @Query("tipo_id") Integer tipoId);
 
         @GET("actividades/{id}")
         Call<ActividadResponse> getActividadDetalle(@Path("id") int id);
@@ -56,17 +56,21 @@ public interface VoluntariadoApiService {
 
         @POST("api/voluntarios/{idVol}/actividades/{idAct}")
         Call<MensajeResponse> inscribirse(
-                        @Path("idVol") int idVoluntario,
-                        @Path("idAct") int idActividad);
+                @Path("idVol") int idVoluntario,
+                @Path("idAct") int idActividad);
 
         @DELETE("api/voluntarios/{idVol}/actividades/{idAct}")
         Call<MensajeResponse> desapuntarse(
-                        @Path("idVol") int idVoluntario,
-                        @Path("idAct") int idActividad);
+                @Path("idVol") int idVoluntario,
+                @Path("idAct") int idActividad);
 
         @GET("api/organizaciones/{id}")
         Call<OrganizacionResponse> getOrganizacion(@Path("id") int id);
 
         @GET("api/organizaciones/{id}/actividades")
         Call<List<ActividadResponse>> getActividadesOrganizacion(@Path("id") int id);
+
+        // NUEVO: Obtener voluntarios inscritos en una actividad
+        @GET("api/actividades/{id}/inscritos")
+        Call<List<VoluntarioResponse>> getInscritos(@Path("id") int idActividad);
 }

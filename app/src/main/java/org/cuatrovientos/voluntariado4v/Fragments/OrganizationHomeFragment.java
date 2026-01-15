@@ -1,7 +1,10 @@
 package org.cuatrovientos.voluntariado4v.Fragments;
 
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -9,62 +12,115 @@ import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
+
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+
 import org.cuatrovientos.voluntariado4v.Activities.DetailActivity;
-import org.cuatrovientos.voluntariado4v.Adapters.ActivitiesAdapter;
-import org.cuatrovientos.voluntariado4v.App.MockDataProvider;
-import org.cuatrovientos.voluntariado4v.Models.ActivityModel;
-import org.cuatrovientos.voluntariado4v.Models.OrganizationModel;
+import org.cuatrovientos.voluntariado4v.Adapters.ActividadesApiAdapter;
+import org.cuatrovientos.voluntariado4v.Models.ActividadResponse;
+import org.cuatrovientos.voluntariado4v.Models.OrganizacionResponse;
 import org.cuatrovientos.voluntariado4v.R;
+import org.cuatrovientos.voluntariado4v.api.ApiClient;
+
 import java.util.ArrayList;
+import java.util.List;
+
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
 public class OrganizationHomeFragment extends Fragment {
+
+    private TextView tvName, tvActive, tvVols;
+    private ImageView ivLogo;
+    private RecyclerView rv;
+    private ActividadesApiAdapter adapter;
+    private int orgId;
 
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View root = inflater.inflate(R.layout.fragment_organization_home, container, false);
 
-        // 1. Obtener datos
-        OrganizationModel currentOrg = MockDataProvider.getCurrentOrgProfile();
-        int activeCount = MockDataProvider.getActiveActivitiesCount();
-        int volCount = currentOrg.getVolunteersCount();
+        // 1. Obtener ID de Organización de SharedPreferences
+        SharedPreferences prefs = requireActivity().getSharedPreferences("VoluntariadoPrefs", Context.MODE_PRIVATE);
+        orgId = prefs.getInt("user_id", -1);
 
         // 2. Vincular vistas
-        TextView tvName = root.findViewById(R.id.tvOrgWelcome);
-        ImageView ivLogo = root.findViewById(R.id.ivOrgLogoHeader);
-        TextView tvActive = root.findViewById(R.id.tvStatsActive);
-        TextView tvVols = root.findViewById(R.id.tvStatsVolunteers);
+        tvName = root.findViewById(R.id.tvOrgWelcome);
+        ivLogo = root.findViewById(R.id.ivOrgLogoHeader);
+        tvActive = root.findViewById(R.id.tvStatsActive);
+        tvVols = root.findViewById(R.id.tvStatsVolunteers);
         Button btnCreate = root.findViewById(R.id.btnCreateActivity);
-        View btnEdit = root.findViewById(R.id.btnEditProfile); // Ahora es ImageButton, usamos View para simplificar
-        RecyclerView rv = root.findViewById(R.id.rvActiveActivities);
+        View btnEdit = root.findViewById(R.id.btnEditProfile);
+        rv = root.findViewById(R.id.rvActiveActivities);
 
-        // 3. Asignar datos
-        tvName.setText(currentOrg.getName());
-        ivLogo.setImageResource(currentOrg.getLogoResId());
-        tvActive.setText(String.valueOf(activeCount));
-        tvVols.setText(String.valueOf(volCount));
-
-        // 4. Lista Actividades (Solo ACTIVAS)
+        // 3. Configurar RecyclerView
         rv.setLayoutManager(new LinearLayoutManager(getContext()));
-        ArrayList<ActivityModel> activeList = MockDataProvider.getOrgActivitiesByStatus("ACTIVE");
-
-        // Usamos TYPE_SMALL_CARD para que use el layout item_small_card_activity
-        ActivitiesAdapter adapter = new ActivitiesAdapter(activeList, ActivitiesAdapter.TYPE_SMALL_CARD, (item, pos) -> {
+        adapter = new ActividadesApiAdapter(new ArrayList<>(), (actividad, position) -> {
+            // AL CLICAR UNA ACTIVIDAD
             Intent intent = new Intent(getContext(), DetailActivity.class);
-            intent.putExtra("activity_data", item);
+            intent.putExtra("actividad", actividad); // Pasamos el objeto completo Serializable
+            intent.putExtra("IS_ORG_VIEW", true);    // IMPORTANTE: Indicamos que lo ve la organización
             startActivity(intent);
         });
         rv.setAdapter(adapter);
 
-        // 5. Listeners
-        btnCreate.setOnClickListener(v ->
-                Toast.makeText(getContext(), "Crear Actividad", Toast.LENGTH_SHORT).show());
+        // 4. Cargar Datos de API
+        if (orgId != -1) {
+            fetchOrganizationProfile();
+            fetchOrganizationActivities();
+        } else {
+            Toast.makeText(getContext(), "Error de sesión", Toast.LENGTH_SHORT).show();
+        }
 
-        btnEdit.setOnClickListener(v ->
-                Toast.makeText(getContext(), "Ir a Editar Perfil", Toast.LENGTH_SHORT).show());
+        // 5. Listeners Botones
+        btnCreate.setOnClickListener(v ->
+                Toast.makeText(getContext(), "Crear Actividad (Pendiente)", Toast.LENGTH_SHORT).show());
 
         return root;
+    }
+
+    private void fetchOrganizationProfile() {
+        ApiClient.getService().getOrganizacion(orgId).enqueue(new Callback<OrganizacionResponse>() {
+            @Override
+            public void onResponse(Call<OrganizacionResponse> call, Response<OrganizacionResponse> response) {
+                if (response.isSuccessful() && response.body() != null) {
+                    OrganizacionResponse org = response.body();
+                    tvName.setText(org.getNombre());
+                    // Cargar imagen si tienes Glide o usar placeholder
+                    // Glide.with(getContext()).load(org.getFotoPerfil()).into(ivLogo);
+                    ivLogo.setImageResource(R.drawable.squarelogo); // Placeholder seguro
+                }
+            }
+
+            @Override
+            public void onFailure(Call<OrganizacionResponse> call, Throwable t) {
+                Log.e("OrgHome", "Error perfil: " + t.getMessage());
+            }
+        });
+    }
+
+    private void fetchOrganizationActivities() {
+        ApiClient.getService().getActividadesOrganizacion(orgId).enqueue(new Callback<List<ActividadResponse>>() {
+            @Override
+            public void onResponse(Call<List<ActividadResponse>> call, Response<List<ActividadResponse>> response) {
+                if (response.isSuccessful() && response.body() != null) {
+                    List<ActividadResponse> actividades = response.body();
+                    adapter.updateData(actividades);
+
+                    // Actualizar contadores simples
+                    tvActive.setText(String.valueOf(actividades.size()));
+                    // El contador de voluntarios totales requiere lógica extra del backend o sumar inscritos
+                    tvVols.setText("-");
+                }
+            }
+
+            @Override
+            public void onFailure(Call<List<ActividadResponse>> call, Throwable t) {
+                Log.e("OrgHome", "Error actividades: " + t.getMessage());
+            }
+        });
     }
 }

@@ -1,207 +1,295 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.core.widget.NestedScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/background_gray"
-    android:fillViewport="true">
+    android:background="#F9FAFB">
 
-    <LinearLayout
+    <androidx.core.widget.NestedScrollView
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:paddingBottom="40dp">
+        android:layout_height="0dp"
+        android:fillViewport="true"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:background="@color/white"
-            android:gravity="center_horizontal"
             android:orientation="vertical"
-            android:paddingVertical="32dp">
+            android:paddingBottom="40dp">
 
-            <com.google.android.material.imageview.ShapeableImageView
-                android:id="@+id/ivOrgLogoProfile"
-                android:layout_width="100dp"
-                android:layout_height="100dp"
-                android:background="@color/background_gray"
-                android:padding="2dp"
-                android:scaleType="centerCrop"
-                android:src="@drawable/squarelogo"
-                app:shapeAppearanceOverlay="@style/CircleImage"
-                app:strokeColor="#E0E0E0"
-                app:strokeWidth="1dp" />
-
-            <TextView
-                android:layout_width="wrap_content"
+            <LinearLayout
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="16dp"
-                android:text="Editar Perfil"
-                android:textColor="@color/text_dark"
-                android:textSize="20sp"
-                android:textStyle="bold" />
+                android:gravity="center"
+                android:orientation="vertical"
+                android:paddingVertical="20dp">
+
+                <FrameLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content">
+                    <View
+                        android:layout_width="80dp"
+                        android:layout_height="80dp"
+                        android:background="@drawable/bg_circle_light_blue"
+                        android:backgroundTint="#EEF4FF" />
+
+                    <ImageView
+                        android:id="@+id/ivOrgLogoProfile"
+                        android:layout_width="40dp"
+                        android:layout_height="40dp"
+                        android:layout_gravity="center"
+                        android:src="@drawable/ic_user"
+                        app:tint="#4A7DFF" />
+                </FrameLayout>
+
+                <TextView
+                    android:id="@+id/tvHeaderName"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="12dp"
+                    android:text="Nombre Organización"
+                    android:textColor="#101828"
+                    android:textSize="20sp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:id="@+id/tvOrgRole"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="4dp"
+                    android:text="Organización"
+                    android:textColor="#667085"
+                    android:textSize="14sp" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:paddingHorizontal="24dp">
+
+                <com.google.android.material.card.MaterialCardView
+                    android:id="@+id/cardInfo"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="10dp"
+                    app:cardBackgroundColor="#FFFFFF"
+                    app:cardCornerRadius="16dp"
+                    app:cardElevation="0dp"
+                    app:strokeColor="#EAECF0"
+                    app:strokeWidth="1dp">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        android:padding="20dp">
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:gravity="center_vertical"
+                            android:orientation="horizontal"
+                            android:layout_marginBottom="16dp">
+
+                            <ImageView
+                                android:layout_width="24dp"
+                                android:layout_height="24dp"
+                                android:src="@drawable/ic_user"
+                                app:tint="#4A7DFF"/>
+
+                            <TextView
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="1"
+                                android:layout_marginStart="10dp"
+                                android:text="Información Pública"
+                                android:textStyle="bold"
+                                android:textSize="16sp"
+                                android:textColor="#344054"/>
+
+                            <ImageView
+                                android:id="@+id/btnEditInfo"
+                                android:layout_width="32dp"
+                                android:layout_height="32dp"
+                                android:background="@drawable/bg_tag_blue"
+                                android:padding="8dp"
+                                android:src="@drawable/ic_edit"
+                                app:tint="#FFFFFF"/>
+                        </LinearLayout>
+
+                        <TextView
+                            android:text="Nombre Organización"
+                            android:textColor="#344054"
+                            android:textSize="12sp"
+                            android:layout_marginTop="16dp"
+                            android:layout_marginBottom="6dp"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"/>
+
+                        <EditText
+                            android:id="@+id/etOrgName"
+                            android:text="Amavir"
+                            android:inputType="textPersonName"
+                            android:textColor="#101828"
+                            android:textSize="14sp"
+                            android:background="@drawable/bg_card_outline"
+                            android:padding="10dp"
+                            android:drawableTint="#4E6AF3"
+                            android:drawablePadding="8dp"
+                            android:clickable="true"
+                            android:focusable="false"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"/>
+
+                        <TextView
+                            android:text="Dirección"
+                            android:textColor="#344054"
+                            android:textSize="12sp"
+                            android:layout_marginTop="16dp"
+                            android:layout_marginBottom="6dp"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"/>
+
+                        <EditText
+                            android:id="@+id/etOrgAddress"
+                            android:text="Calle Ejemplo 123"
+                            android:inputType="textPostalAddress"
+                            android:textColor="#101828"
+                            android:textSize="14sp"
+                            android:background="@drawable/bg_circle_white"
+                            android:padding="10dp"
+                            android:drawableTint="#4E6AF3"
+                            android:drawablePadding="8dp"
+                            android:clickable="true"
+                            android:focusable="false"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"/>
+
+                        <TextView
+                            android:text="Email"
+                            android:textColor="#344054"
+                            android:textSize="12sp"
+                            android:layout_marginTop="16dp"
+                            android:layout_marginBottom="6dp"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"/>
+
+                        <EditText
+                            android:id="@+id/etOrgEmail"
+                            android:text="info@organizacion.com"
+                            android:inputType="textEmailAddress"
+                            android:textColor="#101828"
+                            android:textSize="14sp"
+                            android:background="@drawable/bg_circle_white"
+                            android:padding="10dp"
+                            android:drawableTint="#4E6AF3"
+                            android:drawablePadding="8dp"
+                            android:clickable="true"
+                            android:focusable="false"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"/>
+
+                        <TextView
+                            android:text="Página Web"
+                            android:textColor="#344054"
+                            android:textSize="12sp"
+                            android:layout_marginTop="16dp"
+                            android:layout_marginBottom="6dp"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"/>
+
+                        <EditText
+                            android:id="@+id/etOrgWeb"
+                            android:text="www.misitio.com"
+                            android:inputType="textUri"
+                            android:textColor="#101828"
+                            android:textSize="14sp"
+                            android:background="@drawable/bg_circle_white"
+                            android:padding="10dp"
+                            android:drawableTint="#4E6AF3"
+                            android:drawablePadding="8dp"
+                            android:clickable="true"
+                            android:focusable="false"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"/>
+
+                    </LinearLayout>
+                </com.google.android.material.card.MaterialCardView>
+
+                <com.google.android.material.card.MaterialCardView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="20dp"
+                    app:cardBackgroundColor="#FFFFFF"
+                    app:cardCornerRadius="16dp"
+                    android:layout_marginBottom="20dp"
+                    app:cardElevation="0dp"
+                    app:strokeColor="#EAECF0"
+                    app:strokeWidth="1dp">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        android:padding="20dp">
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:gravity="center_vertical"
+                            android:layout_marginBottom="12dp">
+
+                            <TextView
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="1"
+                                android:text="Descripción de la organización:"
+                                android:textColor="#344054"
+                                android:textSize="16sp"
+                                android:textStyle="bold" />
+
+                            <ImageView
+                                android:id="@+id/btnEditObs"
+                                android:layout_width="32dp"
+                                android:layout_height="32dp"
+                                android:background="@drawable/bg_tag_blue"
+                                android:padding="8dp"
+                                android:src="@drawable/ic_edit"
+                                app:tint="#FFFFFF"/>
+                        </LinearLayout>
+
+                        <EditText
+                            android:id="@+id/etOrgDesc"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:text="Descripción breve de la organización..."
+                            android:textColor="#101828"
+                            android:background="@null"
+                            android:textSize="16sp"
+                            android:padding="14dp"
+                            android:clickable="true"
+                            android:focusable="false"/>
+
+                    </LinearLayout>
+                </com.google.android.material.card.MaterialCardView>
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnLogout"
+                    android:layout_width="match_parent"
+                    android:layout_height="56dp"
+                    android:text="Cerrar Sesión"
+                    android:textColor="#D92D20"
+                    android:textStyle="bold"
+                    app:backgroundTint="#FEF3F2"
+                    app:cornerRadius="12dp"
+                    app:elevation="0dp" />
+
+            </LinearLayout>
         </LinearLayout>
+    </androidx.core.widget.NestedScrollView>
 
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="24dp"
-            android:layout_marginTop="24dp"
-            android:layout_marginBottom="8dp"
-            android:text="Información Pública"
-            android:textColor="@color/text_gray"
-            android:textStyle="bold"
-            android:textSize="12sp"
-            android:textAllCaps="true"/>
-
-        <com.google.android.material.card.MaterialCardView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginHorizontal="24dp"
-            app:cardBackgroundColor="@color/white"
-            app:cardCornerRadius="16dp"
-            app:cardElevation="0dp"
-            app:strokeColor="#E0E0E0"
-            app:strokeWidth="1dp">
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:padding="16dp">
-
-                <com.google.android.material.textfield.TextInputLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:hint="Nombre Organización"
-                    app:boxBackgroundColor="@color/white"
-                    app:boxStrokeWidth="0dp"
-                    app:boxStrokeWidthFocused="0dp">
-                    <com.google.android.material.textfield.TextInputEditText
-                        android:id="@+id/etOrgName"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:background="@android:color/transparent"
-                        android:textSize="16sp"
-                        android:textColor="@color/text_dark"/>
-                </com.google.android.material.textfield.TextInputLayout>
-
-                <View
-                    android:layout_width="match_parent"
-                    android:layout_height="1dp"
-                    android:background="#F0F0F0"
-                    android:layout_marginVertical="4dp"/>
-
-                <com.google.android.material.textfield.TextInputLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:hint="Descripción"
-                    app:boxBackgroundColor="@color/white"
-                    app:boxStrokeWidth="0dp"
-                    app:boxStrokeWidthFocused="0dp">
-                    <com.google.android.material.textfield.TextInputEditText
-                        android:id="@+id/etOrgDesc"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:background="@android:color/transparent"
-                        android:textSize="16sp"
-                        android:lines="3"
-                        android:textColor="@color/text_dark"/>
-                </com.google.android.material.textfield.TextInputLayout>
-            </LinearLayout>
-        </com.google.android.material.card.MaterialCardView>
-
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="24dp"
-            android:layout_marginTop="24dp"
-            android:layout_marginBottom="8dp"
-            android:text="Contacto y Ubicación"
-            android:textColor="@color/text_gray"
-            android:textStyle="bold"
-            android:textSize="12sp"
-            android:textAllCaps="true"/>
-
-        <com.google.android.material.card.MaterialCardView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginHorizontal="24dp"
-            app:cardBackgroundColor="@color/white"
-            app:cardCornerRadius="16dp"
-            app:cardElevation="0dp"
-            app:strokeColor="#E0E0E0"
-            app:strokeWidth="1dp">
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:padding="16dp">
-
-                <com.google.android.material.textfield.TextInputLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:hint="Email"
-                    app:boxBackgroundColor="@color/white"
-                    app:boxStrokeWidth="0dp">
-                    <com.google.android.material.textfield.TextInputEditText
-                        android:id="@+id/etOrgEmail"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:background="@android:color/transparent"
-                        android:inputType="textEmailAddress"
-                        android:textColor="@color/text_dark"/>
-                </com.google.android.material.textfield.TextInputLayout>
-
-                <View android:layout_width="match_parent" android:layout_height="1dp" android:background="#F0F0F0" android:layout_marginVertical="4dp"/>
-
-                <com.google.android.material.textfield.TextInputLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:hint="Sitio Web"
-                    app:boxBackgroundColor="@color/white"
-                    app:boxStrokeWidth="0dp">
-                    <com.google.android.material.textfield.TextInputEditText
-                        android:id="@+id/etOrgWeb"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:background="@android:color/transparent"
-                        android:inputType="textUri"
-                        android:textColor="@color/text_dark"/>
-                </com.google.android.material.textfield.TextInputLayout>
-
-                <View android:layout_width="match_parent" android:layout_height="1dp" android:background="#F0F0F0" android:layout_marginVertical="4dp"/>
-
-                <com.google.android.material.textfield.TextInputLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:hint="Dirección"
-                    app:boxBackgroundColor="@color/white"
-                    app:boxStrokeWidth="0dp">
-                    <com.google.android.material.textfield.TextInputEditText
-                        android:id="@+id/etOrgAddress"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:background="@android:color/transparent"
-                        android:inputType="textPostalAddress"
-                        android:textColor="@color/text_dark"/>
-                </com.google.android.material.textfield.TextInputLayout>
-            </LinearLayout>
-        </com.google.android.material.card.MaterialCardView>
-
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/btnSaveProfile"
-            android:layout_width="match_parent"
-            android:layout_height="60dp"
-            android:layout_marginHorizontal="24dp"
-            android:layout_marginTop="32dp"
-            android:text="Guardar Cambios"
-            android:textStyle="bold"
-            android:textSize="16sp"
-            app:cornerRadius="12dp"
-            app:backgroundTint="@color/primary"/>
-
-    </LinearLayout>
-</androidx.core.widget.NestedScrollView>
+</androidx.constraintlayout.widget.ConstraintLayout>
