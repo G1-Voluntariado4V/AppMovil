@@ -1,17 +1,20 @@
-package org.cuatrovientos.voluntariado4v.Activities;
+package org.cuatrovientos.voluntariado4v.Fragments;
 
-import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.EditText;
 import android.widget.TextView;
-import androidx.appcompat.app.AppCompatActivity;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
-import com.google.android.material.bottomnavigation.BottomNavigationView;
 
 import org.cuatrovientos.voluntariado4v.Adapters.ActivitiesAdapter;
 import org.cuatrovientos.voluntariado4v.Adapters.FilterAdapter;
@@ -23,55 +26,69 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-public class UserActivities extends AppCompatActivity {
+public class UserActivitiesFragment extends Fragment {
 
-    BottomNavigationView bottomNav;
-    RecyclerView rvActivas, rvHistorial, rvFilters;
-    TextView tabActivas, tabHistorial, tvEmptyState;
-    EditText etSearch;
+    // Vistas
+    private RecyclerView rvActivas, rvHistorial, rvFilters;
+    private TextView tabActivas, tabHistorial, tvEmptyState;
+    private EditText etSearch;
 
-    ArrayList<ActivityModel> masterListActivas;
-    ArrayList<ActivityModel> masterListHistorial;
+    // Datos
+    private ArrayList<ActivityModel> masterListActivas;
+    private ArrayList<ActivityModel> masterListHistorial;
 
-    String currentSearchText = "";
-    String currentCategory = "Todos";
+    // Estado de filtros
+    private String currentSearchText = "";
+    private String currentCategory = "Todos";
 
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_user_activities);
-
-        initViews();
-        loadData();
-        setupNavigation();
-
-        setupFilters(); // Configura la lista horizontal
-        setupSearch();  // Configura el buscador
-        setupTabs();
-
-        updateLists();  // Primera carga de datos
+    public UserActivitiesFragment() {
+        // Constructor vacío requerido
     }
 
-    private void initViews() {
-        rvActivas = findViewById(R.id.rvMyActivities);
-        rvHistorial = findViewById(R.id.rvHistorial);
-        rvFilters = findViewById(R.id.rvFilters);
-        tabActivas = findViewById(R.id.tabActivas);
-        tabHistorial = findViewById(R.id.tabHistorial);
-        tvEmptyState = findViewById(R.id.tvEmptyState);
-        etSearch = findViewById(R.id.etSearch);
+    @Override
+    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+                             Bundle savedInstanceState) {
+        // Inflamos el layout del fragmento (asegúrate de que el XML se llame fragment_user_activities)
+        return inflater.inflate(R.layout.fragment_user_activities, container, false);
+    }
+
+    @Override
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+
+        initViews(view);
+        loadData();
+
+        // Configuración de componentes
+        setupFilters(); // Configura la lista horizontal de filtros
+        setupSearch();  // Configura el buscador
+        setupTabs();    // Configura los clics en los tabs (Activas/Historial)
+
+        updateLists();  // Primera carga de datos visual
+    }
+
+    private void initViews(View view) {
+        rvActivas = view.findViewById(R.id.rvMyActivities);
+        rvHistorial = view.findViewById(R.id.rvHistorial);
+        rvFilters = view.findViewById(R.id.rvFilters);
+        tabActivas = view.findViewById(R.id.tabActivas);
+        tabHistorial = view.findViewById(R.id.tabHistorial);
+        tvEmptyState = view.findViewById(R.id.tvEmptyState);
+        etSearch = view.findViewById(R.id.etSearch);
     }
 
     private void loadData() {
+        // Cargamos los datos desde el MockProvider
         masterListActivas = MockDataProvider.getMyActivities();
         masterListHistorial = MockDataProvider.getHistoryActivities();
     }
 
     private void setupFilters() {
         List<String> categories = Arrays.asList("Todos", "Social", "Medioambiente", "Educación", "Deporte");
-        rvFilters.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false));
 
-        // Usamos el adaptador externo que acabamos de crear
+        // Usamos getContext() para el LayoutManager
+        rvFilters.setLayoutManager(new LinearLayoutManager(getContext(), LinearLayoutManager.HORIZONTAL, false));
+
         FilterAdapter filterAdapter = new FilterAdapter(categories, category -> {
             currentCategory = category;
             updateLists();
@@ -83,29 +100,32 @@ public class UserActivities extends AppCompatActivity {
         etSearch.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
                 currentSearchText = s.toString().toLowerCase();
                 updateLists();
             }
+
             @Override
             public void afterTextChanged(Editable s) {}
         });
     }
 
     private void updateLists() {
+        // Filtramos las listas basándonos en la búsqueda y categoría actual
         ArrayList<ActivityModel> filteredActivas = filterList(masterListActivas);
         ArrayList<ActivityModel> filteredHistorial = filterList(masterListHistorial);
 
-        // Actualizar Activas
-        rvActivas.setLayoutManager(new LinearLayoutManager(this));
+        // Actualizar RecyclerView de Activas
+        rvActivas.setLayoutManager(new LinearLayoutManager(getContext()));
         rvActivas.setAdapter(new ActivitiesAdapter(filteredActivas, ActivitiesAdapter.TYPE_BIG_CARD, null));
 
-        // Actualizar Historial
-        rvHistorial.setLayoutManager(new LinearLayoutManager(this));
+        // Actualizar RecyclerView de Historial
+        rvHistorial.setLayoutManager(new LinearLayoutManager(getContext()));
         rvHistorial.setAdapter(new ActivitiesAdapter(filteredHistorial, ActivitiesAdapter.TYPE_BIG_CARD, null));
 
-        // Comprobar vacío
+        // Comprobar si hay que mostrar el estado vacío (dependiendo del tab seleccionado)
         if (tabActivas.getCurrentTextColor() == Color.parseColor("#3D5AFE")) {
             checkEmptyState(filteredActivas);
         } else {
@@ -115,10 +135,15 @@ public class UserActivities extends AppCompatActivity {
 
     private ArrayList<ActivityModel> filterList(ArrayList<ActivityModel> source) {
         ArrayList<ActivityModel> result = new ArrayList<>();
+        if (source == null) return result;
+
         for (ActivityModel item : source) {
             boolean matchesSearch = item.getTitle().toLowerCase().contains(currentSearchText);
             boolean matchesCategory = currentCategory.equals("Todos") || item.getCategory().equalsIgnoreCase(currentCategory);
-            if (matchesSearch && matchesCategory) result.add(item);
+
+            if (matchesSearch && matchesCategory) {
+                result.add(item);
+            }
         }
         return result;
     }
@@ -128,26 +153,41 @@ public class UserActivities extends AppCompatActivity {
             updateTabStyles(true);
             rvActivas.setVisibility(View.VISIBLE);
             rvHistorial.setVisibility(View.GONE);
-            checkEmptyState(((ActivitiesAdapter) rvActivas.getAdapter()).getDataList());
+
+            // Verificamos si la lista actual tiene datos para mostrar u ocultar el mensaje de vacío
+            ActivitiesAdapter adapter = (ActivitiesAdapter) rvActivas.getAdapter();
+            if (adapter != null) {
+                checkEmptyState(adapter.getDataList());
+            }
         });
 
         tabHistorial.setOnClickListener(v -> {
             updateTabStyles(false);
             rvHistorial.setVisibility(View.VISIBLE);
             rvActivas.setVisibility(View.GONE);
-            checkEmptyState(((ActivitiesAdapter) rvHistorial.getAdapter()).getDataList());
+
+            ActivitiesAdapter adapter = (ActivitiesAdapter) rvHistorial.getAdapter();
+            if (adapter != null) {
+                checkEmptyState(adapter.getDataList());
+            }
         });
     }
 
     private void updateTabStyles(boolean isActivas) {
         if (isActivas) {
+            // Estilo Tab Activas Seleccionado
             tabActivas.setBackgroundResource(R.drawable.bg_tab_selected);
             tabActivas.setTextColor(Color.parseColor("#3D5AFE"));
+
+            // Estilo Tab Historial Deseleccionado
             tabHistorial.setBackground(null);
             tabHistorial.setTextColor(Color.parseColor("#667085"));
         } else {
+            // Estilo Tab Historial Seleccionado
             tabHistorial.setBackgroundResource(R.drawable.bg_tab_selected);
             tabHistorial.setTextColor(Color.parseColor("#3D5AFE"));
+
+            // Estilo Tab Activas Deseleccionado
             tabActivas.setBackground(null);
             tabActivas.setTextColor(Color.parseColor("#667085"));
         }
@@ -160,34 +200,12 @@ public class UserActivities extends AppCompatActivity {
             rvHistorial.setVisibility(View.GONE);
         } else {
             tvEmptyState.setVisibility(View.GONE);
+            // Volvemos a mostrar el RecyclerView correspondiente al tab seleccionado
             if (tabActivas.getCurrentTextColor() == Color.parseColor("#3D5AFE")) {
                 rvActivas.setVisibility(View.VISIBLE);
             } else {
                 rvHistorial.setVisibility(View.VISIBLE);
             }
         }
-    }
-
-    private void setupNavigation() {
-        bottomNav = findViewById(R.id.bottomNavigation);
-        bottomNav.setSelectedItemId(R.id.nav_activities);
-        bottomNav.setOnItemSelectedListener(item -> {
-            int itemId = item.getItemId();
-            if (itemId == R.id.nav_activities) return true;
-            if (itemId == R.id.nav_home) {
-                startActivity(new Intent(getApplicationContext(), UserDashboard.class));
-                overridePendingTransition(0, 0);
-                return true;
-            } else if (itemId == R.id.nav_explore) {
-                startActivity(new Intent(getApplicationContext(), UserExplore.class));
-                overridePendingTransition(0, 0);
-                return true;
-            } else if (itemId == R.id.nav_profile) {
-                startActivity(new Intent(getApplicationContext(), UserProfile.class));
-                overridePendingTransition(0, 0);
-                return true;
-            }
-            return false;
-        });
     }
 }

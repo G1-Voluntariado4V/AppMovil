@@ -13,7 +13,7 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="24dp"
         android:layout_marginStart="24dp"
-        android:text="Explorar"
+        android:text="Mis Actividades"
         android:textColor="#101828"
         android:textSize="28sp"
         android:textStyle="bold"
@@ -60,32 +60,80 @@
         android:orientation="horizontal"
         android:paddingHorizontal="24dp"
         app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
-        app:layout_constraintTop_toBottomOf="@+id/searchContainer"
-        tools:listitem="@layout/item_filter" />
+        tools:listitem="@layout/item_filter"
+        app:layout_constraintTop_toBottomOf="@+id/searchContainer" />
+
+    <LinearLayout
+        android:id="@+id/tabContainer"
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:layout_marginHorizontal="24dp"
+        android:layout_marginTop="24dp"
+        android:background="@drawable/bg_toggle_container"
+        android:padding="4dp"
+        android:orientation="horizontal"
+        app:layout_constraintTop_toBottomOf="@+id/rvFilters">
+
+        <TextView
+            android:id="@+id/tabActivas"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:text="Activas"
+            android:textStyle="bold"
+            android:textColor="#3D5AFE"
+            android:background="@drawable/bg_tab_selected" />
+
+        <TextView
+            android:id="@+id/tabHistorial"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:text="Historial"
+            android:textStyle="bold"
+            android:textColor="#667085"
+            android:background="@null" />
+    </LinearLayout>
 
     <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/rvActivities"
+        android:id="@+id/rvMyActivities"
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_marginTop="20dp"
+        android:layout_marginTop="16dp"
         android:clipToPadding="false"
-        android:paddingBottom="20dp"
+        android:paddingBottom="80dp"
+        android:visibility="visible"
         app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
-        tools:listitem="@layout/item_big_card_activity"
-        app:layout_constraintBottom_toTopOf="@id/bottomNavigation"
-        app:layout_constraintTop_toBottomOf="@+id/rvFilters" />
-
-    <com.google.android.material.bottomnavigation.BottomNavigationView
-        android:id="@+id/bottomNavigation"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:background="#FFFFFF"
-        app:menu="@menu/menu_bottom_nav_user"
-        app:labelVisibilityMode="labeled"
-        app:itemIconTint="@color/nav_item_colors"
-        app:itemTextColor="@color/nav_item_colors"
-        app:elevation="16dp"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:itemActiveIndicatorStyle="@null"/>
+        app:layout_constraintTop_toBottomOf="@+id/tabContainer"
+        tools:listitem="@layout/item_big_card_activity" />
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/rvHistorial"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_marginTop="16dp"
+        android:clipToPadding="false"
+        android:paddingBottom="80dp"
+        android:visibility="gone"
+        app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/tabContainer"
+        tools:listitem="@layout/item_big_card_activity" />
+
+    <TextView
+        android:id="@+id/tvEmptyState"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="No se encontraron actividades."
+        android:textSize="16sp"
+        android:textColor="#667085"
+        android:visibility="gone"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/tabContainer"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

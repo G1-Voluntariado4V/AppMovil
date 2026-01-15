@@ -4,7 +4,6 @@ import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
-import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -21,18 +20,17 @@ import org.cuatrovientos.voluntariado4v.Adapters.ActividadesApiAdapter; // Usamo
 import org.cuatrovientos.voluntariado4v.Models.ActividadResponse;
 import org.cuatrovientos.voluntariado4v.Models.OrganizacionResponse;
 import org.cuatrovientos.voluntariado4v.R;
-import org.cuatrovientos.voluntariado4v.api.ApiClient;
+import org.cuatrovientos.voluntariado4v.API.ApiClient;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
-public class DetailOrg extends AppCompatActivity {
+public class DetailOrganization extends AppCompatActivity {
 
-    private static final String TAG = "DetailOrg";
+    private static final String TAG = "DetailOrganization";
 
     private TextView tvName, tvSubtitle, tvDescription;
     private TextView tvStatActivities, tvStatVolunteers, tvStatRating;
@@ -47,7 +45,7 @@ public class DetailOrg extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         EdgeToEdge.enable(this);
-        setContentView(R.layout.activity_detail_org);
+        setContentView(R.layout.activity_detail_organization);
 
         initViews();
 
@@ -95,13 +93,13 @@ public class DetailOrg extends AppCompatActivity {
                     currentOrg = response.body();
                     populateUI(currentOrg);
                 } else {
-                    Toast.makeText(DetailOrg.this, "Error cargando organización", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(DetailOrganization.this, "Error cargando organización", Toast.LENGTH_SHORT).show();
                 }
             }
 
             @Override
             public void onFailure(Call<OrganizacionResponse> call, Throwable t) {
-                Toast.makeText(DetailOrg.this, "Fallo de conexión", Toast.LENGTH_SHORT).show();
+                Toast.makeText(DetailOrganization.this, "Fallo de conexión", Toast.LENGTH_SHORT).show();
             }
         });
     }
@@ -140,7 +138,7 @@ public class DetailOrg extends AppCompatActivity {
 
     private void setupRecycler(List<ActividadResponse> actividades) {
         ActividadesApiAdapter adapter = new ActividadesApiAdapter(actividades, (item, position) -> {
-            Intent intent = new Intent(DetailOrg.this, DetailActivity.class);
+            Intent intent = new Intent(DetailOrganization.this, DetailActivity.class);
             intent.putExtra("ACTIVIDAD_ITEM", item);
             startActivity(intent);
         });

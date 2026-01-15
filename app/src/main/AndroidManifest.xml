@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools">
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
 
     <uses-permission android:name="android.permission.INTERNET" />
 
@@ -14,25 +13,16 @@
         android:roundIcon="@mipmap/squarelogo"
         android:theme="@style/Theme.Voluntariado4V">
         <activity
-            android:name=".Activities.AuthLogin"
+            android:name=".Activities.OrganizationDashboard"
             android:exported="false" />
         <activity
-            android:name=".Activities.DetailOrg"
-            android:exported="false" />
-        <activity
-            android:name=".Activities.UserProfile"
+            android:name=".Activities.DetailOrganization"
             android:exported="false" />
         <activity
             android:name=".Activities.DetailActivity"
             android:exported="false" />
         <activity
-            android:name=".Activities.UserActivities"
-            android:exported="false" />
-        <activity
-            android:name=".Activities.UserExplore"
-            android:exported="false" />
-        <activity
-            android:name=".Activities.OrganizationDashboardActivity"
+            android:name=".Activities.AuthLogin"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />

@@ -23,7 +23,7 @@ import org.cuatrovientos.voluntariado4v.Adapters.ActividadesApiAdapter;
 import org.cuatrovientos.voluntariado4v.Models.ActividadResponse;
 import org.cuatrovientos.voluntariado4v.Models.OrganizacionResponse;
 import org.cuatrovientos.voluntariado4v.R;
-import org.cuatrovientos.voluntariado4v.api.ApiClient;
+import org.cuatrovientos.voluntariado4v.API.ApiClient;
 
 import java.util.ArrayList;
 import java.util.List;

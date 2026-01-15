@@ -189,6 +189,7 @@
             app:boxCornerRadiusTopStart="12dp"
             app:endIconMode="custom"
             app:endIconDrawable="@drawable/ic_history"
+            app:endIconTint="@color/primary"
             app:boxStrokeColor="#E0E0E0"
             app:layout_constraintTop_toBottomOf="@+id/tilDni">
 
@@ -324,7 +325,8 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:checked="false"
-                app:thumbTint="@color/switch_selector"
+                app:thumbTint="@color/primary"
+                app:trackTint="#BBDEFB"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintTop_toTopOf="parent" />
@@ -349,7 +351,6 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:inputType="none"
-                android:hint="Selecciona idioma"
                 android:textColor="#1A1C29" />
         </com.google.android.material.textfield.TextInputLayout>
 

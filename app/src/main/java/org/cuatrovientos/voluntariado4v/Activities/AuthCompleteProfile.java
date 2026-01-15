@@ -5,7 +5,6 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.util.Log;
-import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
 import android.widget.Toast;
@@ -21,7 +20,7 @@ import org.cuatrovientos.voluntariado4v.Models.CursoResponse;
 import org.cuatrovientos.voluntariado4v.Models.RegisterRequest;
 import org.cuatrovientos.voluntariado4v.Models.VoluntarioResponse;
 import org.cuatrovientos.voluntariado4v.R;
-import org.cuatrovientos.voluntariado4v.api.ApiClient;
+import org.cuatrovientos.voluntariado4v.API.ApiClient;
 
 import java.util.ArrayList;
 import java.util.Calendar;

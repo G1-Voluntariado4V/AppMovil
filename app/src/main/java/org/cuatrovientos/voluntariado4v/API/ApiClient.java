@@ -1,4 +1,4 @@
-package org.cuatrovientos.voluntariado4v.api;
+package org.cuatrovientos.voluntariado4v.API;
 
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;

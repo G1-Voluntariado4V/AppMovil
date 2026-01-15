@@ -1,4 +1,4 @@
-package org.cuatrovientos.voluntariado4v.api;
+package org.cuatrovientos.voluntariado4v.API;
 
 import org.cuatrovientos.voluntariado4v.Models.ActividadResponse;
 import org.cuatrovientos.voluntariado4v.Models.CursoResponse;

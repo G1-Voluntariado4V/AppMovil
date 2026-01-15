@@ -9,7 +9,7 @@ import org.cuatrovientos.voluntariado4v.Fragments.OrganizationHomeFragment;
 import org.cuatrovientos.voluntariado4v.Fragments.OrganizationProfileFragment;
 import org.cuatrovientos.voluntariado4v.R;
 
-public class OrganizationDashboardActivity extends AppCompatActivity {
+public class OrganizationDashboard extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

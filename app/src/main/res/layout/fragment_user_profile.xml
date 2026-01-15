@@ -345,12 +345,16 @@
                             <TextView android:text="Coche Propio" android:textColor="#101828" android:textStyle="bold" android:layout_width="wrap_content" android:layout_height="wrap_content"/>
                             <TextView android:text="Disponible" android:textColor="#98A2B3" android:textSize="12sp" android:layout_width="wrap_content" android:layout_height="wrap_content"/>
                         </LinearLayout>
-                        <com.google.android.material.switchmaterial.SwitchMaterial
+                        <com.google.android.material.materialswitch.MaterialSwitch
                             android:id="@+id/switchCoche"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:checked="true"
-                            app:thumbTint="@color/switch_selector" />
+                            android:checked="false"
+                            app:thumbTint="#2196F3"
+                            app:trackTint="#BBDEFB"
+                            app:layout_constraintBottom_toBottomOf="parent"
+                            app:layout_constraintEnd_toEndOf="parent"
+                            app:layout_constraintTop_toTopOf="parent" />
                     </LinearLayout>
                 </com.google.android.material.card.MaterialCardView>
 
@@ -410,18 +414,5 @@
             </LinearLayout>
         </LinearLayout>
     </androidx.core.widget.NestedScrollView>
-
-    <com.google.android.material.bottomnavigation.BottomNavigationView
-        android:id="@+id/bottomNavigation"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:background="#FFFFFF"
-        app:elevation="16dp"
-        app:itemActiveIndicatorStyle="@null"
-        app:itemIconTint="@color/nav_item_colors"
-        app:itemTextColor="@color/nav_item_colors"
-        app:labelVisibilityMode="labeled"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:menu="@menu/menu_bottom_nav_user" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
