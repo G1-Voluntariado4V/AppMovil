@@ -301,10 +301,11 @@
                             android:id="@+id/etObservaciones"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:lineSpacingExtra="4dp"
                             android:text="Soy alergico al queso, tengo asma y aracnofobia."
-                            android:textColor="#667085"
-                            android:background="@null"/>
+                            android:textColor="#101828"
+                            android:background="@null"
+                            android:textSize="16sp"
+                            android:padding="14dp"/>
 
                     </LinearLayout>
                 </com.google.android.material.card.MaterialCardView>
@@ -396,7 +397,6 @@
                             android:nestedScrollingEnabled="false"
                             android:overScrollMode="never"
                             app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
-                            tools:itemCount="2"
                             tools:listitem="@layout/item_language" />
                     </LinearLayout>
                 </com.google.android.material.card.MaterialCardView>

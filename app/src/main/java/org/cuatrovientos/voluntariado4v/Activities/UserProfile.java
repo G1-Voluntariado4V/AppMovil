@@ -203,7 +203,7 @@ public class UserProfile extends AppCompatActivity implements LanguageDialog.OnL
             field.setCursorVisible(enabled);
             // Opcional: Cambiar visualmente el fondo para indicar que es editable
             if (enabled) {
-                field.setBackgroundResource(R.drawable.bg_circle_white); // Borde visible
+                field.setBackgroundResource(R.drawable.bg_tab_selected); // Borde visible
             } else {
                 field.setBackground(null); // Transparente o estilo plano
             }
