@@ -3,35 +3,40 @@ package org.cuatrovientos.voluntariado4v.Models;
 import java.io.Serializable;
 
 public class ActivityModel implements Serializable {
+    private int id;
     private String title;
     private String organization;
     private String location;
     private String date;
     private String description;
-    private String category;
     private int imageResource;
-    private int occupiedSeats;
-    private int totalSeats;
+    private String category;
+    // Nuevo campo: "ACTIVE", "FINISHED", "CANCELLED"
+    private String status;
 
-    public ActivityModel(String title, String organization, String location, String date, String description, String category, int imageResource, int occupiedSeats, int totalSeats) {
+    public ActivityModel(int id, String title, String organization, String location, String date, String description, int imageResource, String category, String status) {
+        this.id = id;
         this.title = title;
         this.organization = organization;
         this.location = location;
         this.date = date;
         this.description = description;
-        this.category = category;
         this.imageResource = imageResource;
-        this.occupiedSeats = occupiedSeats;
-        this.totalSeats = totalSeats;
+        this.category = category;
+        this.status = status;
     }
 
+    public int getId() { return id; }
     public String getTitle() { return title; }
     public String getOrganization() { return organization; }
     public String getLocation() { return location; }
     public String getDate() { return date; }
     public String getDescription() { return description; }
-    public String getCategory() { return category; }
     public int getImageResource() { return imageResource; }
-    public int getOccupiedSeats() { return occupiedSeats; }
-    public int getTotalSeats() { return totalSeats; }
+    public String getCategory() { return category; }
+    public String getStatus() { return status; }
+
+    public void setStatus(String status) { this.status = status; }
+    public void setTitle(String title) { this.title = title; }
+    public void setDescription(String description) { this.description = description; }
 }

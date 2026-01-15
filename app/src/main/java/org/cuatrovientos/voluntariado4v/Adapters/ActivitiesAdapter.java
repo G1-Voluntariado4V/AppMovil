@@ -5,13 +5,10 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
-
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
-
 import org.cuatrovientos.voluntariado4v.Models.ActivityModel;
 import org.cuatrovientos.voluntariado4v.R;
-
 import java.util.ArrayList;
 
 public class ActivitiesAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
@@ -67,7 +64,19 @@ public class ActivitiesAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
         return listData.size();
     }
 
-    // --- HOLDER 1: Tarjeta Grande (Dashboard / Mis Actividades) ---
+    public void updateData(ArrayList<ActivityModel> newList) {
+        this.listData = newList;
+        notifyDataSetChanged();
+    }
+
+    // --- MÉTODO RECUPERADO (Soluciona el error en UserActivities) ---
+    public ArrayList<ActivityModel> getDataList() {
+        return listData;
+    }
+
+    // --- HOLDERS ---
+
+    // Holder para Tarjetas Grandes (Voluntario - Dashboard/Mis Actividades)
     public class BigCardHolder extends RecyclerView.ViewHolder {
         TextView tvTitle, tvOrg, tvLocation, tvDate, tvDesc, tvCategory;
         ImageView imgLogo;
@@ -90,7 +99,6 @@ public class ActivitiesAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
             tvDate.setText(item.getDate());
             if(tvDesc != null) tvDesc.setText(item.getDescription());
 
-            // Cargar imagen
             if (item.getImageResource() != 0) {
                 imgLogo.setImageResource(item.getImageResource());
             }
@@ -98,76 +106,73 @@ public class ActivitiesAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
             // Categoría y color
             if (tvCategory != null) {
                 tvCategory.setText(item.getCategory());
-                updateCategoryColor(item.getCategory(), tvCategory);
+                if (item.getCategory().equalsIgnoreCase("medioambiente")) {
+                    tvCategory.setBackgroundResource(R.drawable.bg_tag_green);
+                } else if (item.getCategory().equalsIgnoreCase("educación")) {
+                    tvCategory.setBackgroundResource(R.drawable.bg_tag_orange);
+                } else {
+                    tvCategory.setBackgroundResource(R.drawable.bg_tag_blue);
+                }
             }
 
-            // Click listener
             if (listener != null) {
                 itemView.setOnClickListener(v -> listener.onItemClick(item, getAdapterPosition()));
-                itemView.setClickable(true);
-            } else {
-                itemView.setOnClickListener(null);
-                itemView.setClickable(false);
-            }
-        }
-
-        private void updateCategoryColor(String category, TextView tv) {
-            if (category == null) return;
-            switch (category.toLowerCase()) {
-                case "medioambiente": tv.setBackgroundResource(R.drawable.bg_tag_green); break;
-                case "educación": tv.setBackgroundResource(R.drawable.bg_tag_orange); break;
-                case "social": default: tv.setBackgroundResource(R.drawable.bg_tag_blue); break;
             }
         }
     }
 
-    // --- HOLDER 2: Tarjeta Pequeña (Perfil Org) ---
+    // Holder para Tarjetas Pequeñas (Organización y Perfiles)
     public class SmallCardHolder extends RecyclerView.ViewHolder {
-        TextView tvTitle, tvLocation, tvDate; // AÑADIDO: tvDate
-        ImageView imgActivity; // AÑADIDO: imgActivity para cargar la foto pequeña
+        TextView tvTitle, tvLocation, tvDate, tvStatus;
+        ImageView imgActivity;
 
         public SmallCardHolder(@NonNull View itemView) {
             super(itemView);
-            // CORREGIDO: Usamos R.id.tvTitle (el del XML) en vez de R.id.tvTitleHistory
             tvTitle = itemView.findViewById(R.id.tvTitle);
             tvLocation = itemView.findViewById(R.id.tvLocation);
-
-            // AÑADIDO: Vinculamos la fecha y la imagen
             tvDate = itemView.findViewById(R.id.tvDate);
             imgActivity = itemView.findViewById(R.id.imgActivity);
+            tvStatus = itemView.findViewById(R.id.tvStatus); // TextView para el estado
         }
 
         public void assignData(final ActivityModel item, final OnItemClickListener listener) {
             tvTitle.setText(item.getTitle());
             tvLocation.setText(item.getLocation());
+            if (tvDate != null) tvDate.setText(item.getDate());
 
-            // AÑADIDO: Asignamos el texto de la fecha
-            if (tvDate != null) {
-                tvDate.setText(item.getDate());
-            }
-
-            // AÑADIDO: Asignamos la imagen
             if (imgActivity != null && item.getImageResource() != 0) {
                 imgActivity.setImageResource(item.getImageResource());
             }
 
+            // Lógica visual del Estado (Activa, Finalizada, Cancelada)
+            if (tvStatus != null) {
+                String status = item.getStatus();
+                if (status != null && !status.isEmpty()) {
+                    tvStatus.setVisibility(View.VISIBLE);
+                    switch (status.toUpperCase()) {
+                        case "ACTIVE":
+                            tvStatus.setText("ACTIVA");
+                            tvStatus.setBackgroundResource(R.drawable.bg_tag_green);
+                            break;
+                        case "FINISHED":
+                            tvStatus.setText("FINALIZADA");
+                            tvStatus.setBackgroundResource(R.drawable.bg_tag_blue);
+                            break;
+                        case "CANCELLED":
+                            tvStatus.setText("CANCELADA");
+                            tvStatus.setBackgroundResource(R.drawable.bg_tag_red);
+                            break;
+                        default:
+                            tvStatus.setVisibility(View.GONE);
+                    }
+                } else {
+                    tvStatus.setVisibility(View.GONE);
+                }
+            }
+
             if (listener != null) {
                 itemView.setOnClickListener(v -> listener.onItemClick(item, getAdapterPosition()));
-                itemView.setClickable(true);
-            } else {
-                itemView.setOnClickListener(null);
-                itemView.setClickable(false);
             }
         }
-    }
-
-    // Metodo para actualizar la lista al filtrar
-    public void updateData(ArrayList<ActivityModel> newList) {
-        this.listData = newList;
-        notifyDataSetChanged();
-    }
-
-    public ArrayList<ActivityModel> getDataList() {
-        return listData;
     }
 }

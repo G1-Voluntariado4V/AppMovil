@@ -35,7 +35,7 @@ public class AuthLogin extends AppCompatActivity {
     // ═══════════════════════════════════════════════════════════════════
     // DEBUG MODE: Cambiar a false para usar Google Sign-In real
     // ═══════════════════════════════════════════════════════════════════
-    private static final boolean DEBUG_MODE = false;
+    private static final boolean DEBUG_MODE = true;
     private static final int DEBUG_USER_ID = 1;
 
     private GoogleSignInClient googleSignInClient;

@@ -427,6 +427,6 @@
         app:itemTextColor="@color/nav_item_colors"
         app:labelVisibilityMode="labeled"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:menu="@menu/bottom_nav_menu" />
+        app:menu="@menu/menu_bottom_nav_user" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
