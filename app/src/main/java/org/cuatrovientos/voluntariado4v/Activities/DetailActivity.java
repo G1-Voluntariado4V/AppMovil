@@ -38,7 +38,7 @@ public class DetailActivity extends AppCompatActivity {
     private ImageView imgHeader, btnBack;
     private MaterialButton btnJoin, btnOrgProfile;
     private ActividadResponse currentActivity;
-    private boolean isOrgView = false; // Flag para saber si es vista de organización
+    private boolean isOrgView = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -47,13 +47,13 @@ public class DetailActivity extends AppCompatActivity {
 
         initViews();
 
-        // Recuperar datos del Intent
+        // Recuperar datos
         currentActivity = (ActividadResponse) getIntent().getSerializableExtra("actividad");
         isOrgView = getIntent().getBooleanExtra("IS_ORG_VIEW", false);
 
         if (currentActivity != null) {
             populateData(currentActivity);
-            setupMode(); // Configurar modo usuario vs modo organización
+            setupMode();
         } else {
             Toast.makeText(this, "Error al cargar datos", Toast.LENGTH_SHORT).show();
             finish();
@@ -68,7 +68,7 @@ public class DetailActivity extends AppCompatActivity {
         btnBack = findViewById(R.id.btnBack);
         btnJoin = findViewById(R.id.btnJoin);
         tvPlazas = findViewById(R.id.tvPlazasCount);
-        tvCategory = findViewById(R.id.tvTagSocial);
+        tvCategory = findViewById(R.id.tvTagSocial); // Esta es la etiqueta azul superior
         tvDate = findViewById(R.id.tvDetailDate);
         tvLocation = findViewById(R.id.tvDetailLocation);
         tvOrg = findViewById(R.id.tvDetailOrg);
@@ -88,8 +88,22 @@ public class DetailActivity extends AppCompatActivity {
             tvPlazas.setText(plazasInfo);
         }
 
+        // --- CAMBIO REALIZADO: Mostrar Categoría en lugar de Horas ---
         if (tvCategory != null) {
-            tvCategory.setText(activity.getDuracionHoras() + "h");
+            String categoria = activity.getTipo(); // Usamos 'tipo' como categoría
+            if (categoria == null || categoria.isEmpty()) {
+                categoria = "Actividad";
+            }
+            tvCategory.setText(categoria);
+
+            // Lógica de colores (Igual que en ActivitiesAdapter)
+            if (categoria.equalsIgnoreCase("medioambiente")) {
+                tvCategory.setBackgroundResource(R.drawable.bg_tag_green);
+            } else if (categoria.equalsIgnoreCase("educación")) {
+                tvCategory.setBackgroundResource(R.drawable.bg_tag_orange);
+            } else {
+                tvCategory.setBackgroundResource(R.drawable.bg_tag_blue);
+            }
         }
 
         if (imgHeader != null) {
@@ -103,11 +117,11 @@ public class DetailActivity extends AppCompatActivity {
         if (isOrgView) {
             // MODO ORGANIZACIÓN
             btnJoin.setText("Ver Inscritos");
-            btnJoin.setIconResource(R.drawable.ic_group); // Asegúrate de tener un icono o quítalo
-            btnJoin.setBackgroundTintList(ColorStateList.valueOf(Color.parseColor("#FF9800"))); // Naranja para gestión
+            btnJoin.setIconResource(R.drawable.ic_group);
+            btnJoin.setBackgroundTintList(ColorStateList.valueOf(Color.parseColor("#FF9800")));
             btnJoin.setEnabled(true);
         } else {
-            // MODO VOLUNTARIO (Lógica original)
+            // MODO VOLUNTARIO
             if (!currentActivity.hayPlazasDisponibles()) {
                 btnJoin.setEnabled(false);
                 btnJoin.setText("Completo");
@@ -166,7 +180,6 @@ public class DetailActivity extends AppCompatActivity {
             dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
         }
 
-        // Vincular vistas del popup
         RecyclerView rvVolunteers = dialogView.findViewById(R.id.rvVolunteersList);
         ProgressBar loading = dialogView.findViewById(R.id.progressBarVolunteers);
         TextView tvEmpty = dialogView.findViewById(R.id.tvNoVolunteers);
@@ -174,7 +187,6 @@ public class DetailActivity extends AppCompatActivity {
 
         rvVolunteers.setLayoutManager(new LinearLayoutManager(this));
 
-        // Cargar datos
         loading.setVisibility(View.VISIBLE);
         ApiClient.getService().getInscritos(currentActivity.getIdActividad()).enqueue(new Callback<List<VoluntarioResponse>>() {
             @Override

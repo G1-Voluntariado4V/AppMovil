@@ -21,6 +21,7 @@ import org.cuatrovientos.voluntariado4v.Activities.DetailActivity;
 import org.cuatrovientos.voluntariado4v.Adapters.ActivitiesAdapter;
 import org.cuatrovientos.voluntariado4v.Adapters.FilterAdapter;
 import org.cuatrovientos.voluntariado4v.App.MockDataProvider;
+import org.cuatrovientos.voluntariado4v.Models.ActividadResponse;
 import org.cuatrovientos.voluntariado4v.Models.ActivityModel;
 import org.cuatrovientos.voluntariado4v.R;
 
@@ -40,7 +41,7 @@ public class OrganizationActivitiesFragment extends Fragment {
     // Datos
     private ArrayList<ActivityModel> masterList = new ArrayList<>();
     private String currentSearchText = "";
-    private String currentStatusFilter = "Todas"; // Filtro inicial por defecto
+    private String currentStatusFilter = "Todas";
 
     public OrganizationActivitiesFragment() {
         // Constructor vacío requerido
@@ -72,12 +73,33 @@ public class OrganizationActivitiesFragment extends Fragment {
     }
 
     private void loadInitialData() {
-        // Cargar TODAS las actividades inicialmente
         masterList = MockDataProvider.getOrgActivitiesByStatus(null);
 
         adapter = new ActivitiesAdapter(new ArrayList<>(masterList), ActivitiesAdapter.TYPE_SMALL_CARD, (item, pos) -> {
             Intent intent = new Intent(getContext(), DetailActivity.class);
-            intent.putExtra("activity_data", item);
+
+            // Mapeo de Mock a Modelo API
+            ActividadResponse response = new ActividadResponse();
+            response.setIdActividad(1);
+            response.setTitulo(item.getTitle());
+            response.setDescripcion(item.getDescription());
+            response.setUbicacion(item.getLocation());
+            response.setFechaInicio(item.getDate());
+            response.setNombreOrganizacion(item.getOrganization());
+            response.setCupoMaximo(20);
+            response.setInscritosConfirmados(5);
+            response.setDuracionHoras(4);
+
+            // --- CAMBIO AQUÍ: Pasamos la categoría al campo 'Tipo' ---
+            response.setTipo(item.getCategory());
+
+            if (item.getStatus() != null) {
+                response.setEstadoPublicacion(item.getStatus().toUpperCase());
+            }
+
+            intent.putExtra("actividad", response);
+            intent.putExtra("IS_ORG_VIEW", true);
+
             startActivity(intent);
         });
         rvActivities.setAdapter(adapter);
@@ -86,7 +108,6 @@ public class OrganizationActivitiesFragment extends Fragment {
     }
 
     private void setupFilters() {
-        // Definimos la lista como pediste, manteniendo "Todos" para poder limpiar el filtro
         List<String> statusOptions = Arrays.asList("Todas", "Activas", "Pendientes", "Finalizadas", "Canceladas");
 
         FilterAdapter filterAdapter = new FilterAdapter(statusOptions, selectedStatus -> {
@@ -116,33 +137,19 @@ public class OrganizationActivitiesFragment extends Fragment {
         ArrayList<ActivityModel> filtered = new ArrayList<>();
 
         for (ActivityModel item : masterList) {
-            // 1. Filtrado por texto
             boolean matchesSearch = item.getTitle().toLowerCase().contains(currentSearchText);
-
-            // 2. Filtrado por Estado
             boolean matchesStatus = false;
 
-            if (currentStatusFilter.equals("Todos")) {
+            if (currentStatusFilter.equals("Todas")) {
                 matchesStatus = true;
             } else {
-                // Obtenemos el estado del objeto y lo convertimos a mayúsculas para comparar
                 String itemStatus = item.getStatus() != null ? item.getStatus().toUpperCase() : "";
-
                 switch (currentStatusFilter) {
-                    case "Activas":
-                        matchesStatus = itemStatus.equals("ACTIVE");
-                        break;
-                    case "Pendientes":
-                        matchesStatus = itemStatus.equals("PENDING"); // Asumimos que el backend usa PENDING
-                        break;
-                    case "Finalizadas":
-                        matchesStatus = itemStatus.equals("FINISHED");
-                        break;
-                    case "Canceladas":
-                        matchesStatus = itemStatus.equals("CANCELLED");
-                        break;
-                    default:
-                        matchesStatus = true;
+                    case "Activas": matchesStatus = itemStatus.equals("ACTIVE"); break;
+                    case "Pendientes": matchesStatus = itemStatus.equals("PENDING"); break;
+                    case "Finalizadas": matchesStatus = itemStatus.equals("FINISHED"); break;
+                    case "Canceladas": matchesStatus = itemStatus.equals("CANCELLED"); break;
+                    default: matchesStatus = true;
                 }
             }
 
@@ -151,11 +158,8 @@ public class OrganizationActivitiesFragment extends Fragment {
             }
         }
 
-        // Actualizar adaptador y verificar estado vacío
         adapter.updateData(filtered);
         checkEmptyState(filtered.size());
-
-        Log.d(TAG, "Filtrados: " + filtered.size() + " (Estado=" + currentStatusFilter + ")");
     }
 
     private void checkEmptyState(int listSize) {

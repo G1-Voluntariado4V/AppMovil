@@ -44,58 +44,37 @@ public class ActividadResponse implements Serializable {
     @SerializedName("id_organizacion")
     private int idOrganizacion;
 
-    public int getIdOrganizacion() {
-        return idOrganizacion;
-    }
+    // --- GETTERS ---
+    public int getIdOrganizacion() { return idOrganizacion; }
+    public int getIdActividad() { return idActividad; }
+    public String getTipo() { return tipo; }
+    public String getTitulo() { return titulo; }
+    public String getDescripcion() { return descripcion; }
+    public String getUbicacion() { return ubicacion; }
+    public String getFechaInicio() { return fechaInicio; }
+    public int getDuracionHoras() { return duracionHoras; }
+    public int getCupoMaximo() { return cupoMaximo; }
+    public int getInscritosConfirmados() { return inscritosConfirmados; }
+    public String getNombreOrganizacion() { return nombreOrganizacion; }
+    public String getImgOrganizacion() { return imgOrganizacion; }
+    public String getEstadoPublicacion() { return estadoPublicacion; }
 
-    public int getIdActividad() {
-        return idActividad;
-    }
+    // --- SETTERS (Añadidos para poder mapear desde ActivityModel) ---
+    public void setIdActividad(int idActividad) { this.idActividad = idActividad; }
+    public void setTitulo(String titulo) { this.titulo = titulo; }
+    public void setDescripcion(String descripcion) { this.descripcion = descripcion; }
+    public void setUbicacion(String ubicacion) { this.ubicacion = ubicacion; }
+    public void setFechaInicio(String fechaInicio) { this.fechaInicio = fechaInicio; }
+    public void setDuracionHoras(int duracionHoras) { this.duracionHoras = duracionHoras; }
+    public void setCupoMaximo(int cupoMaximo) { this.cupoMaximo = cupoMaximo; }
+    public void setInscritosConfirmados(int inscritosConfirmados) { this.inscritosConfirmados = inscritosConfirmados; }
+    public void setNombreOrganizacion(String nombreOrganizacion) { this.nombreOrganizacion = nombreOrganizacion; }
+    public void setImgOrganizacion(String imgOrganizacion) { this.imgOrganizacion = imgOrganizacion; }
+    public void setEstadoPublicacion(String estadoPublicacion) { this.estadoPublicacion = estadoPublicacion; }
+    public void setTipo(String tipo) { this.tipo = tipo; }
+    public void setIdOrganizacion(int idOrganizacion) { this.idOrganizacion = idOrganizacion; }
 
-    public String getTipo() {
-        return tipo;
-    }
-
-    public String getTitulo() {
-        return titulo;
-    }
-
-    public String getDescripcion() {
-        return descripcion;
-    }
-
-    public String getUbicacion() {
-        return ubicacion;
-    }
-
-    public String getFechaInicio() {
-        return fechaInicio;
-    }
-
-    public int getDuracionHoras() {
-        return duracionHoras;
-    }
-
-    public int getCupoMaximo() {
-        return cupoMaximo;
-    }
-
-    public int getInscritosConfirmados() {
-        return inscritosConfirmados;
-    }
-
-    public String getNombreOrganizacion() {
-        return nombreOrganizacion;
-    }
-
-    public String getImgOrganizacion() {
-        return imgOrganizacion;
-    }
-
-    public String getEstadoPublicacion() {
-        return estadoPublicacion;
-    }
-
+    // --- Lógica de Negocio ---
     public boolean hayPlazasDisponibles() {
         return inscritosConfirmados < cupoMaximo;
     }
