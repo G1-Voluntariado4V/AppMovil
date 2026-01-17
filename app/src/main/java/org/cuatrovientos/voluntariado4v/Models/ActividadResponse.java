@@ -192,6 +192,10 @@ public class ActividadResponse implements Serializable {
     @SerializedName("tipos")
     private java.util.List<TipoVoluntariadoResponse> tiposList;
 
+    // --- Soporte Lista de ODS ---
+    @SerializedName("ods")
+    private java.util.List<OdsResponse> odsList;
+
     public void setTipos(java.util.List<TipoVoluntariadoResponse> tipos) {
         this.tiposList = tipos;
         if (tipos != null && !tipos.isEmpty()) {
@@ -210,6 +214,14 @@ public class ActividadResponse implements Serializable {
 
     public java.util.List<TipoVoluntariadoResponse> getTipos() {
         return tiposList;
+    }
+
+    public void setOds(java.util.List<OdsResponse> ods) {
+        this.odsList = ods;
+    }
+
+    public java.util.List<OdsResponse> getOds() {
+        return odsList;
     }
 
     public String getTipo() {

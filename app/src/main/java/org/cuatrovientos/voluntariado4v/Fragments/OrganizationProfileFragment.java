@@ -37,7 +37,7 @@ public class OrganizationProfileFragment extends Fragment {
 
     // Vistas
     private TextView tvHeaderName, tvOrgRole;
-    private EditText etOrgName, etOrgAddress, etOrgEmail, etOrgWeb, etOrgDesc;
+    private EditText etOrgName, etOrgAddress, etOrgEmail, etOrgPhone, etOrgWeb, etOrgDesc;
     private ImageView btnEditInfo, btnEditObs;
     private MaterialButton btnLogout;
 
@@ -49,7 +49,8 @@ public class OrganizationProfileFragment extends Fragment {
 
     @Nullable
     @Override
-    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
+            @Nullable Bundle savedInstanceState) {
         View root = inflater.inflate(R.layout.fragment_organization_profile, container, false);
 
         setupGoogleSignIn();
@@ -77,6 +78,7 @@ public class OrganizationProfileFragment extends Fragment {
         etOrgName = root.findViewById(R.id.etOrgName);
         etOrgAddress = root.findViewById(R.id.etOrgAddress);
         etOrgEmail = root.findViewById(R.id.etOrgEmail);
+        etOrgPhone = root.findViewById(R.id.etOrgPhone);
         etOrgWeb = root.findViewById(R.id.etOrgWeb);
         etOrgDesc = root.findViewById(R.id.etOrgDesc);
 
@@ -85,12 +87,13 @@ public class OrganizationProfileFragment extends Fragment {
         btnLogout = root.findViewById(R.id.btnLogout);
 
         // Bloquear campos por defecto
-        setFieldsEnabled(false, etOrgName, etOrgAddress, etOrgEmail, etOrgWeb);
+        setFieldsEnabled(false, etOrgName, etOrgAddress, etOrgEmail, etOrgPhone, etOrgWeb);
         setFieldsEnabled(false, etOrgDesc);
     }
 
     private void loadOrgDataFromApi() {
-        if (getActivity() == null) return;
+        if (getActivity() == null)
+            return;
 
         SharedPreferences prefs = getActivity().getSharedPreferences("VoluntariadoPrefs", Context.MODE_PRIVATE);
         int orgId = prefs.getInt("user_id", -1);
@@ -120,14 +123,23 @@ public class OrganizationProfileFragment extends Fragment {
     }
 
     private void populateData(OrganizacionResponse org) {
-        if (getContext() == null) return;
+        if (getContext() == null)
+            return;
 
-        tvHeaderName.setText(org.getNombre());
-        etOrgName.setText(org.getNombre());
-        etOrgAddress.setText(org.getDireccion());
-        etOrgEmail.setText(org.getEmail()); // Asegúrate de que OrganizacionResponse tiene getEmail()
-        etOrgWeb.setText(org.getSitioWeb());
-        etOrgDesc.setText(org.getDescripcion());
+        // Header
+        tvHeaderName.setText(getValueOrDefault(org.getNombre(), "Organización"));
+
+        // Campos editables
+        etOrgName.setText(getValueOrDefault(org.getNombre(), ""));
+        etOrgAddress.setText(getValueOrDefault(org.getDireccion(), "No disponible"));
+        etOrgEmail.setText(getValueOrDefault(org.getEmail(), "No disponible"));
+        etOrgPhone.setText(getValueOrDefault(org.getTelefono(), "No disponible"));
+        etOrgWeb.setText(getValueOrDefault(org.getSitioWeb(), "No disponible"));
+        etOrgDesc.setText(getValueOrDefault(org.getDescripcion(), "Sin descripción"));
+    }
+
+    private String getValueOrDefault(String value, String defaultValue) {
+        return (value != null && !value.trim().isEmpty()) ? value : defaultValue;
     }
 
     private void setupEditLogic() {
@@ -135,16 +147,11 @@ public class OrganizationProfileFragment extends Fragment {
         btnEditInfo.setOnClickListener(v -> {
             if (!isEditingInfo) {
                 isEditingInfo = true;
-                setFieldsEnabled(true, etOrgName, etOrgAddress, etOrgEmail, etOrgWeb);
+                setFieldsEnabled(true, etOrgName, etOrgAddress, etOrgEmail, etOrgPhone, etOrgWeb);
                 btnEditInfo.setImageResource(R.drawable.ic_check_circle);
                 etOrgName.requestFocus();
             } else {
-                // AQUÍ IRÍA LA LLAMADA PUT A LA API PARA GUARDAR CAMBIOS
-                Toast.makeText(getContext(), "Guardado no implementado en API", Toast.LENGTH_SHORT).show();
-
-                isEditingInfo = false;
-                setFieldsEnabled(false, etOrgName, etOrgAddress, etOrgEmail, etOrgWeb);
-                btnEditInfo.setImageResource(R.drawable.ic_edit);
+                saveOrganizationChanges();
             }
         });
 
@@ -156,12 +163,75 @@ public class OrganizationProfileFragment extends Fragment {
                 btnEditObs.setImageResource(R.drawable.ic_check_circle);
                 etOrgDesc.requestFocus();
             } else {
-                // AQUÍ IRÍA LA LLAMADA PUT A LA API
-                Toast.makeText(getContext(), "Guardado no implementado en API", Toast.LENGTH_SHORT).show();
+                saveOrganizationChanges();
+            }
+        });
+    }
 
-                isEditingObs = false;
-                setFieldsEnabled(false, etOrgDesc);
-                btnEditObs.setImageResource(R.drawable.ic_edit);
+    private void saveOrganizationChanges() {
+        if (getActivity() == null)
+            return;
+
+        SharedPreferences prefs = getActivity().getSharedPreferences("VoluntariadoPrefs", Context.MODE_PRIVATE);
+        int orgId = prefs.getInt("user_id", -1);
+
+        if (orgId == -1) {
+            Toast.makeText(getContext(), "Error: sesión no válida", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        // Recoger valores de los campos
+        String nombre = etOrgName.getText().toString().trim();
+        String descripcion = etOrgDesc.getText().toString().trim();
+        String direccion = etOrgAddress.getText().toString().trim();
+        String telefono = etOrgPhone.getText().toString().trim();
+        String web = etOrgWeb.getText().toString().trim();
+
+        // Validación básica
+        if (nombre.isEmpty()) {
+            Toast.makeText(getContext(), "El nombre no puede estar vacío", Toast.LENGTH_SHORT).show();
+            return;
+        }
+        if (descripcion.isEmpty()) {
+            Toast.makeText(getContext(), "La descripción no puede estar vacía", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        // Limpiar valores "No disponible" antes de enviar
+        if ("No disponible".equals(direccion))
+            direccion = null;
+        if ("No disponible".equals(telefono))
+            telefono = null;
+        if ("No disponible".equals(web))
+            web = null;
+
+        org.cuatrovientos.voluntariado4v.Models.OrganizacionUpdateRequest request = new org.cuatrovientos.voluntariado4v.Models.OrganizacionUpdateRequest(
+                nombre, descripcion, web, direccion, telefono);
+
+        ApiClient.getService().updateOrganizacion(orgId, request).enqueue(new Callback<OrganizacionResponse>() {
+            @Override
+            public void onResponse(Call<OrganizacionResponse> call, Response<OrganizacionResponse> response) {
+                if (response.isSuccessful() && response.body() != null) {
+                    Toast.makeText(getContext(), "Cambios guardados correctamente", Toast.LENGTH_SHORT).show();
+                    populateData(response.body());
+
+                    // Restaurar modo visualización
+                    isEditingInfo = false;
+                    isEditingObs = false;
+                    setFieldsEnabled(false, etOrgName, etOrgAddress, etOrgEmail, etOrgPhone, etOrgWeb);
+                    setFieldsEnabled(false, etOrgDesc);
+                    btnEditInfo.setImageResource(R.drawable.ic_edit);
+                    btnEditObs.setImageResource(R.drawable.ic_edit);
+                } else {
+                    Log.e(TAG, "Error guardando: " + response.code());
+                    Toast.makeText(getContext(), "Error al guardar: " + response.code(), Toast.LENGTH_SHORT).show();
+                }
+            }
+
+            @Override
+            public void onFailure(Call<OrganizacionResponse> call, Throwable t) {
+                Log.e(TAG, "Error conexión", t);
+                Toast.makeText(getContext(), "Error de conexión", Toast.LENGTH_SHORT).show();
             }
         });
     }
@@ -193,7 +263,8 @@ public class OrganizationProfileFragment extends Fragment {
     }
 
     private void performLocalLogout() {
-        if (getActivity() == null) return;
+        if (getActivity() == null)
+            return;
 
         SharedPreferences prefs = getActivity().getSharedPreferences("VoluntariadoPrefs", Context.MODE_PRIVATE);
         prefs.edit().clear().apply();

@@ -4,7 +4,8 @@
     <color name="white">#FFFFFFFF</color>
 
     <color name="primary">#3D5AFE</color>
-    <color name="background_gray">#F8F9FA
-    </color> <color name="text_dark">#1A1C29</color>
+    <color name="background_gray">#F8F9FA</color>
+    <color name="text_dark">#1A1C29</color>
     <color name="text_gray">#9E9E9E</color>
+    <color name="chip_background_color">#EEF4FF</color>
 </resources>

@@ -103,4 +103,39 @@ public interface VoluntariadoApiService {
 
         @GET("organizaciones/top-voluntarios")
         Call<List<OrganizacionResponse>> getTopOrganizaciones();
+
+        // ═══════════════════════════════════════════════════════════════════
+        // ENDPOINTS ORGANIZACIONES
+        // ═══════════════════════════════════════════════════════════════════
+
+        @PUT("organizaciones/{id}")
+        Call<OrganizacionResponse> updateOrganizacion(
+                        @Path("id") int id,
+                        @Body org.cuatrovientos.voluntariado4v.Models.OrganizacionUpdateRequest request);
+
+        @POST("organizaciones/{id}/actividades")
+        Call<ActividadResponse> crearActividad(
+                        @Path("id") int idOrganizacion,
+                        @Body org.cuatrovientos.voluntariado4v.Models.ActividadCreateRequest request);
+
+        // ═══════════════════════════════════════════════════════════════════
+        // CATALOGOS (para el formulario de crear actividad)
+        // ═══════════════════════════════════════════════════════════════════
+
+        @GET("catalogos/ods")
+        Call<List<org.cuatrovientos.voluntariado4v.Models.OdsResponse>> getOds();
+
+        // ═══════════════════════════════════════════════════════════════════
+        // ACTIVIDADES - IMAGEN Y EDICION
+        // ═══════════════════════════════════════════════════════════════════
+
+        @POST("actividades/{id}/imagenes")
+        Call<MensajeResponse> addImagenActividad(
+                        @Path("id") int idActividad,
+                        @Body org.cuatrovientos.voluntariado4v.Models.ImagenRequest request);
+
+        @PUT("actividades/{id}")
+        Call<ActividadResponse> updateActividad(
+                        @Path("id") int idActividad,
+                        @Body org.cuatrovientos.voluntariado4v.Models.ActividadUpdateRequest request);
 }

@@ -60,6 +60,21 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
 
+        <!-- Botón editar para organizaciones -->
+        <ImageButton
+            android:id="@+id/btnEdit"
+            android:layout_width="36dp"
+            android:layout_height="36dp"
+            android:layout_marginEnd="16dp"
+            android:layout_marginBottom="8dp"
+            android:background="@drawable/bg_circle_white"
+            android:src="@android:drawable/ic_menu_edit"
+            android:padding="8dp"
+            android:visibility="gone"
+            android:contentDescription="Editar"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintBottom_toBottomOf="@id/imgLogo" />
+
         <TextView
             android:id="@+id/tvTitle"
             android:layout_width="0dp"

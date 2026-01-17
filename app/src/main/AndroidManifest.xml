@@ -36,6 +36,12 @@
         <activity
             android:name=".Activities.UserDashboard"
             android:exported="false" />
+        <activity
+            android:name=".Activities.CreateActividadActivity"
+            android:exported="false" />
+        <activity
+            android:name=".Activities.EditActividadActivity"
+            android:exported="false" />
     </application>
 
 </manifest>

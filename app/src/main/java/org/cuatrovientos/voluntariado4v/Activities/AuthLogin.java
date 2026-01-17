@@ -33,11 +33,25 @@ public class AuthLogin extends AppCompatActivity {
     private static final String TAG = "AuthLogin";
 
     // ═══════════════════════════════════════════════════════════════════
-    // DEBUG MODE: Cambiar a false para usar Google Sign-In real
-    // DEBUG_USER_ID debe coincidir con un id_usuario existente en la BD
+    // ██████████████████████ MODO DEBUG ████████████████████████████████
     // ═══════════════════════════════════════════════════════════════════
-    private static final boolean DEBUG_MODE = false;
-    private static final int DEBUG_USER_ID = 14; // Eliam Carril
+    // Cambiar DEBUG_MODE a false para usar Google Sign-In real
+    // Cambiar DEBUG_CURRENT_ROL para alternar entre roles de prueba
+    // ═══════════════════════════════════════════════════════════════════
+    private static final boolean DEBUG_MODE = true;
+
+    // ┌─────────────────────────────────────────────────────────────────┐
+    // │ CAMBIAR AQUÍ EL ROL PARA PROBAR: │
+    // │ "Voluntario" → ID 8 (Carlos) │
+    // │ "Organizacion" → ID 2 (Tech For Good) │
+    // │ "Coordinador" → ID 1 (Admin) │
+    // └─────────────────────────────────────────────────────────────────┘
+    private static final String DEBUG_CURRENT_ROL = "Organizacion";
+
+    // IDs de prueba por rol (no modificar a menos que cambien en BD)
+    private static final int DEBUG_ID_VOLUNTARIO = 8; // Carlos
+    private static final int DEBUG_ID_ORGANIZACION = 2; // Tech For Good
+    private static final int DEBUG_ID_COORDINADOR = 1; // Admin
 
     private GoogleSignInClient googleSignInClient;
     private ActivityResultLauncher<Intent> signInLauncher;
@@ -120,7 +134,7 @@ public class AuthLogin extends AppCompatActivity {
                     Log.d(TAG, "Login API OK: userId=" + userId + ", rol=" + rol);
 
                     saveSession(userId, googleId, email, rol);
-                    goToDashboard();
+                    goToDashboard(rol);
 
                 } else if (response.code() == 404) {
                     Log.d(TAG, "Usuario no registrado, ir a registro");
@@ -141,9 +155,28 @@ public class AuthLogin extends AppCompatActivity {
     }
 
     private void debugLogin() {
-        Log.d(TAG, "DEBUG MODE: Saltando autenticación real");
-        saveSession(DEBUG_USER_ID, "debug_google_id", "debug@test.com", "Voluntario");
-        goToDashboard();
+        Log.d(TAG, "════════════════════════════════════════════");
+        Log.d(TAG, "█████  DEBUG MODE: " + DEBUG_CURRENT_ROL + "  █████");
+        Log.d(TAG, "════════════════════════════════════════════");
+
+        // Seleccionar ID según el rol configurado
+        int userId;
+        switch (DEBUG_CURRENT_ROL) {
+            case "Organizacion":
+                userId = DEBUG_ID_ORGANIZACION;
+                break;
+            case "Coordinador":
+                userId = DEBUG_ID_COORDINADOR;
+                break;
+            case "Voluntario":
+            default:
+                userId = DEBUG_ID_VOLUNTARIO;
+                break;
+        }
+
+        Log.d(TAG, "DEBUG: Rol=" + DEBUG_CURRENT_ROL + ", UserId=" + userId);
+        saveSession(userId, "debug_google_id", "debug@test.com", DEBUG_CURRENT_ROL);
+        goToDashboard(DEBUG_CURRENT_ROL);
     }
 
     private void saveSession(int userId, String googleId, String email, String rol) {
@@ -157,8 +190,14 @@ public class AuthLogin extends AppCompatActivity {
                 .apply();
     }
 
-    private void goToDashboard() {
-        startActivity(new Intent(this, UserDashboard.class));
+    private void goToDashboard(String rol) {
+        Intent intent;
+        if ("Organizacion".equalsIgnoreCase(rol)) {
+            intent = new Intent(this, OrganizationDashboard.class);
+        } else {
+            intent = new Intent(this, UserDashboard.class);
+        }
+        startActivity(intent);
         finish();
     }
 

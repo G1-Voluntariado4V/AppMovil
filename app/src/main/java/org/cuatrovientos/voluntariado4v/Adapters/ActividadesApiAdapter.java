@@ -3,6 +3,7 @@ package org.cuatrovientos.voluntariado4v.Adapters;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -21,6 +22,8 @@ public class ActividadesApiAdapter extends RecyclerView.Adapter<ActividadesApiAd
 
     private List<ActividadResponse> actividades;
     private OnItemClickListener listener;
+    private OnItemClickListener editListener;
+    private boolean showEditButton = false;
 
     public interface OnItemClickListener {
         void onItemClick(ActividadResponse actividad, int position);
@@ -29,6 +32,16 @@ public class ActividadesApiAdapter extends RecyclerView.Adapter<ActividadesApiAd
     public ActividadesApiAdapter(List<ActividadResponse> actividades, OnItemClickListener listener) {
         this.actividades = actividades != null ? actividades : new ArrayList<>();
         this.listener = listener;
+        this.editListener = null;
+        this.showEditButton = false;
+    }
+
+    public ActividadesApiAdapter(List<ActividadResponse> actividades, OnItemClickListener listener,
+            OnItemClickListener editListener, boolean showEditButton) {
+        this.actividades = actividades != null ? actividades : new ArrayList<>();
+        this.listener = listener;
+        this.editListener = editListener;
+        this.showEditButton = showEditButton;
     }
 
     @NonNull
@@ -41,7 +54,7 @@ public class ActividadesApiAdapter extends RecyclerView.Adapter<ActividadesApiAd
 
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
-        holder.bind(actividades.get(position), listener);
+        holder.bind(actividades.get(position), listener, editListener, showEditButton);
     }
 
     @Override
@@ -57,6 +70,7 @@ public class ActividadesApiAdapter extends RecyclerView.Adapter<ActividadesApiAd
     static class ViewHolder extends RecyclerView.ViewHolder {
         TextView tvTitle, tvOrg, tvLocation, tvDate, tvDesc, tvCategory;
         ImageView imgLogo;
+        ImageButton btnEdit;
 
         ViewHolder(@NonNull View itemView) {
             super(itemView);
@@ -67,6 +81,7 @@ public class ActividadesApiAdapter extends RecyclerView.Adapter<ActividadesApiAd
             tvDesc = itemView.findViewById(R.id.tvDesc);
             imgLogo = itemView.findViewById(R.id.imgLogo);
             tvCategory = itemView.findViewById(R.id.tvTagCategory);
+            btnEdit = itemView.findViewById(R.id.btnEdit);
         }
 
         private String formatFecha(String fechaCompleta) {
@@ -99,7 +114,8 @@ public class ActividadesApiAdapter extends RecyclerView.Adapter<ActividadesApiAd
             }
         }
 
-        void bind(ActividadResponse item, OnItemClickListener listener) {
+        void bind(ActividadResponse item, OnItemClickListener listener,
+                OnItemClickListener editListener, boolean showEditButton) {
             tvTitle.setText(item.getTitulo());
             tvOrg.setText(item.getNombreOrganizacion());
             tvLocation.setText(item.getUbicacion());
@@ -127,7 +143,6 @@ public class ActividadesApiAdapter extends RecyclerView.Adapter<ActividadesApiAd
                 android.util.Log.d("ActividadesAdapter", "Tipo raw: " + tipo);
 
                 if (tipo != null && !tipo.isEmpty()) {
-                    // Mapeo de emergencia por si llega ID en vez de nombre
                     switch (tipo) {
                         case "1":
                             tipo = "Social";
@@ -154,7 +169,6 @@ public class ActividadesApiAdapter extends RecyclerView.Adapter<ActividadesApiAd
                 }
             }
 
-            // Manejar ubicación
             if (item.getUbicacion() != null && !item.getUbicacion().isEmpty()) {
                 tvLocation.setText(item.getUbicacion());
                 tvLocation.setVisibility(View.VISIBLE);
@@ -165,6 +179,19 @@ public class ActividadesApiAdapter extends RecyclerView.Adapter<ActividadesApiAd
 
             if (listener != null) {
                 itemView.setOnClickListener(v -> listener.onItemClick(item, getAdapterPosition()));
+            }
+
+            // Manejar botón de editar (solo para actividades en revisión)
+            if (btnEdit != null) {
+                String estado = item.getEstadoPublicacion();
+                boolean isEnRevision = estado != null && estado.equalsIgnoreCase("En revision");
+
+                if (showEditButton && editListener != null && isEnRevision) {
+                    btnEdit.setVisibility(View.VISIBLE);
+                    btnEdit.setOnClickListener(v -> editListener.onItemClick(item, getAdapterPosition()));
+                } else {
+                    btnEdit.setVisibility(View.GONE);
+                }
             }
         }
     }

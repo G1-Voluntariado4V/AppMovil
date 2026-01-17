@@ -1,6 +1,8 @@
 package org.cuatrovientos.voluntariado4v.Fragments;
 
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
@@ -18,16 +20,20 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import org.cuatrovientos.voluntariado4v.Activities.DetailActivity;
-import org.cuatrovientos.voluntariado4v.Adapters.ActivitiesAdapter;
+import org.cuatrovientos.voluntariado4v.Activities.EditActividadActivity;
+import org.cuatrovientos.voluntariado4v.Adapters.ActividadesApiAdapter;
 import org.cuatrovientos.voluntariado4v.Adapters.FilterAdapter;
-import org.cuatrovientos.voluntariado4v.App.MockDataProvider;
+import org.cuatrovientos.voluntariado4v.API.ApiClient;
 import org.cuatrovientos.voluntariado4v.Models.ActividadResponse;
-import org.cuatrovientos.voluntariado4v.Models.ActivityModel;
 import org.cuatrovientos.voluntariado4v.R;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
 public class OrganizationActivitiesFragment extends Fragment {
 
@@ -36,15 +42,14 @@ public class OrganizationActivitiesFragment extends Fragment {
     private RecyclerView rvActivities, rvFilters;
     private EditText etSearch;
     private LinearLayout layoutEmptyState;
-    private ActivitiesAdapter adapter;
+    private ActividadesApiAdapter adapter;
 
-    // Datos
-    private ArrayList<ActivityModel> masterList = new ArrayList<>();
+    private ArrayList<ActividadResponse> masterList = new ArrayList<>();
     private String currentSearchText = "";
     private String currentStatusFilter = "Todas";
+    private int orgId;
 
     public OrganizationActivitiesFragment() {
-        // Constructor vacío requerido
     }
 
     @Override
@@ -56,10 +61,19 @@ public class OrganizationActivitiesFragment extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
+        SharedPreferences prefs = requireContext().getSharedPreferences("VoluntariadoPrefs", Context.MODE_PRIVATE);
+        orgId = prefs.getInt("user_id", -1);
+
         initViews(view);
-        loadInitialData();
         setupFilters();
         setupSearch();
+        loadActividades();
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        loadActividades();
     }
 
     private void initViews(View view) {
@@ -72,43 +86,60 @@ public class OrganizationActivitiesFragment extends Fragment {
         rvFilters.setLayoutManager(new LinearLayoutManager(getContext(), LinearLayoutManager.HORIZONTAL, false));
     }
 
-    private void loadInitialData() {
-        masterList = MockDataProvider.getOrgActivitiesByStatus(null);
+    private void loadActividades() {
+        if (orgId == -1)
+            return;
 
-        adapter = new ActivitiesAdapter(new ArrayList<>(masterList), ActivitiesAdapter.TYPE_SMALL_CARD, (item, pos) -> {
-            Intent intent = new Intent(getContext(), DetailActivity.class);
+        ApiClient.getService().getActividadesOrganizacion(orgId).enqueue(new Callback<List<ActividadResponse>>() {
+            @Override
+            public void onResponse(Call<List<ActividadResponse>> call, Response<List<ActividadResponse>> response) {
+                if (!isAdded())
+                    return;
 
-            // Mapeo de Mock a Modelo API
-            ActividadResponse response = new ActividadResponse();
-            response.setIdActividad(1);
-            response.setTitulo(item.getTitle());
-            response.setDescripcion(item.getDescription());
-            response.setUbicacion(item.getLocation());
-            response.setFechaInicio(item.getDate());
-            response.setNombreOrganizacion(item.getOrganization());
-            response.setCupoMaximo(20);
-            response.setInscritosConfirmados(5);
-            response.setDuracionHoras(4);
-
-            // --- CAMBIO AQUÍ: Pasamos la categoría al campo 'Tipo' ---
-            response.setTipo(item.getCategory());
-
-            if (item.getStatus() != null) {
-                response.setEstadoPublicacion(item.getStatus().toUpperCase());
+                if (response.isSuccessful() && response.body() != null) {
+                    masterList.clear();
+                    masterList.addAll(response.body());
+                    applyFilters();
+                } else {
+                    Log.e(TAG, "Error cargando actividades: " + response.code());
+                }
             }
 
-            intent.putExtra("actividad", response);
-            intent.putExtra("IS_ORG_VIEW", true);
-
-            startActivity(intent);
+            @Override
+            public void onFailure(Call<List<ActividadResponse>> call, Throwable t) {
+                Log.e(TAG, "Error de conexión", t);
+            }
         });
-        rvActivities.setAdapter(adapter);
+    }
 
-        checkEmptyState(masterList.size());
+    private void setupAdapter(ArrayList<ActividadResponse> list) {
+        ActividadesApiAdapter.OnItemClickListener listener = (item, position) -> {
+            Intent intent = new Intent(getContext(), DetailActivity.class);
+            intent.putExtra("actividad", item);
+            intent.putExtra("IS_ORG_VIEW", true);
+            startActivity(intent);
+        };
+
+        ActividadesApiAdapter.OnItemClickListener editListener = (item, position) -> {
+            // Solo permitir editar actividades en revisión
+            String estado = item.getEstadoPublicacion();
+            if (estado != null && estado.equalsIgnoreCase("En revision")) {
+                Intent intent = new Intent(getContext(), EditActividadActivity.class);
+                intent.putExtra("actividad", item);
+                startActivity(intent);
+            } else {
+                android.widget.Toast.makeText(getContext(),
+                        "Solo se pueden editar actividades en revisión",
+                        android.widget.Toast.LENGTH_SHORT).show();
+            }
+        };
+
+        adapter = new ActividadesApiAdapter(list, listener, editListener, true);
+        rvActivities.setAdapter(adapter);
     }
 
     private void setupFilters() {
-        List<String> statusOptions = Arrays.asList("Todas", "Activas", "Pendientes", "Finalizadas", "Canceladas");
+        List<String> statusOptions = Arrays.asList("Todas", "Publicada", "En revision", "Finalizada", "Cancelada");
 
         FilterAdapter filterAdapter = new FilterAdapter(statusOptions, selectedStatus -> {
             currentStatusFilter = selectedStatus;
@@ -120,7 +151,8 @@ public class OrganizationActivitiesFragment extends Fragment {
     private void setupSearch() {
         etSearch.addTextChangedListener(new TextWatcher() {
             @Override
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+            }
 
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
@@ -129,28 +161,21 @@ public class OrganizationActivitiesFragment extends Fragment {
             }
 
             @Override
-            public void afterTextChanged(Editable s) {}
+            public void afterTextChanged(Editable s) {
+            }
         });
     }
 
     private void applyFilters() {
-        ArrayList<ActivityModel> filtered = new ArrayList<>();
+        ArrayList<ActividadResponse> filtered = new ArrayList<>();
 
-        for (ActivityModel item : masterList) {
-            boolean matchesSearch = item.getTitle().toLowerCase().contains(currentSearchText);
-            boolean matchesStatus = false;
+        for (ActividadResponse item : masterList) {
+            boolean matchesSearch = item.getTitulo() != null &&
+                    item.getTitulo().toLowerCase().contains(currentSearchText);
 
-            if (currentStatusFilter.equals("Todas")) {
-                matchesStatus = true;
-            } else {
-                String itemStatus = item.getStatus() != null ? item.getStatus().toUpperCase() : "";
-                switch (currentStatusFilter) {
-                    case "Activas": matchesStatus = itemStatus.equals("ACTIVE"); break;
-                    case "Pendientes": matchesStatus = itemStatus.equals("PENDING"); break;
-                    case "Finalizadas": matchesStatus = itemStatus.equals("FINISHED"); break;
-                    case "Canceladas": matchesStatus = itemStatus.equals("CANCELLED"); break;
-                    default: matchesStatus = true;
-                }
+            boolean matchesStatus = currentStatusFilter.equals("Todas");
+            if (!matchesStatus && item.getEstadoPublicacion() != null) {
+                matchesStatus = item.getEstadoPublicacion().equalsIgnoreCase(currentStatusFilter);
             }
 
             if (matchesSearch && matchesStatus) {
@@ -158,7 +183,7 @@ public class OrganizationActivitiesFragment extends Fragment {
             }
         }
 
-        adapter.updateData(filtered);
+        setupAdapter(filtered);
         checkEmptyState(filtered.size());
     }
 

@@ -62,7 +62,7 @@ public class OrganizationHomeFragment extends Fragment {
             // AL CLICAR UNA ACTIVIDAD
             Intent intent = new Intent(getContext(), DetailActivity.class);
             intent.putExtra("actividad", actividad); // Pasamos el objeto completo Serializable
-            intent.putExtra("IS_ORG_VIEW", true);    // IMPORTANTE: Indicamos que lo ve la organización
+            intent.putExtra("IS_ORG_VIEW", true); // IMPORTANTE: Indicamos que lo ve la organización
             startActivity(intent);
         });
         rv.setAdapter(adapter);
@@ -76,8 +76,11 @@ public class OrganizationHomeFragment extends Fragment {
         }
 
         // 5. Listeners Botones
-        btnCreate.setOnClickListener(v ->
-                Toast.makeText(getContext(), "Crear Actividad (Pendiente)", Toast.LENGTH_SHORT).show());
+        btnCreate.setOnClickListener(v -> {
+            Intent intent = new Intent(getContext(),
+                    org.cuatrovientos.voluntariado4v.Activities.CreateActividadActivity.class);
+            startActivity(intent);
+        });
 
         return root;
     }
@@ -110,10 +113,15 @@ public class OrganizationHomeFragment extends Fragment {
                     List<ActividadResponse> actividades = response.body();
                     adapter.updateData(actividades);
 
-                    // Actualizar contadores simples
+                    // Actualizar contador de actividades
                     tvActive.setText(String.valueOf(actividades.size()));
-                    // El contador de voluntarios totales requiere lógica extra del backend o sumar inscritos
-                    tvVols.setText("-");
+
+                    // Calcular total de voluntarios sumando inscritos de todas las actividades
+                    int totalVoluntarios = 0;
+                    for (ActividadResponse act : actividades) {
+                        totalVoluntarios += act.getInscritosConfirmados();
+                    }
+                    tvVols.setText(String.valueOf(totalVoluntarios));
                 }
             }
 
