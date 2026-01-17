@@ -38,6 +38,9 @@ public interface VoluntariadoApiService {
         @GET("catalogos/idiomas")
         Call<List<org.cuatrovientos.voluntariado4v.Models.IdiomaResponse>> getIdiomas();
 
+        @GET("catalogos/tipos-voluntariado")
+        Call<List<org.cuatrovientos.voluntariado4v.Models.TipoVoluntariadoResponse>> getTiposVoluntariado();
+
         @GET("actividades")
         Call<List<ActividadResponse>> getActividades();
 
@@ -73,16 +76,20 @@ public interface VoluntariadoApiService {
         Call<List<ActividadResponse>> getRecomendaciones(@Path("id") int id);
 
         @GET("voluntarios/{id}/historial")
-        Call<HistorialResponse> getHistorial(@Path("id") int id);
+        Call<org.cuatrovientos.voluntariado4v.Models.HistorialApiResponse> getHistorial(
+                        @Path("id") int id,
+                        @Header("X-User-Id") int userId);
 
         @POST("voluntarios/{idVol}/actividades/{idAct}")
         Call<MensajeResponse> inscribirse(
                         @Path("idVol") int idVoluntario,
+                        @Header("X-User-Id") int userId,
                         @Path("idAct") int idActividad);
 
         @DELETE("voluntarios/{idVol}/actividades/{idAct}")
         Call<MensajeResponse> desapuntarse(
                         @Path("idVol") int idVoluntario,
+                        @Header("X-User-Id") int userId,
                         @Path("idAct") int idActividad);
 
         @GET("organizaciones/{id}")

@@ -138,7 +138,7 @@
 
                                 <EditText
                                     android:id="@+id/etNombre"
-                                    android:text="Carlos"
+                                    android:text=""
                                     android:textColor="#101828"
                                     android:textSize="14sp"
                                     android:padding="10dp"
@@ -162,7 +162,7 @@
 
                                 <EditText
                                     android:id="@+id/etApellidos"
-                                    android:text="Rodríguez"
+                                    android:text=""
                                     android:textColor="#101828"
                                     android:textSize="14sp"
                                     android:padding="10dp"
@@ -192,7 +192,7 @@
                                     android:layout_height="wrap_content"/>
                                 <EditText
                                     android:id="@+id/etDni"
-                                    android:text="12345678A"
+                                    android:text=""
                                     android:textColor="#101828"
                                     android:textSize="14sp"
                                     android:padding="10dp"
@@ -215,7 +215,7 @@
                                     android:layout_height="wrap_content"/>
                                 <EditText
                                     android:id="@+id/etTelefono"
-                                    android:text="+34 635147895"
+                                    android:text=""
                                     android:textColor="#101828"
                                     android:textSize="14sp"
                                     android:padding="10dp"
@@ -236,7 +236,7 @@
 
                         <EditText
                             android:id="@+id/etFechaNacimiento"
-                            android:text="12/06/1990"
+                            android:text=""
                             android:textColor="#101828"
                             android:textSize="14sp"
                             android:padding="10dp"
@@ -296,7 +296,7 @@
                             android:id="@+id/etObservaciones"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:text="Soy alergico al queso, tengo asma y aracnofobia."
+                            android:text=""
                             android:textColor="#101828"
                             android:background="@null"
                             android:textSize="16sp"

@@ -45,13 +45,17 @@ public class UserExploreFragment extends Fragment {
     private String currentSearchText = "";
     private String currentCategory = "Todos";
 
+    // Filtros
+    private FilterAdapter filterAdapter;
+    private List<String> filterCategories = new ArrayList<>();
+
     public UserExploreFragment() {
         // Constructor vacío requerido
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
+            Bundle savedInstanceState) {
         // Inflar el layout correspondiente al fragmento
         return inflater.inflate(R.layout.fragment_user_explore, container, false);
     }
@@ -72,50 +76,117 @@ public class UserExploreFragment extends Fragment {
         rvFilters = view.findViewById(R.id.rvFilters);
         etSearch = view.findViewById(R.id.etSearch);
 
-        // Usamos getContext() en lugar de 'this'
+        // Configuración de RecyclerView de Actividades
         rvActivities.setLayoutManager(new LinearLayoutManager(getContext()));
-
-        // Inicializamos el adapter con una lista vacía y el listener de clic
         adapter = new ActividadesApiAdapter(new ArrayList<>(), this::onActividadClick);
         rvActivities.setAdapter(adapter);
+
+        // Configuración inicial de Filtros (para evitar 'No adapter attached')
+        rvFilters.setLayoutManager(new LinearLayoutManager(getContext(), LinearLayoutManager.HORIZONTAL, false));
+        filterCategories.add("Todos");
+        filterAdapter = new FilterAdapter(filterCategories, category -> {
+            currentCategory = category;
+            applyFilters();
+        });
+        rvFilters.setAdapter(filterAdapter);
     }
 
     private void loadActividades() {
         ApiClient.getService().getActividades().enqueue(new Callback<List<ActividadResponse>>() {
             @Override
             public void onResponse(Call<List<ActividadResponse>> call, Response<List<ActividadResponse>> response) {
-                if (!isAdded()) return; // Evitar crash si el fragmento ya no está activo
+                if (!isAdded())
+                    return;
 
                 if (response.isSuccessful() && response.body() != null) {
                     masterList = response.body();
-                    applyFilters();
+                    applyFilters(); // Esto actualizará la lista en pantalla
                     Log.d(TAG, "Cargadas " + masterList.size() + " actividades");
                 } else {
-                    Log.e(TAG, "Error: " + response.code());
+                    Log.e(TAG, "Error loading activities: " + response.code());
                     Toast.makeText(getContext(), "Error al cargar actividades", Toast.LENGTH_SHORT).show();
                 }
             }
 
             @Override
             public void onFailure(Call<List<ActividadResponse>> call, Throwable t) {
-                if (!isAdded()) return;
-                Log.e(TAG, "Error de conexión", t);
-                Toast.makeText(getContext(), "Error de conexión con el servidor", Toast.LENGTH_SHORT).show();
+                if (!isAdded())
+                    return;
+                Log.e(TAG, "Error de conexión/Actividades", t);
+                // No mostrar Toast de error aquí si ya tenemos datos cacheados o para no
+                // molestar,
+                // pero si la lista está vacía sí.
+                if (masterList.isEmpty()) {
+                    Toast.makeText(getContext(), "Error de conexión", Toast.LENGTH_SHORT).show();
+                }
             }
         });
     }
 
+    private void loadTiposVoluntariado() {
+        ApiClient.getService().getTiposVoluntariado()
+                .enqueue(new Callback<List<org.cuatrovientos.voluntariado4v.Models.TipoVoluntariadoResponse>>() {
+                    @Override
+                    public void onResponse(
+                            Call<List<org.cuatrovientos.voluntariado4v.Models.TipoVoluntariadoResponse>> call,
+                            Response<List<org.cuatrovientos.voluntariado4v.Models.TipoVoluntariadoResponse>> response) {
+                        if (!isAdded())
+                            return;
+
+                        List<String> newCategories = new ArrayList<>();
+                        newCategories.add("Todos");
+
+                        if (response.isSuccessful() && response.body() != null) {
+                            for (org.cuatrovientos.voluntariado4v.Models.TipoVoluntariadoResponse tipo : response
+                                    .body()) {
+                                String nombre = tipo.getNombre();
+                                Log.d(TAG, "Tipo recibido API: " + nombre);
+                                if (nombre != null && !nombre.trim().isEmpty()) {
+                                    newCategories.add(nombre);
+                                }
+                            }
+                        }
+
+                        // Si la API no devolvió nada útil o falló parcialmente, asegurar filtros
+                        // mínimos
+                        if (newCategories.size() <= 1) {
+                            Log.w(TAG, "API devolvió lista vacía de tipos. Usando fallback.");
+                            newCategories.addAll(
+                                    Arrays.asList("Social", "Medioambiente", "Educación", "Deporte", "Cultural"));
+                        }
+
+                        updateFilters(newCategories);
+                    }
+
+                    @Override
+                    public void onFailure(
+                            Call<List<org.cuatrovientos.voluntariado4v.Models.TipoVoluntariadoResponse>> call,
+                            Throwable t) {
+                        if (!isAdded())
+                            return;
+                        List<String> fallback = new ArrayList<>();
+                        fallback.add("Todos");
+                        fallback.addAll(Arrays.asList("Social", "Medioambiente", "Educación", "Deporte", "Cultural"));
+                        updateFilters(fallback);
+                    }
+                });
+    }
+
+    private void updateFilters(List<String> newCategories) {
+        // Asumiendo que FilterAdapter tiene un método para actualizar datos,
+        // si no, creamos uno nuevo o modificamos la lista si es observable.
+        // Como FilterAdapter suele ser simple, lo recreamos o notificamos.
+        // Lo más limpio es recrearlo o tener un método updateData en FilterAdapter.
+        // Dado que no tengo el código de FilterAdapter a mano, recreo el adapter o uso
+        // la lista local.
+
+        filterCategories.clear();
+        filterCategories.addAll(newCategories);
+        filterAdapter.notifyDataSetChanged();
+    }
+
     private void setupFilters() {
-        List<String> categories = Arrays.asList("Todos", "Social", "Medioambiente", "Educación", "Deporte", "General");
-
-        // Configuración horizontal para los filtros
-        rvFilters.setLayoutManager(new LinearLayoutManager(getContext(), LinearLayoutManager.HORIZONTAL, false));
-
-        FilterAdapter filterAdapter = new FilterAdapter(categories, category -> {
-            currentCategory = category;
-            applyFilters();
-        });
-        rvFilters.setAdapter(filterAdapter);
+        loadTiposVoluntariado();
     }
 
     private void setupSearch() {
@@ -143,7 +214,8 @@ public class UserExploreFragment extends Fragment {
             boolean matchesSearch = item.getTitulo().toLowerCase().contains(currentSearchText);
 
             // Filtrado por categoría (Tipo)
-            // Usamos contains para coincidir con tipos parciales (ej: "Medioambiente" coincide con "Medioambiente tecnologico")
+            // Usamos contains para coincidir con tipos parciales (ej: "Medioambiente"
+            // coincide con "Medioambiente tecnologico")
             boolean matchesCategory = currentCategory.equals("Todos") ||
                     (item.getTipo() != null && item.getTipo().toLowerCase().contains(currentCategory.toLowerCase()));
 

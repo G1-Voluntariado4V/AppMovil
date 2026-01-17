@@ -69,6 +69,36 @@ public class ActividadesApiAdapter extends RecyclerView.Adapter<ActividadesApiAd
             tvCategory = itemView.findViewById(R.id.tvTagCategory);
         }
 
+        private String formatFecha(String fechaCompleta) {
+            if (fechaCompleta == null || fechaCompleta.isEmpty())
+                return "";
+            try {
+                // Limpiar formato API: 2026-01-20 17:00:00.000000 -> 2026-01-20 17:00:00
+                String cleanDate = fechaCompleta;
+                if (cleanDate.length() > 19) {
+                    cleanDate = cleanDate.substring(0, 19);
+                }
+                cleanDate = cleanDate.replace("T", " ");
+
+                java.text.SimpleDateFormat inputFormat = new java.text.SimpleDateFormat("yyyy-MM-dd HH:mm:ss",
+                        java.util.Locale.getDefault());
+                java.util.Date date = inputFormat.parse(cleanDate);
+
+                // Salida: 20 de Enero
+                java.text.SimpleDateFormat outputFormat = new java.text.SimpleDateFormat("d 'de' MMMM",
+                        new java.util.Locale("es", "ES"));
+                return outputFormat.format(date);
+            } catch (Exception e) {
+                android.util.Log.e("Adapter", "Error parseando fecha: " + fechaCompleta, e);
+                // Fallback a YYYY-MM-DD
+                try {
+                    return fechaCompleta.substring(0, 10);
+                } catch (Exception ex) {
+                    return fechaCompleta;
+                }
+            }
+        }
+
         void bind(ActividadResponse item, OnItemClickListener listener) {
             tvTitle.setText(item.getTitulo());
             tvOrg.setText(item.getNombreOrganizacion());
@@ -77,26 +107,64 @@ public class ActividadesApiAdapter extends RecyclerView.Adapter<ActividadesApiAd
             if (tvDesc != null)
                 tvDesc.setText(item.getDescripcion());
 
-            // Imagen local sin red para evitar errores de conectividad del emulador
-            imgLogo.setImageResource(R.drawable.activities1);
+            // LOG Debug Imagen
+            String imageUrl = item.getImageUrl();
+            android.util.Log.d("ActividadesAdapter",
+                    "Cargando imagen para ID " + item.getIdActividad() + ": " + imageUrl);
+
+            Glide.with(itemView.getContext())
+                    .load(imageUrl)
+                    .centerCrop()
+                    .placeholder(R.drawable.activities1)
+                    .error(
+                            Glide.with(itemView.getContext())
+                                    .load("https://placehold.co/600x400/780000/ffffff.png?text=Error")
+                                    .centerCrop())
+                    .into(imgLogo);
 
             if (tvCategory != null) {
                 String tipo = item.getTipo();
-                tvCategory.setText(tipo != null && !tipo.isEmpty() ? tipo : "General");
+                android.util.Log.d("ActividadesAdapter", "Tipo raw: " + tipo);
+
+                if (tipo != null && !tipo.isEmpty()) {
+                    // Mapeo de emergencia por si llega ID en vez de nombre
+                    switch (tipo) {
+                        case "1":
+                            tipo = "Social";
+                            break;
+                        case "2":
+                            tipo = "Medioambiente";
+                            break;
+                        case "3":
+                            tipo = "Sanitario";
+                            break;
+                        case "4":
+                            tipo = "Cultural";
+                            break;
+                        case "5":
+                            tipo = "Educativo";
+                            break;
+                        case "6":
+                            tipo = "Deportivo";
+                            break;
+                    }
+                    tvCategory.setText(tipo);
+                } else {
+                    tvCategory.setText("General");
+                }
+            }
+
+            // Manejar ubicación
+            if (item.getUbicacion() != null && !item.getUbicacion().isEmpty()) {
+                tvLocation.setText(item.getUbicacion());
+                tvLocation.setVisibility(View.VISIBLE);
+            } else {
+                tvLocation.setText("Sin ubicación");
+                tvLocation.setVisibility(View.VISIBLE);
             }
 
             if (listener != null) {
                 itemView.setOnClickListener(v -> listener.onItemClick(item, getAdapterPosition()));
-            }
-        }
-
-        private String formatFecha(String fechaCompleta) {
-            if (fechaCompleta == null || fechaCompleta.isEmpty())
-                return "";
-            try {
-                return fechaCompleta.substring(0, 10);
-            } catch (Exception e) {
-                return fechaCompleta;
             }
         }
     }

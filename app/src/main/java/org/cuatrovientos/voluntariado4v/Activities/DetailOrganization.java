@@ -124,14 +124,32 @@ public class DetailOrganization extends AppCompatActivity {
 
     private void populateUI(OrganizacionResponse org) {
         tvName.setText(org.getNombre());
-        tvSubtitle.setText("Organización sin ánimo de lucro"); // Tipo fijo o sacado de API
+        tvSubtitle.setText("Organización");
         tvDescription.setText(org.getDescripcion());
 
-        // Imágenes: Usamos placeholder genérico hasta tener URLs reales de la API
-        Glide.with(this).load(R.drawable.activities1).into(imgHeader);
-        Glide.with(this).load(R.drawable.squarelogo).into(imgLogo);
+        // Prioridad Imagen: 1. Intent Extra, 2. Fallback
+        String imgUrl = getIntent().getStringExtra("ORG_IMG"); // Usamos el extra pasado por DetailActivity
 
-        // Estadísticas dummy hasta que el endpoint 'estadisticas_organizacion' se integre
+        Glide.with(this)
+                .load(imgUrl)
+                .centerCrop()
+                .placeholder(R.drawable.squarelogo)
+                .error(
+                        Glide.with(this)
+                                .load("https://placehold.co/600x400/780000/ffffff.png?text="
+                                        + Uri.encode(org.getNombre()))
+                                .centerCrop())
+                .into(imgLogo);
+
+        // Imagen Header: Configuramos para que sea la misma que imgOrgLogo
+        Glide.with(this)
+                .load(imgUrl)
+                .centerCrop()
+                .placeholder(R.drawable.activities1) // Placeholder genérico fondo
+                .error(R.drawable.activities1)
+                .into(imgHeader);
+
+        // Estadísticas dummy
         tvStatVolunteers.setText("150+");
         tvStatRating.setText("4.8");
     }
@@ -139,7 +157,7 @@ public class DetailOrganization extends AppCompatActivity {
     private void setupRecycler(List<ActividadResponse> actividades) {
         ActividadesApiAdapter adapter = new ActividadesApiAdapter(actividades, (item, position) -> {
             Intent intent = new Intent(DetailOrganization.this, DetailActivity.class);
-            intent.putExtra("ACTIVIDAD_ITEM", item);
+            intent.putExtra("actividad", item); // CORREGIDO: Clave debe coincidir con DetailActivity
             startActivity(intent);
         });
         rvActivities.setLayoutManager(new LinearLayoutManager(this));

@@ -5,7 +5,7 @@ import java.io.Serializable;
 
 public class OrganizacionResponse implements Serializable {
 
-    @SerializedName("id_organizacion")
+    @SerializedName(value = "id_organizacion", alternate = { "id", "idUsuario", "userId" })
     private int id;
 
     @SerializedName("nombre")
@@ -15,9 +15,9 @@ public class OrganizacionResponse implements Serializable {
     private String descripcion;
 
     @SerializedName("email")
-    private String email; // Añadido campo email
+    private String email;
 
-    @SerializedName("sitio_web")
+    @SerializedName(value = "sitio_web", alternate = { "web", "sitioWeb", "url" })
     private String sitioWeb;
 
     @SerializedName("telefono")
@@ -27,11 +27,31 @@ public class OrganizacionResponse implements Serializable {
     private String direccion;
 
     // Getters
-    public int getId() { return id; }
-    public String getNombre() { return nombre; }
-    public String getDescripcion() { return descripcion; }
-    public String getEmail() { return email; }
-    public String getSitioWeb() { return sitioWeb; }
-    public String getTelefono() { return telefono; }
-    public String getDireccion() { return direccion; }
+    public int getId() {
+        return id;
+    }
+
+    public String getNombre() {
+        return nombre;
+    }
+
+    public String getDescripcion() {
+        return descripcion;
+    }
+
+    public String getEmail() {
+        return email;
+    }
+
+    public String getSitioWeb() {
+        return sitioWeb;
+    }
+
+    public String getTelefono() {
+        return telefono;
+    }
+
+    public String getDireccion() {
+        return direccion;
+    }
 }
