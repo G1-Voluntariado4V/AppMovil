@@ -29,6 +29,7 @@ import org.cuatrovientos.voluntariado4v.Activities.AuthCompleteProfile;
 import org.cuatrovientos.voluntariado4v.Activities.AuthLogin;
 import org.cuatrovientos.voluntariado4v.Dialogs.LanguageDialog;
 import org.cuatrovientos.voluntariado4v.Models.VoluntarioResponse;
+import org.cuatrovientos.voluntariado4v.Models.VoluntarioUpdateRequest;
 import org.cuatrovientos.voluntariado4v.R;
 import org.cuatrovientos.voluntariado4v.API.ApiClient;
 
@@ -52,6 +53,7 @@ public class UserProfileFragment extends Fragment implements LanguageDialog.OnLa
     private EditText etNombre, etApellidos, etDni, etTelefono, etFechaNacimiento;
     private ImageView btnEditInfo;
     private boolean isEditingInfo = false;
+    private boolean isLoading = false;
 
     // Campos de Observaciones (Solo visual, no API)
     private EditText etObservaciones;
@@ -65,7 +67,8 @@ public class UserProfileFragment extends Fragment implements LanguageDialog.OnLa
     private RecyclerView rvLanguages;
     private ImageView btnEditLanguage;
     private SimpleLanguageAdapter languageAdapter;
-    private List<String> listaIdiomas = new ArrayList<>();
+    private List<VoluntarioResponse.IdiomaInfo> listaIdiomas = new ArrayList<>();
+    private List<String> listaNombresIdiomas = new ArrayList<>();
 
     private GoogleSignInClient googleSignInClient;
 
@@ -75,7 +78,7 @@ public class UserProfileFragment extends Fragment implements LanguageDialog.OnLa
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
+            Bundle savedInstanceState) {
         // Inflar el layout del fragmento
         return inflater.inflate(R.layout.fragment_user_profile, container, false);
     }
@@ -95,7 +98,8 @@ public class UserProfileFragment extends Fragment implements LanguageDialog.OnLa
     }
 
     private void setupGoogleSignIn() {
-        if (getContext() == null) return;
+        if (getContext() == null)
+            return;
 
         GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
                 .requestEmail()
@@ -118,6 +122,22 @@ public class UserProfileFragment extends Fragment implements LanguageDialog.OnLa
         btnEditObs = view.findViewById(R.id.btnEditObs);
 
         switchCoche = view.findViewById(R.id.switchCoche);
+        // UX improvement: Click en el contenedor activa el switch
+        View parent = (View) switchCoche.getParent();
+        if (parent != null) {
+            parent.setOnClickListener(v -> {
+                if (switchCoche.isEnabled()) {
+                    switchCoche.toggle();
+                }
+            });
+        }
+
+        // Autoguardado al cambiar el switch
+        switchCoche.setOnCheckedChangeListener((buttonView, isChecked) -> {
+            if (!isLoading) {
+                saveProfileToApi();
+            }
+        });
 
         rvLanguages = view.findViewById(R.id.rvLanguages);
         btnEditLanguage = view.findViewById(R.id.btnEditLanguage);
@@ -130,7 +150,8 @@ public class UserProfileFragment extends Fragment implements LanguageDialog.OnLa
     }
 
     private void loadUserDataFromApi() {
-        if (getContext() == null) return;
+        if (getContext() == null)
+            return;
 
         SharedPreferences prefs = requireContext().getSharedPreferences("VoluntariadoPrefs", Context.MODE_PRIVATE);
         int userId = prefs.getInt("user_id", -1);
@@ -145,7 +166,8 @@ public class UserProfileFragment extends Fragment implements LanguageDialog.OnLa
             ApiClient.getService().getVoluntario(userId).enqueue(new Callback<VoluntarioResponse>() {
                 @Override
                 public void onResponse(Call<VoluntarioResponse> call, Response<VoluntarioResponse> response) {
-                    if (!isAdded()) return; // Verificar si el fragmento sigue activo
+                    if (!isAdded())
+                        return; // Verificar si el fragmento sigue activo
 
                     Log.d(TAG, "Respuesta API: code=" + response.code());
                     if (response.isSuccessful() && response.body() != null) {
@@ -154,21 +176,26 @@ public class UserProfileFragment extends Fragment implements LanguageDialog.OnLa
                         populateData(user);
                     } else if (response.code() == 404) {
                         Log.w(TAG, "Perfil 404 - No existe. Redirigiendo a completar perfil.");
-                        Toast.makeText(getContext(), "Perfil no encontrado. Completa tus datos.", Toast.LENGTH_LONG).show();
+                        Toast.makeText(getContext(), "Perfil no encontrado. Completa tus datos.", Toast.LENGTH_LONG)
+                                .show();
                         Intent intent = new Intent(getContext(), AuthCompleteProfile.class);
                         startActivity(intent);
-                        if (getActivity() != null) getActivity().finish();
+                        if (getActivity() != null)
+                            getActivity().finish();
                     } else {
                         Log.e(TAG, "Error API: " + response.code());
-                        Toast.makeText(getContext(), "Error cargando perfil: " + response.code(), Toast.LENGTH_SHORT).show();
+                        Toast.makeText(getContext(), "Error cargando perfil: " + response.code(), Toast.LENGTH_SHORT)
+                                .show();
                     }
                 }
 
                 @Override
                 public void onFailure(Call<VoluntarioResponse> call, Throwable t) {
-                    if (!isAdded()) return;
+                    if (!isAdded())
+                        return;
                     Log.e(TAG, "Fallo red perfil", t);
-                    Toast.makeText(getContext(), "Sin conexión. No se pudo cargar el perfil.", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(getContext(), "Sin conexión. No se pudo cargar el perfil.", Toast.LENGTH_SHORT)
+                            .show();
                 }
             });
         } else {
@@ -178,29 +205,48 @@ public class UserProfileFragment extends Fragment implements LanguageDialog.OnLa
     }
 
     private void populateData(VoluntarioResponse user) {
+        isLoading = true;
         tvUserName.setText(user.getNombreCompleto());
         etNombre.setText(user.getNombre());
         etApellidos.setText(user.getApellidos());
+
+        // Datos reales de la API
         etDni.setText(user.getDni());
         etTelefono.setText(user.getTelefono());
-
-        // Formatear fecha
         etFechaNacimiento.setText(formatDateForDisplay(user.getFechaNac()));
-
         switchCoche.setChecked(user.isCarnetConducir());
 
-        // Campos mock
-        etObservaciones.setText("");
-        setupLanguagesRecycler(new ArrayList<>());
+        // Descripción/Observaciones
+        etObservaciones.setText(user.getDescripcion() != null ? user.getDescripcion() : "");
 
-        // Bloquear edición inicial
+        // Mostrar idiomas reales de la API
+        // Mostrar idiomas reales de la API
+        listaIdiomas.clear();
+        listaNombresIdiomas.clear();
+
+        if (user.getIdiomas() != null) {
+            listaIdiomas.addAll(user.getIdiomas());
+            for (VoluntarioResponse.IdiomaInfo idioma : user.getIdiomas()) {
+                listaNombresIdiomas.add(idioma.getIdioma() + " (" + idioma.getNivel() + ")");
+            }
+        }
+        setupLanguagesRecycler(listaNombresIdiomas);
+
+        // Bloquear edición inicial (excepto Switch Coche que es always-on)
         setFieldsEnabled(false, etNombre, etApellidos, etDni, etTelefono, etFechaNacimiento);
         setFieldsEnabled(false, etObservaciones);
-        switchCoche.setEnabled(false);
+
+        // Switch siempre habilitado
+        switchCoche.setEnabled(true);
+        switchCoche.setClickable(true);
+        switchCoche.setFocusable(true);
+        switchCoche.setAlpha(1.0f);
+        isLoading = false;
     }
 
     private String formatDateForDisplay(String apiDate) {
-        if (apiDate == null || !apiDate.contains("-")) return apiDate;
+        if (apiDate == null || !apiDate.contains("-"))
+            return apiDate;
         try {
             String[] parts = apiDate.split("-");
             if (parts.length == 3) {
@@ -212,9 +258,9 @@ public class UserProfileFragment extends Fragment implements LanguageDialog.OnLa
         return apiDate;
     }
 
-    private void setupLanguagesRecycler(List<String> idiomas) {
-        listaIdiomas = idiomas;
-        languageAdapter = new SimpleLanguageAdapter(listaIdiomas);
+    private void setupLanguagesRecycler(List<String> nombresIdiomas) {
+        // Usamos la lista de nombres para el adaptador visual
+        languageAdapter = new SimpleLanguageAdapter(nombresIdiomas);
         rvLanguages.setLayoutManager(new LinearLayoutManager(getContext()));
         rvLanguages.setAdapter(languageAdapter);
     }
@@ -225,27 +271,24 @@ public class UserProfileFragment extends Fragment implements LanguageDialog.OnLa
             if (!isEditingInfo) {
                 isEditingInfo = true;
                 setFieldsEnabled(true, etNombre, etApellidos, etDni, etTelefono, etFechaNacimiento);
-                switchCoche.setEnabled(true);
+
                 btnEditInfo.setImageResource(R.drawable.ic_check_circle);
                 etNombre.requestFocus();
             } else {
-                // Guardar (Mock por ahora)
-                Toast.makeText(getContext(), "Guardado no disponible en API aún", Toast.LENGTH_SHORT).show();
-
-                isEditingInfo = false;
-                setFieldsEnabled(false, etNombre, etApellidos, etDni, etTelefono, etFechaNacimiento);
-                switchCoche.setEnabled(false);
-                btnEditInfo.setImageResource(R.drawable.ic_edit);
+                // Guardar cambios en la API
+                saveProfileToApi();
             }
         });
 
-        // Observaciones (Mock)
+        // Observaciones
         btnEditObs.setOnClickListener(v -> {
             if (!isEditingObs) {
                 isEditingObs = true;
                 setFieldsEnabled(true, etObservaciones);
                 btnEditObs.setImageResource(R.drawable.ic_check_circle);
             } else {
+                // Guardar cambios en la API
+                saveProfileToApi();
                 isEditingObs = false;
                 setFieldsEnabled(false, etObservaciones);
                 btnEditObs.setImageResource(R.drawable.ic_edit);
@@ -253,11 +296,97 @@ public class UserProfileFragment extends Fragment implements LanguageDialog.OnLa
         });
 
         // Idiomas Dialog
+        // Idiomas Dialog
         btnEditLanguage.setOnClickListener(v -> {
             LanguageDialog dialog = new LanguageDialog();
-            // Nota: Es posible que necesites ajustar LanguageDialog para que reconozca el Fragment
+
+            // Pasar lista actual al diálogo
+            List<LanguageDialog.IdiomaItem> items = new ArrayList<>();
+            for (VoluntarioResponse.IdiomaInfo info : listaIdiomas) {
+                items.add(new LanguageDialog.IdiomaItem(info.getIdIdioma(), info.getIdioma(), info.getNivel()));
+            }
+            dialog.setIdiomasActuales(items);
+
             dialog.show(getChildFragmentManager(), "LanguageDialog");
         });
+    }
+
+    private void saveProfileToApi() {
+        if (getContext() == null)
+            return;
+
+        SharedPreferences prefs = requireContext().getSharedPreferences("VoluntariadoPrefs", Context.MODE_PRIVATE);
+        int userId = prefs.getInt("user_id", -1);
+
+        if (userId == -1) {
+            Toast.makeText(getContext(), "Error: Sesión no válida", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        // Recoger datos de los campos
+        String nombre = etNombre.getText().toString().trim();
+        String apellidos = etApellidos.getText().toString().trim();
+        String telefono = etTelefono.getText().toString().trim();
+        String fechaDisplay = etFechaNacimiento.getText().toString().trim();
+        boolean carnetConducir = switchCoche.isChecked();
+        String descripcion = etObservaciones.getText().toString().trim();
+
+        // Convertir fecha de DD/MM/YYYY a YYYY-MM-DD
+        String fechaApi = formatDateForApi(fechaDisplay);
+
+        // Crear el DTO
+        VoluntarioUpdateRequest request = new VoluntarioUpdateRequest(
+                nombre, apellidos, telefono, fechaApi, carnetConducir, descripcion);
+
+        Log.d(TAG, "Guardando perfil para userId=" + userId);
+
+        // Llamar a la API
+        ApiClient.getService().updateVoluntario(userId, userId, request).enqueue(new Callback<VoluntarioResponse>() {
+            @Override
+            public void onResponse(Call<VoluntarioResponse> call, Response<VoluntarioResponse> response) {
+                if (!isAdded())
+                    return;
+
+                if (response.isSuccessful() && response.body() != null) {
+                    Log.d(TAG, "Perfil actualizado correctamente");
+                    Toast.makeText(getContext(), "Perfil guardado", Toast.LENGTH_SHORT).show();
+
+                    // Actualizar UI con los datos devueltos
+                    populateData(response.body());
+
+                    // Volver a modo visualización
+                    isEditingInfo = false;
+                    setFieldsEnabled(false, etNombre, etApellidos, etDni, etTelefono, etFechaNacimiento);
+                    btnEditInfo.setImageResource(R.drawable.ic_edit);
+                } else {
+                    Log.e(TAG, "Error al guardar: " + response.code());
+                    Toast.makeText(getContext(), "Error al guardar: " + response.code(), Toast.LENGTH_SHORT).show();
+                }
+            }
+
+            @Override
+            public void onFailure(Call<VoluntarioResponse> call, Throwable t) {
+                if (!isAdded())
+                    return;
+                Log.e(TAG, "Error de red al guardar", t);
+                Toast.makeText(getContext(), "Error de conexión", Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+
+    private String formatDateForApi(String displayDate) {
+        if (displayDate == null || displayDate.isEmpty() || !displayDate.contains("/")) {
+            return null;
+        }
+        try {
+            String[] parts = displayDate.split("/");
+            if (parts.length == 3) {
+                return parts[2] + "-" + parts[1] + "-" + parts[0]; // YYYY-MM-DD
+            }
+        } catch (Exception e) {
+            Log.e(TAG, "Error formateando fecha", e);
+        }
+        return null;
     }
 
     private void setFieldsEnabled(boolean enabled, EditText... fields) {
@@ -277,7 +406,8 @@ public class UserProfileFragment extends Fragment implements LanguageDialog.OnLa
 
     private void setupDatePicker() {
         etFechaNacimiento.setOnClickListener(v -> {
-            if (!isEditingInfo) return;
+            if (!isEditingInfo)
+                return;
 
             final Calendar calendar = Calendar.getInstance();
             int year = calendar.get(Calendar.YEAR);
@@ -297,7 +427,8 @@ public class UserProfileFragment extends Fragment implements LanguageDialog.OnLa
     }
 
     private void logout() {
-        if (getActivity() == null) return;
+        if (getActivity() == null)
+            return;
 
         googleSignInClient.signOut().addOnCompleteListener(getActivity(), task -> {
             SharedPreferences prefs = requireContext().getSharedPreferences("VoluntariadoPrefs", Context.MODE_PRIVATE);
@@ -313,7 +444,8 @@ public class UserProfileFragment extends Fragment implements LanguageDialog.OnLa
 
     @Override
     public void onLanguagesSaved() {
-        Toast.makeText(getContext(), "Idiomas actualizados (Visual)", Toast.LENGTH_SHORT).show();
+        // Recargar el perfil para mostrar los idiomas actualizados
+        loadUserDataFromApi();
     }
 
     // Adapter Interno

@@ -350,6 +350,8 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:checked="false"
+                            android:clickable="true"
+                            android:focusable="true"
                             app:thumbTint="#2196F3"
                             app:trackTint="#BBDEFB"
                             app:layout_constraintBottom_toBottomOf="parent"

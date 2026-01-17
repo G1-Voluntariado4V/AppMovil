@@ -4,27 +4,37 @@ import com.google.gson.annotations.SerializedName;
 import java.util.List;
 
 /**
- * Modelo híbrido para soportar respuesta de LOGIN (nombre, apellidos) y PERFIL
- * (nombre_completo).
+ * Modelo para respuesta de GET /voluntarios/{id}
+ * Contiene todos los datos del perfil del voluntario.
  */
 public class VoluntarioResponse {
 
     @SerializedName("id_usuario")
     private int idUsuario;
 
-    // Login
     @SerializedName("nombre")
     private String nombre;
 
     @SerializedName("apellidos")
     private String apellidos;
 
-    // Perfil
     @SerializedName("nombre_completo")
     private String nombreCompleto;
 
     @SerializedName("correo")
     private String correo;
+
+    @SerializedName("dni")
+    private String dni;
+
+    @SerializedName("telefono")
+    private String telefono;
+
+    @SerializedName("fecha_nac")
+    private String fechaNac;
+
+    @SerializedName("carnet_conducir")
+    private boolean carnetConducir;
 
     @SerializedName("curso")
     private String curso;
@@ -41,7 +51,6 @@ public class VoluntarioResponse {
     @SerializedName("idiomas")
     private List<IdiomaInfo> idiomas;
 
-    // Métodos híbridos
     public int getId() {
         return idUsuario;
     }
@@ -49,7 +58,6 @@ public class VoluntarioResponse {
     public String getNombre() {
         if (nombre != null && !nombre.isEmpty())
             return nombre;
-        // Fallback desde nombreCompleto
         if (nombreCompleto != null) {
             String[] parts = nombreCompleto.split(" ", 2);
             return parts.length > 0 ? parts[0] : "";
@@ -60,7 +68,6 @@ public class VoluntarioResponse {
     public String getApellidos() {
         if (apellidos != null && !apellidos.isEmpty())
             return apellidos;
-        // Fallback desde nombreCompleto
         if (nombreCompleto != null) {
             String[] parts = nombreCompleto.split(" ", 2);
             return parts.length > 1 ? parts[1] : "";
@@ -76,6 +83,22 @@ public class VoluntarioResponse {
 
     public String getCorreo() {
         return correo;
+    }
+
+    public String getDni() {
+        return dni != null ? dni : "";
+    }
+
+    public String getTelefono() {
+        return telefono != null ? telefono : "";
+    }
+
+    public String getFechaNac() {
+        return fechaNac != null ? fechaNac : "";
+    }
+
+    public boolean isCarnetConducir() {
+        return carnetConducir;
     }
 
     public String getCurso() {
@@ -98,29 +121,17 @@ public class VoluntarioResponse {
         return idiomas;
     }
 
-    // Compatibilidad
-    public String getDni() {
-        return "";
-    }
-
-    public String getTelefono() {
-        return "";
-    }
-
-    public String getFechaNac() {
-        return "";
-    }
-
-    public boolean isCarnetConducir() {
-        return false;
-    }
-
-    // Subclase Idiomas
     public static class IdiomaInfo {
+        @SerializedName("id_idioma")
+        private int idIdioma;
         @SerializedName("idioma")
         private String idioma;
         @SerializedName("nivel")
         private String nivel;
+
+        public int getIdIdioma() {
+            return idIdioma;
+        }
 
         public String getIdioma() {
             return idioma;

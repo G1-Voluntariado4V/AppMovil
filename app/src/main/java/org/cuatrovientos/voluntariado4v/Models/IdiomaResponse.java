@@ -6,10 +6,10 @@ public class IdiomaResponse {
     @SerializedName("id")
     private int id;
 
-    @SerializedName("nombre_idioma")
+    @SerializedName("nombre")
     private String nombre;
 
-    @SerializedName("codigo_iso")
+    @SerializedName("codigoIso")
     private String codigoIso;
 
     public int getId() {
