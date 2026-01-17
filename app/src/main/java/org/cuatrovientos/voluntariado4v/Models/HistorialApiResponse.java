@@ -72,7 +72,18 @@ public class HistorialApiResponse implements Serializable {
             a.setFechaInicio(fechaActividad);
             a.setNombreOrganizacion(nombreOrganizacion);
             a.setImagenActividad(imagenActividad);
-            a.setTipos(tipos != null ? tipos : new ArrayList<>());
+            a.setImagenActividad(imagenActividad);
+
+            // Adaptar List<String> a List<TipoVoluntariadoResponse>
+            List<TipoVoluntariadoResponse> dummyTipos = new ArrayList<>();
+            if (tipos != null) {
+                for (String tName : tipos) {
+                    TipoVoluntariadoResponse tObj = new TipoVoluntariadoResponse();
+                    tObj.setNombre(tName);
+                    dummyTipos.add(tObj);
+                }
+            }
+            a.setTipos(dummyTipos);
 
             a.setIdOrganizacion(idOrganizacion);
             a.setEstadoInscripcionUsuario(estadoInscripcion);

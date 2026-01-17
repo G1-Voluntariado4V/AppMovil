@@ -16,12 +16,13 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.bumptech.glide.Glide;
 import com.google.android.material.button.MaterialButton;
 
-import org.cuatrovientos.voluntariado4v.Adapters.ActividadesApiAdapter; // Usamos el Adapter real
+import org.cuatrovientos.voluntariado4v.Adapters.SmallActivityAdapter;
 import org.cuatrovientos.voluntariado4v.Models.ActividadResponse;
 import org.cuatrovientos.voluntariado4v.Models.OrganizacionResponse;
 import org.cuatrovientos.voluntariado4v.R;
 import org.cuatrovientos.voluntariado4v.API.ApiClient;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import retrofit2.Call;
@@ -49,7 +50,6 @@ public class DetailOrganization extends AppCompatActivity {
 
         initViews();
 
-        // Recibimos ID
         orgId = getIntent().getIntExtra("ORG_ID", -1);
         String fallbackName = getIntent().getStringExtra("ORG_NAME");
 
@@ -57,9 +57,6 @@ public class DetailOrganization extends AppCompatActivity {
             Toast.makeText(this, "Organización no encontrada", Toast.LENGTH_SHORT).show();
             if (fallbackName != null)
                 tvName.setText(fallbackName);
-            // Podríamos intentar buscar por nombre si tuviéramos endpoint, pero por ahora
-            // mostramos error/logging
-            Log.e(TAG, "Falta ORG_ID en el intent.");
         } else {
             loadOrganizationData(orgId);
             loadOrganizationActivities(orgId);
@@ -110,8 +107,8 @@ public class DetailOrganization extends AppCompatActivity {
             public void onResponse(Call<List<ActividadResponse>> call, Response<List<ActividadResponse>> response) {
                 if (response.isSuccessful() && response.body() != null) {
                     setupRecycler(response.body());
-                    // Actualizar contador visualmente
-                    tvStatActivities.setText(String.valueOf(response.body().size()));
+                    if (tvStatActivities != null)
+                        tvStatActivities.setText(String.valueOf(response.body().size()));
                 }
             }
 
@@ -127,8 +124,7 @@ public class DetailOrganization extends AppCompatActivity {
         tvSubtitle.setText("Organización");
         tvDescription.setText(org.getDescripcion());
 
-        // Prioridad Imagen: 1. Intent Extra, 2. Fallback
-        String imgUrl = getIntent().getStringExtra("ORG_IMG"); // Usamos el extra pasado por DetailActivity
+        String imgUrl = getIntent().getStringExtra("ORG_IMG");
 
         Glide.with(this)
                 .load(imgUrl)
@@ -141,25 +137,80 @@ public class DetailOrganization extends AppCompatActivity {
                                 .centerCrop())
                 .into(imgLogo);
 
-        // Imagen Header: Configuramos para que sea la misma que imgOrgLogo
         Glide.with(this)
                 .load(imgUrl)
                 .centerCrop()
-                .placeholder(R.drawable.activities1) // Placeholder genérico fondo
+                .placeholder(R.drawable.activities1)
                 .error(R.drawable.activities1)
                 .into(imgHeader);
 
-        // Estadísticas dummy
-        tvStatVolunteers.setText("150+");
-        tvStatRating.setText("4.8");
+        // Estadísticas
+        // Estadísticas y Ranking
+        int rankingIntent = getIntent().getIntExtra("ORG_RANKING", 0);
+        int rankingFinal = (rankingIntent > 0) ? rankingIntent : org.getRankingGlobal();
+        int volInfo = org.getTotalVoluntarios();
+
+        if (rankingFinal > 0 && volInfo > 0) {
+            tvStatRating.setText("#" + rankingFinal);
+            tvStatVolunteers.setText(String.valueOf(volInfo));
+        } else {
+            // Si falta ranking o voluntarios (común si no venimos del Top),
+            // consultamos la lista Top en segundo plano para obtener el dato real.
+            if (rankingFinal > 0)
+                tvStatRating.setText("#" + rankingFinal);
+            else
+                tvStatRating.setText("-");
+
+            if (volInfo > 0)
+                tvStatVolunteers.setText(String.valueOf(volInfo));
+            else
+                tvStatVolunteers.setText("-");
+
+            fetchStatsFromTopList(org.getId());
+        }
+    }
+
+    private void fetchStatsFromTopList(int myOrgId) {
+        ApiClient.getService().getTopOrganizaciones().enqueue(new Callback<List<OrganizacionResponse>>() {
+            @Override
+            public void onResponse(Call<List<OrganizacionResponse>> call,
+                    Response<List<OrganizacionResponse>> response) {
+                if (response.isSuccessful() && response.body() != null) {
+                    for (OrganizacionResponse item : response.body()) {
+                        if (item.getId() == myOrgId) {
+                            if (tvStatRating != null)
+                                tvStatRating.setText("#" + item.getRankingGlobal());
+                            if (tvStatVolunteers != null)
+                                tvStatVolunteers.setText(String.valueOf(item.getTotalVoluntarios()));
+                            break;
+                        }
+                    }
+                }
+            }
+
+            @Override
+            public void onFailure(Call<List<OrganizacionResponse>> call, Throwable t) {
+                // Fallo silencioso, se queda con lo que tenga
+            }
+        });
     }
 
     private void setupRecycler(List<ActividadResponse> actividades) {
-        ActividadesApiAdapter adapter = new ActividadesApiAdapter(actividades, (item, position) -> {
+        List<ActividadResponse> filtered = new ArrayList<>();
+        if (actividades != null) {
+            for (ActividadResponse a : actividades) {
+                if ("Publicada".equalsIgnoreCase(a.getEstadoPublicacion())) {
+                    filtered.add(a);
+                }
+            }
+        }
+
+        SmallActivityAdapter adapter = new SmallActivityAdapter(filtered, item -> {
             Intent intent = new Intent(DetailOrganization.this, DetailActivity.class);
-            intent.putExtra("actividad", item); // CORREGIDO: Clave debe coincidir con DetailActivity
+            intent.putExtra("actividad", item);
             startActivity(intent);
         });
+
         rvActivities.setLayoutManager(new LinearLayoutManager(this));
         rvActivities.setAdapter(adapter);
     }
@@ -171,10 +222,8 @@ public class DetailOrganization extends AppCompatActivity {
             if (currentOrg == null)
                 return;
 
-            // Intent de correo
             Intent intent = new Intent(Intent.ACTION_SENDTO);
-            intent.setData(Uri.parse("mailto:")); // Solo apps de correo
-            // Si la API no devuelve email, usamos uno dummy o lo protegemos
+            intent.setData(Uri.parse("mailto:"));
             intent.putExtra(Intent.EXTRA_EMAIL,
                     new String[] { "contacto@" + currentOrg.getNombre().toLowerCase().replace(" ", "") + ".org" });
             intent.putExtra(Intent.EXTRA_SUBJECT, "Consulta VoluntariadoApp: " + currentOrg.getNombre());

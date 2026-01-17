@@ -258,9 +258,10 @@ public class UserActivitiesFragment extends Fragment {
             if (!matchesCategory) {
                 // Comprobar lista de tipos
                 if (item.getTipos() != null) {
-                    for (String tipo : item.getTipos()) {
-                        if (tipo.toLowerCase().contains(currentCategory.toLowerCase()) ||
-                                currentCategory.toLowerCase().contains(tipo.toLowerCase())) {
+                    for (TipoVoluntariadoResponse tipoObj : item.getTipos()) {
+                        String tipo = tipoObj.getNombre();
+                        if (tipo != null && (tipo.toLowerCase().contains(currentCategory.toLowerCase()) ||
+                                currentCategory.toLowerCase().contains(tipo.toLowerCase()))) {
                             matchesCategory = true;
                             break;
                         }

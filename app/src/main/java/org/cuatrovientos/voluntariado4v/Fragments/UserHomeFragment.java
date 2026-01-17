@@ -7,11 +7,9 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.cardview.widget.CardView;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -22,13 +20,10 @@ import org.cuatrovientos.voluntariado4v.API.ApiClient;
 import org.cuatrovientos.voluntariado4v.Adapters.DashboardOrganizationsAdapter;
 import org.cuatrovientos.voluntariado4v.Models.ActividadResponse;
 import org.cuatrovientos.voluntariado4v.Models.HistorialApiResponse;
-import org.cuatrovientos.voluntariado4v.Models.TopOrganizacionResponse;
 import org.cuatrovientos.voluntariado4v.Models.VoluntarioResponse;
 import org.cuatrovientos.voluntariado4v.R;
 
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
@@ -225,25 +220,29 @@ public class UserHomeFragment extends Fragment {
     }
 
     private void loadTopOrganizations() {
-        ApiClient.getService().getTopOrganizaciones().enqueue(new Callback<List<TopOrganizacionResponse>>() {
-            @Override
-            public void onResponse(Call<List<TopOrganizacionResponse>> call,
-                    Response<List<TopOrganizacionResponse>> response) {
-                if (response.isSuccessful() && response.body() != null) {
-                    List<TopOrganizacionResponse> topOrgs = response.body();
-                    // Limitar a 3 si vienen más
-                    if (topOrgs.size() > 3) {
-                        topOrgs = topOrgs.subList(0, 3);
+        ApiClient.getService().getTopOrganizaciones()
+                .enqueue(new Callback<List<org.cuatrovientos.voluntariado4v.Models.OrganizacionResponse>>() {
+                    @Override
+                    public void onResponse(
+                            Call<List<org.cuatrovientos.voluntariado4v.Models.OrganizacionResponse>> call,
+                            Response<List<org.cuatrovientos.voluntariado4v.Models.OrganizacionResponse>> response) {
+                        if (response.isSuccessful() && response.body() != null) {
+                            List<org.cuatrovientos.voluntariado4v.Models.OrganizacionResponse> topOrgs = response
+                                    .body();
+                            // Limitar a 3 si vienen más
+                            if (topOrgs.size() > 3) {
+                                topOrgs = topOrgs.subList(0, 3);
+                            }
+                            DashboardOrganizationsAdapter adapter = new DashboardOrganizationsAdapter(topOrgs);
+                            rvTopOrganizations.setAdapter(adapter);
+                        }
                     }
-                    DashboardOrganizationsAdapter adapter = new DashboardOrganizationsAdapter(topOrgs);
-                    rvTopOrganizations.setAdapter(adapter);
-                }
-            }
 
-            @Override
-            public void onFailure(Call<List<TopOrganizacionResponse>> call, Throwable t) {
-                // Fail silently
-            }
-        });
+                    @Override
+                    public void onFailure(Call<List<org.cuatrovientos.voluntariado4v.Models.OrganizacionResponse>> call,
+                            Throwable t) {
+                        // Fail silently
+                    }
+                });
     }
 }

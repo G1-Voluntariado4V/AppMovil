@@ -69,10 +69,6 @@ public class ActividadResponse implements Serializable {
         return idActividad;
     }
 
-    public String getTipo() {
-        return tipo;
-    }
-
     public String getTitulo() {
         return titulo;
     }
@@ -193,21 +189,36 @@ public class ActividadResponse implements Serializable {
     }
 
     // --- Soporte Lista de Tipos ---
-    private java.util.List<String> tiposList;
+    @SerializedName("tipos")
+    private java.util.List<TipoVoluntariadoResponse> tiposList;
 
-    public void setTipos(java.util.List<String> tipos) {
+    public void setTipos(java.util.List<TipoVoluntariadoResponse> tipos) {
         this.tiposList = tipos;
         if (tipos != null && !tipos.isEmpty()) {
             if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
-                this.tipo = String.join(", ", tipos);
+                java.util.StringJoiner joiner = new java.util.StringJoiner(", ");
+                for (TipoVoluntariadoResponse t : tipos) {
+                    if (t.getNombre() != null)
+                        joiner.add(t.getNombre());
+                }
+                this.tipo = joiner.toString();
             } else {
-                this.tipo = tipos.get(0);
+                this.tipo = tipos.get(0).getNombre();
             }
         }
     }
 
-    public java.util.List<String> getTipos() {
+    public java.util.List<TipoVoluntariadoResponse> getTipos() {
         return tiposList;
+    }
+
+    public String getTipo() {
+        if (tipo != null && !tipo.isEmpty())
+            return tipo;
+        if (tiposList != null && !tiposList.isEmpty()) {
+            return tiposList.get(0).getNombre();
+        }
+        return "Actividad";
     }
 
     public String getImageUrl() {

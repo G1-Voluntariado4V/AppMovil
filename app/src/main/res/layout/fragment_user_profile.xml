@@ -47,7 +47,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="12dp"
-                    android:text="Carlos Rodríguez"
+                    android:text="Cargando.."
                     android:textColor="#101828"
                     android:textSize="20sp"
                     android:textStyle="bold" />

@@ -9,16 +9,16 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
-import org.cuatrovientos.voluntariado4v.Models.TopOrganizacionResponse;
+import org.cuatrovientos.voluntariado4v.Models.OrganizacionResponse;
 import org.cuatrovientos.voluntariado4v.R;
 
 import java.util.List;
 
 public class DashboardOrganizationsAdapter extends RecyclerView.Adapter<DashboardOrganizationsAdapter.ViewHolder> {
 
-    private List<TopOrganizacionResponse> organizations;
+    private List<OrganizacionResponse> organizations;
 
-    public DashboardOrganizationsAdapter(List<TopOrganizacionResponse> organizations) {
+    public DashboardOrganizationsAdapter(List<OrganizacionResponse> organizations) {
         this.organizations = organizations;
     }
 
@@ -32,7 +32,7 @@ public class DashboardOrganizationsAdapter extends RecyclerView.Adapter<Dashboar
 
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
-        TopOrganizacionResponse org = organizations.get(position);
+        OrganizacionResponse org = organizations.get(position);
 
         holder.tvName.setText(org.getNombre());
         // Usamos descripción o acortamos
@@ -48,8 +48,9 @@ public class DashboardOrganizationsAdapter extends RecyclerView.Adapter<Dashboar
         holder.itemView.setOnClickListener(v -> {
             android.content.Intent intent = new android.content.Intent(v.getContext(),
                     org.cuatrovientos.voluntariado4v.Activities.DetailOrganization.class);
-            intent.putExtra("ORG_ID", org.getIdOrganizacion());
+            intent.putExtra("ORG_ID", org.getId());
             intent.putExtra("ORG_NAME", org.getNombre());
+            intent.putExtra("ORG_RANKING", org.getRankingGlobal());
             // No pasamos ORG_IMG porque el DTO top no la tiene, DetailOrganization usará
             // fallback
             v.getContext().startActivity(intent);

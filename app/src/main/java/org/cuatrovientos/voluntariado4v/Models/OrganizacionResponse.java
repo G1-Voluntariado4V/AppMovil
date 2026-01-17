@@ -26,6 +26,12 @@ public class OrganizacionResponse implements Serializable {
     @SerializedName("direccion")
     private String direccion;
 
+    @SerializedName(value = "total_voluntarios_historico", alternate = { "total_voluntarios" })
+    private int totalVoluntarios;
+
+    @SerializedName(value = "ranking_global", alternate = { "posicion", "ranking" })
+    private int rankingGlobal;
+
     // Getters
     public int getId() {
         return id;
@@ -53,5 +59,13 @@ public class OrganizacionResponse implements Serializable {
 
     public String getDireccion() {
         return direccion;
+    }
+
+    public int getTotalVoluntarios() {
+        return totalVoluntarios;
+    }
+
+    public int getRankingGlobal() {
+        return rankingGlobal;
     }
 }
