@@ -9,16 +9,16 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
-import org.cuatrovientos.voluntariado4v.Models.OrganizationModel;
+import org.cuatrovientos.voluntariado4v.Models.TopOrganizacionResponse;
 import org.cuatrovientos.voluntariado4v.R;
 
 import java.util.List;
 
 public class DashboardOrganizationsAdapter extends RecyclerView.Adapter<DashboardOrganizationsAdapter.ViewHolder> {
 
-    private List<OrganizationModel> organizations;
+    private List<TopOrganizacionResponse> organizations;
 
-    public DashboardOrganizationsAdapter(List<OrganizationModel> organizations) {
+    public DashboardOrganizationsAdapter(List<TopOrganizacionResponse> organizations) {
         this.organizations = organizations;
     }
 
@@ -32,19 +32,33 @@ public class DashboardOrganizationsAdapter extends RecyclerView.Adapter<Dashboar
 
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
-        OrganizationModel org = organizations.get(position);
+        TopOrganizacionResponse org = organizations.get(position);
 
-        holder.tvName.setText(org.getName());
-        holder.tvType.setText(org.getType());
-        holder.imgLogo.setImageResource(org.getLogoResId());
+        holder.tvName.setText(org.getNombre());
+        // Usamos descripción o acortamos
+        String desc = org.getDescripcion();
+        if (desc != null && desc.length() > 30)
+            desc = desc.substring(0, 30) + "...";
+        holder.tvType.setText(desc != null ? desc : "Organización");
 
-        // Formatear contador (Ej: si son muchos, podrías poner "2k", por ahora ponemos el número directo)
-        holder.tvVolunteers.setText(String.valueOf(org.getVolunteersCount()));
+        holder.imgLogo.setImageResource(R.drawable.amavir); // Placeholder por ahora
+
+        holder.tvVolunteers.setText(String.valueOf(org.getTotalVoluntarios()));
+
+        holder.itemView.setOnClickListener(v -> {
+            android.content.Intent intent = new android.content.Intent(v.getContext(),
+                    org.cuatrovientos.voluntariado4v.Activities.DetailOrganization.class);
+            intent.putExtra("ORG_ID", org.getIdOrganizacion());
+            intent.putExtra("ORG_NAME", org.getNombre());
+            // No pasamos ORG_IMG porque el DTO top no la tiene, DetailOrganization usará
+            // fallback
+            v.getContext().startActivity(intent);
+        });
     }
 
     @Override
     public int getItemCount() {
-        return organizations.size();
+        return organizations != null ? organizations.size() : 0;
     }
 
     public static class ViewHolder extends RecyclerView.ViewHolder {

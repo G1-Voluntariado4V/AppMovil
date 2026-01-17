@@ -100,4 +100,7 @@ public interface VoluntariadoApiService {
 
         @GET("actividades/{id}/inscripciones")
         Call<List<VoluntarioResponse>> getInscritos(@Path("id") int idActividad);
+
+        @GET("organizaciones/top-voluntarios")
+        Call<List<org.cuatrovientos.voluntariado4v.Models.TopOrganizacionResponse>> getTopOrganizaciones();
 }

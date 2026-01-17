@@ -239,12 +239,13 @@
             android:id="@+id/rvActivities"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="12dp"
+            android:layout_marginTop="8dp"
             android:clipToPadding="false"
-            android:paddingBottom="20dp"
             android:nestedScrollingEnabled="false"
+            android:paddingBottom="20dp"
             app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
             app:layout_constraintTop_toBottomOf="@id/lblActivities"
+            tools:layout_editor_absoluteX="0dp"
             tools:listitem="@layout/item_small_card_activity" />
     </androidx.constraintlayout.widget.ConstraintLayout>
 </ScrollView>
