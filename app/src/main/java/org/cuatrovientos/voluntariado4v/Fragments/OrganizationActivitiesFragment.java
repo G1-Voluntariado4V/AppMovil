@@ -20,7 +20,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import org.cuatrovientos.voluntariado4v.Activities.DetailActivity;
-import org.cuatrovientos.voluntariado4v.Activities.EditActividadActivity;
+import org.cuatrovientos.voluntariado4v.Activities.EditActividad;
 import org.cuatrovientos.voluntariado4v.Adapters.ActividadesApiAdapter;
 import org.cuatrovientos.voluntariado4v.Adapters.FilterAdapter;
 import org.cuatrovientos.voluntariado4v.API.ApiClient;
@@ -124,7 +124,7 @@ public class OrganizationActivitiesFragment extends Fragment {
             // Solo permitir editar actividades en revisión
             String estado = item.getEstadoPublicacion();
             if (estado != null && estado.equalsIgnoreCase("En revision")) {
-                Intent intent = new Intent(getContext(), EditActividadActivity.class);
+                Intent intent = new Intent(getContext(), EditActividad.class);
                 intent.putExtra("actividad", item);
                 startActivity(intent);
             } else {

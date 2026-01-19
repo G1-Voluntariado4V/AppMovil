@@ -96,7 +96,7 @@ public class DetailActivity extends AppCompatActivity {
         if (tvCategory != null) {
             String categoria = activity.getTipo();
             if (categoria == null || categoria.isEmpty()) {
-                categoria = "Actividad";
+                categoria = "Sin Categorizar";
             }
             tvCategory.setText(categoria);
 
@@ -117,7 +117,7 @@ public class DetailActivity extends AppCompatActivity {
                     .placeholder(R.drawable.activities1)
                     .error(
                             com.bumptech.glide.Glide.with(this)
-                                    .load("https://placehold.co/600x400/780000/ffffff.png?text=Error")
+                                    .load(activity.getImageUrl())
                                     .centerCrop())
                     .into(imgHeader);
         }

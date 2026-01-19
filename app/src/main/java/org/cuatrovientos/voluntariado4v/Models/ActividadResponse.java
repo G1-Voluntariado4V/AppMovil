@@ -241,6 +241,6 @@ public class ActividadResponse implements Serializable {
         if (imgOrganizacion != null && !imgOrganizacion.isEmpty()) {
             return imgOrganizacion;
         }
-        return "https://placehold.co/600x400/780000/ffffff.png?text=Error";
+        return "https://placehold.co/600x400/F2F4F7/000000.png?text=Image+Not+Found";
     }
 }

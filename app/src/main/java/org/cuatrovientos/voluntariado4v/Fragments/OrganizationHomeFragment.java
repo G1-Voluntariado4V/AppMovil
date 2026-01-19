@@ -18,6 +18,7 @@ import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import org.cuatrovientos.voluntariado4v.Activities.CreateActividad;
 import org.cuatrovientos.voluntariado4v.Activities.DetailActivity;
 import org.cuatrovientos.voluntariado4v.Adapters.ActividadesApiAdapter;
 import org.cuatrovientos.voluntariado4v.Models.ActividadResponse;
@@ -78,7 +79,7 @@ public class OrganizationHomeFragment extends Fragment {
         // 5. Listeners Botones
         btnCreate.setOnClickListener(v -> {
             Intent intent = new Intent(getContext(),
-                    org.cuatrovientos.voluntariado4v.Activities.CreateActividadActivity.class);
+                    CreateActividad.class);
             startActivity(intent);
         });
 

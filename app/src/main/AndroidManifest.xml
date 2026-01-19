@@ -37,10 +37,10 @@
             android:name=".Activities.UserDashboard"
             android:exported="false" />
         <activity
-            android:name=".Activities.CreateActividadActivity"
+            android:name=".Activities.CreateActividad"
             android:exported="false" />
         <activity
-            android:name=".Activities.EditActividadActivity"
+            android:name=".Activities.EditActividad"
             android:exported="false" />
     </application>
 
