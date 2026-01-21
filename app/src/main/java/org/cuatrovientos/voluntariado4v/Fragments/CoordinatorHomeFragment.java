@@ -8,14 +8,13 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
 import org.cuatrovientos.voluntariado4v.API.ApiClient;
-import org.cuatrovientos.voluntariado4v.API.VoluntariadoApiService;
+import org.cuatrovientos.voluntariado4v.Models.CoordinadorResponse;
 import org.cuatrovientos.voluntariado4v.Models.CoordinatorStatsResponse;
 import org.cuatrovientos.voluntariado4v.R;
 
@@ -25,9 +24,12 @@ import retrofit2.Response;
 
 public class CoordinatorHomeFragment extends Fragment {
 
+    private TextView tvWelcome;
     private TextView tvPendingVolunteers, tvPendingActivities;
     private TextView tvTotalVolunteers, tvTotalOrganizations, tvTotalActivities;
+
     private Context context;
+    private int currentUserId;
 
     @Nullable
     @Override
@@ -35,7 +37,14 @@ public class CoordinatorHomeFragment extends Fragment {
         View view = inflater.inflate(R.layout.fragment_coordinator_home, container, false);
         context = requireContext();
 
+        // Recuperar ID
+        SharedPreferences prefs = context.getSharedPreferences("VoluntariadoPrefs", Context.MODE_PRIVATE);
+        currentUserId = prefs.getInt("user_id", -1);
+
         // 1. Vincular Vistas
+        // Ajusta "tvWelcome" si en tu XML se llama "tvWelcomeTitle" o diferente
+        tvWelcome = view.findViewById(R.id.tvWelcomeTitle);
+
         tvPendingVolunteers = view.findViewById(R.id.tvPendingVolunteers);
         tvPendingActivities = view.findViewById(R.id.tvPendingActivities);
         tvTotalVolunteers = view.findViewById(R.id.tvTotalVolunteers);
@@ -43,58 +52,71 @@ public class CoordinatorHomeFragment extends Fragment {
         tvTotalActivities = view.findViewById(R.id.tvTotalActivities);
 
         // 2. Cargar Datos
-        loadDashboardStats();
+        if (currentUserId != -1) {
+            loadUserProfile();    // Cargar Nombre
+            loadDashboardStats(); // Cargar Números
+        } else {
+            setEmptyStats();
+        }
 
         return view;
     }
 
-    private void loadDashboardStats() {
-        SharedPreferences prefs = context.getSharedPreferences("VoluntariadoPrefs", Context.MODE_PRIVATE);
-        int adminId = prefs.getInt("user_id", -1);
-
-        if (adminId == -1) {
-            setEmptyStats();
-            return;
-        }
-
-        VoluntariadoApiService service = ApiClient.getService();
-        service.getCoordinatorStats(adminId).enqueue(new Callback<CoordinatorStatsResponse>() {
+    private void loadUserProfile() {
+        // Usamos el método getCoordinadorDetail que definimos en la Interfaz
+        ApiClient.getService().getCoordinadorDetail(currentUserId, currentUserId).enqueue(new Callback<CoordinadorResponse>() {
             @Override
-            public void onResponse(Call<CoordinatorStatsResponse> call, Response<CoordinatorStatsResponse> response) {
+            public void onResponse(Call<CoordinadorResponse> call, Response<CoordinadorResponse> response) {
                 if (response.isSuccessful() && response.body() != null) {
-                    Log.d("Dashboard", "Datos recibidos correctamente");
-                    updateUI(response.body());
-                } else {
-                    Log.e("Dashboard", "Error API: " + response.code());
-                    setEmptyStats();
-                    // Opcional: mostrar error solo si no es 403/401
-                    if (response.code() >= 500) {
-                        Toast.makeText(context, "Error servidor", Toast.LENGTH_SHORT).show();
+                    String nombre = response.body().getNombre();
+                    if (tvWelcome != null) {
+                        tvWelcome.setText("Hola, " + (nombre.isEmpty() ? "Coordinador" : nombre));
                     }
                 }
             }
+            @Override
+            public void onFailure(Call<CoordinadorResponse> call, Throwable t) {
+                Log.e("Home", "Error perfil: " + t.getMessage());
+            }
+        });
+    }
 
+    private void loadDashboardStats() {
+        ApiClient.getService().getCoordinatorStats(currentUserId).enqueue(new Callback<CoordinatorStatsResponse>() {
+            @Override
+            public void onResponse(Call<CoordinatorStatsResponse> call, Response<CoordinatorStatsResponse> response) {
+                if (response.isSuccessful() && response.body() != null) {
+                    updateUI(response.body());
+                } else {
+                    setEmptyStats();
+                }
+            }
             @Override
             public void onFailure(Call<CoordinatorStatsResponse> call, Throwable t) {
-                Log.e("Dashboard", "Fallo red: " + t.getMessage());
                 setEmptyStats();
             }
         });
     }
 
     private void updateUI(CoordinatorStatsResponse response) {
-        if (tvPendingVolunteers == null || getContext() == null) return;
+        if (getContext() == null) return;
 
         CoordinatorStatsResponse.Metricas stats = response.getMetricas();
 
-        // Asignamos valores a las tarjetas grandes (Pendientes)
-        tvPendingVolunteers.setText(String.valueOf(stats.pendingVolunteerRequests));
-        tvPendingActivities.setText(String.valueOf(stats.pendingActivityRequests));
+        if (tvPendingVolunteers != null)
+            tvPendingVolunteers.setText(String.valueOf(stats.pendingVolunteerRequests));
 
-        // Asignamos valores a las tarjetas pequeñas (Totales)
-        tvTotalVolunteers.setText(String.valueOf(stats.totalVolunteers));
-        tvTotalOrganizations.setText(String.valueOf(stats.totalOrganizations));
-        tvTotalActivities.setText(String.valueOf(stats.totalActivities));
+        if (tvPendingActivities != null)
+            tvPendingActivities.setText(String.valueOf(stats.pendingActivityRequests));
+
+        if (tvTotalVolunteers != null)
+            tvTotalVolunteers.setText(String.valueOf(stats.totalVolunteers));
+
+        if (tvTotalOrganizations != null)
+            tvTotalOrganizations.setText(String.valueOf(stats.totalOrganizations));
+
+        if (tvTotalActivities != null)
+            tvTotalActivities.setText(String.valueOf(stats.totalActivities));
     }
 
     private void setEmptyStats() {

@@ -10,7 +10,6 @@ public class CoordinatorStatsResponse {
     @SerializedName("metricas")
     private Metricas metricas;
 
-    // Getter seguro: si viene nulo, devolvemos un objeto vacío para evitar NullPointerException
     public Metricas getMetricas() {
         return metricas != null ? metricas : new Metricas();
     }
@@ -20,24 +19,27 @@ public class CoordinatorStatsResponse {
     }
 
     public static class Metricas {
-        // COINCIDENCIA EXACTA con las claves del JSON que envía tu API PHP
 
-        @SerializedName("voluntarios_activos")
+        // VOLUNTARIOS ACTIVOS
+        @SerializedName(value = "voluntarios_activos", alternate = {"total_usuarios", "active_volunteers", "voluntarios"})
         public int totalVolunteers;
 
-        @SerializedName("organizaciones_activas")
+        // ORGANIZACIONES ACTIVAS
+        @SerializedName(value = "organizaciones_activas", alternate = {"total_organizaciones", "active_organizations", "organizaciones"})
         public int totalOrganizations;
 
-        @SerializedName("actividades_publicadas")
+        // ACTIVIDADES PUBLICADAS
+        @SerializedName(value = "actividades_publicadas", alternate = {"total_actividades", "published_activities", "actividades"})
         public int totalActivities;
 
-        @SerializedName("voluntarios_pendientes")
+        // SOLICITUDES DE VOLUNTARIOS (PENDIENTES)
+        @SerializedName(value = "voluntarios_pendientes", alternate = {"inscripciones_pendientes", "pending_users", "usuarios_pendientes"})
         public int pendingVolunteerRequests;
 
-        @SerializedName("actividades_pendientes")
+        // ACTIVIDADES POR REVISAR (El que te salía a 0)
+        @SerializedName(value = "actividades_pendientes", alternate = {"actividades_revision", "en_revision", "pending_activities", "actividades_en_revision"})
         public int pendingActivityRequests;
 
-        // Constructor por defecto para inicializar a 0 si falla Gson
         public Metricas() {
             this.totalVolunteers = 0;
             this.totalOrganizations = 0;

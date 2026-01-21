@@ -161,6 +161,12 @@ public interface VoluntariadoApiService {
         @GET("coord/stats")
         Call<CoordinatorStatsResponse> getCoordinatorStats(@Header("X-Admin-Id") int adminId);
 
+        @GET("coordinadores/{id}")
+        Call<CoordinadorResponse> getCoordinadorDetail(
+                @Path("id") int id,
+                @Header("X-Admin-Id") int adminId
+        );
+
         @GET("usuarios")
         Call<List<UserResponse>> getAllUsers();
 
