@@ -5,7 +5,7 @@ import java.io.Serializable;
 
 public class ActividadResponse implements Serializable {
 
-    @SerializedName("id_actividad")
+    @SerializedName(value = "id_actividad", alternate = { "id" })
     private int idActividad;
 
     @SerializedName("titulo")
@@ -234,7 +234,7 @@ public class ActividadResponse implements Serializable {
     }
 
     public String getImageUrl() {
-        // ... (resto igual)
+        // Prioridad: imagen_actividad > img_organizacion > placeholder
         if (imagenActividad != null && !imagenActividad.isEmpty()) {
             return imagenActividad;
         }

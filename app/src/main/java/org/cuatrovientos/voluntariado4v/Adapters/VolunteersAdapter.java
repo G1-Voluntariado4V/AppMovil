@@ -6,17 +6,17 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
-import org.cuatrovientos.voluntariado4v.Models.VoluntarioResponse;
+import org.cuatrovientos.voluntariado4v.Models.InscripcionResponse;
 import org.cuatrovientos.voluntariado4v.R;
 import java.util.ArrayList;
 import java.util.List;
 
 public class VolunteersAdapter extends RecyclerView.Adapter<VolunteersAdapter.ViewHolder> {
 
-    private List<VoluntarioResponse> voluntarios;
+    private List<InscripcionResponse> inscripciones;
 
-    public VolunteersAdapter(List<VoluntarioResponse> voluntarios) {
-        this.voluntarios = voluntarios != null ? voluntarios : new ArrayList<>();
+    public VolunteersAdapter(List<InscripcionResponse> inscripciones) {
+        this.inscripciones = inscripciones != null ? inscripciones : new ArrayList<>();
     }
 
     @NonNull
@@ -29,12 +29,17 @@ public class VolunteersAdapter extends RecyclerView.Adapter<VolunteersAdapter.Vi
 
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
-        VoluntarioResponse vol = voluntarios.get(position);
-        // Asumiendo que VoluntarioResponse tiene getNombre() o similar.
-        // Si no, ajusta al metodo correcto (ej. getEmail() si nombre es null).
-        String nombreCompleto = "Voluntario #" + vol.getId();
-        if(vol.getNombre() != null) {
-            nombreCompleto = vol.getNombre() + " " + (vol.getApellidos() != null ? vol.getApellidos() : "");
+        InscripcionResponse insc = inscripciones.get(position);
+
+        String nombreCompleto = insc.getNombreVoluntario();
+        if (nombreCompleto == null || nombreCompleto.isEmpty()) {
+            nombreCompleto = "Voluntario #" + insc.getIdVoluntario();
+        }
+
+        // Añadir estado al nombre para mostrar info completa
+        String estado = insc.getEstado();
+        if (estado != null && !estado.isEmpty()) {
+            nombreCompleto += " (" + estado + ")";
         }
 
         holder.tvName.setText(nombreCompleto);
@@ -42,7 +47,7 @@ public class VolunteersAdapter extends RecyclerView.Adapter<VolunteersAdapter.Vi
 
     @Override
     public int getItemCount() {
-        return voluntarios.size();
+        return inscripciones.size();
     }
 
     static class ViewHolder extends RecyclerView.ViewHolder {

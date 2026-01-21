@@ -232,16 +232,22 @@ public class DetailActivity extends AppCompatActivity {
                 else
                     realizarInscripcion();
             });
-        if (btnOrgProfile != null && !isOrgView) {
-            btnOrgProfile.setOnClickListener(v -> {
-                if (currentActivity != null) {
-                    Intent intent = new Intent(DetailActivity.this, DetailOrganization.class);
-                    intent.putExtra("ORG_ID", currentActivity.getIdOrganizacion());
-                    intent.putExtra("ORG_NAME", currentActivity.getNombreOrganizacion());
-                    intent.putExtra("ORG_IMG", currentActivity.getImgOrganizacion());
-                    startActivity(intent);
-                }
-            });
+        if (btnOrgProfile != null) {
+            if (isOrgView) {
+                // Ocultar botón de perfil cuando es vista de organización
+                btnOrgProfile.setVisibility(View.GONE);
+            } else {
+                btnOrgProfile.setVisibility(View.VISIBLE);
+                btnOrgProfile.setOnClickListener(v -> {
+                    if (currentActivity != null) {
+                        Intent intent = new Intent(DetailActivity.this, DetailOrganization.class);
+                        intent.putExtra("ORG_ID", currentActivity.getIdOrganizacion());
+                        intent.putExtra("ORG_NAME", currentActivity.getNombreOrganizacion());
+                        intent.putExtra("ORG_IMG", currentActivity.getImgOrganizacion());
+                        startActivity(intent);
+                    }
+                });
+            }
         }
     }
 
@@ -299,25 +305,43 @@ public class DetailActivity extends AppCompatActivity {
         rvVolunteers.setLayoutManager(new LinearLayoutManager(this));
 
         loading.setVisibility(View.VISIBLE);
-        ApiClient.getService().getInscritos(currentActivity.getIdActividad())
-                .enqueue(new Callback<List<VoluntarioResponse>>() {
+        int activityId = currentActivity.getIdActividad();
+        android.util.Log.d("DetailActivity", "🔍 Consultando inscritos para actividad ID: " + activityId);
+
+        ApiClient.getService().getInscritos(activityId)
+                .enqueue(new Callback<List<org.cuatrovientos.voluntariado4v.Models.InscripcionResponse>>() {
                     @Override
-                    public void onResponse(Call<List<VoluntarioResponse>> call,
-                            Response<List<VoluntarioResponse>> response) {
+                    public void onResponse(Call<List<org.cuatrovientos.voluntariado4v.Models.InscripcionResponse>> call,
+                            Response<List<org.cuatrovientos.voluntariado4v.Models.InscripcionResponse>> response) {
                         loading.setVisibility(View.GONE);
-                        if (response.isSuccessful() && response.body() != null && !response.body().isEmpty()) {
-                            VolunteersAdapter adapter = new VolunteersAdapter(response.body());
-                            rvVolunteers.setAdapter(adapter);
-                            tvEmpty.setVisibility(View.GONE);
-                            rvVolunteers.setVisibility(View.VISIBLE);
+                        android.util.Log.d("DetailActivity", "📡 Response code: " + response.code());
+
+                        if (response.isSuccessful() && response.body() != null) {
+                            android.util.Log.d("DetailActivity", "📋 Inscritos recibidos: " + response.body().size());
+                            for (org.cuatrovientos.voluntariado4v.Models.InscripcionResponse insc : response.body()) {
+                                android.util.Log.d("DetailActivity",
+                                        "  → " + insc.getNombreVoluntario() + " (" + insc.getEstado() + ")");
+                            }
+
+                            if (!response.body().isEmpty()) {
+                                VolunteersAdapter adapter = new VolunteersAdapter(response.body());
+                                rvVolunteers.setAdapter(adapter);
+                                tvEmpty.setVisibility(View.GONE);
+                                rvVolunteers.setVisibility(View.VISIBLE);
+                            } else {
+                                tvEmpty.setVisibility(View.VISIBLE);
+                                rvVolunteers.setVisibility(View.GONE);
+                            }
                         } else {
+                            android.util.Log.e("DetailActivity", "❌ Error: response not successful or body null");
                             tvEmpty.setVisibility(View.VISIBLE);
                             rvVolunteers.setVisibility(View.GONE);
                         }
                     }
 
                     @Override
-                    public void onFailure(Call<List<VoluntarioResponse>> call, Throwable t) {
+                    public void onFailure(Call<List<org.cuatrovientos.voluntariado4v.Models.InscripcionResponse>> call,
+                            Throwable t) {
                         loading.setVisibility(View.GONE);
                         tvEmpty.setText("Error de conexión");
                         tvEmpty.setVisibility(View.VISIBLE);
