@@ -138,4 +138,12 @@ public interface VoluntariadoApiService {
         Call<ActividadResponse> updateActividad(
                         @Path("id") int idActividad,
                         @Body org.cuatrovientos.voluntariado4v.Models.ActividadUpdateRequest request);
+
+
+        // ═══════════════════════════════════════════════════════════════════
+        // COORDINADOR
+        // ═══════════════════════════════════════════════════════════════════
+
+        @GET("coordinator/stats")
+        Call<org.cuatrovientos.voluntariado4v.Models.CoordinatorStatsResponse> getCoordinatorStats();
 }

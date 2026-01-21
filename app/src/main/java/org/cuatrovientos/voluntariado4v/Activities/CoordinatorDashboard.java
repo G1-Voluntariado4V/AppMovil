@@ -1,7 +1,5 @@
 package org.cuatrovientos.voluntariado4v.Activities;
 
-import android.content.Context;
-import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.view.MenuItem;
 
@@ -41,7 +39,7 @@ public class CoordinatorDashboard extends AppCompatActivity {
 
         bottomNavigationView = findViewById(R.id.nav_view_coordinator);
 
-        // Añadir fragmentos al gestor, ocultando todos menos el inicial
+        // Inicializar fragmentos: añadimos todos y ocultamos los que no son el Home
         fm.beginTransaction().add(R.id.coordinator_fragment_container, profileFragment, "5").hide(profileFragment).commit();
         fm.beginTransaction().add(R.id.coordinator_fragment_container, managementFragment, "4").hide(managementFragment).commit();
         fm.beginTransaction().add(R.id.coordinator_fragment_container, activitiesFragment, "3").hide(activitiesFragment).commit();
@@ -52,30 +50,38 @@ public class CoordinatorDashboard extends AppCompatActivity {
             @Override
             public boolean onNavigationItemSelected(@NonNull MenuItem item) {
                 int itemId = item.getItemId();
-
-                if (itemId == R.id.navigation_home) {
-                    fm.beginTransaction().hide(activeFragment).show(homeFragment).commit();
-                    activeFragment = homeFragment;
-                    return true;
-                } else if (itemId == R.id.navigation_users) {
-                    fm.beginTransaction().hide(activeFragment).show(usersFragment).commit();
-                    activeFragment = usersFragment;
-                    return true;
-                } else if (itemId == R.id.navigation_activities) {
-                    fm.beginTransaction().hide(activeFragment).show(activitiesFragment).commit();
-                    activeFragment = activitiesFragment;
-                    return true;
-                } else if (itemId == R.id.navigation_management) {
-                    fm.beginTransaction().hide(activeFragment).show(managementFragment).commit();
-                    activeFragment = managementFragment;
-                    return true;
-                } else if (itemId == R.id.navigation_profile) {
-                    fm.beginTransaction().hide(activeFragment).show(profileFragment).commit();
-                    activeFragment = profileFragment;
-                    return true;
-                }
-                return false;
+                loadFragment(itemId);
+                return true;
             }
         });
+    }
+
+    /**
+     * Metodo público para cambiar de pestaña programáticamente.
+     * Útil para navegar desde el Home a otras secciones al hacer click en tarjetas.
+     */
+    public void switchToTab(int menuItemId) {
+        bottomNavigationView.setSelectedItemId(menuItemId);
+    }
+
+    private void loadFragment(int itemId) {
+        Fragment targetFragment = null;
+
+        if (itemId == R.id.navigation_home) {
+            targetFragment = homeFragment;
+        } else if (itemId == R.id.navigation_users) {
+            targetFragment = usersFragment;
+        } else if (itemId == R.id.navigation_activities) {
+            targetFragment = activitiesFragment;
+        } else if (itemId == R.id.navigation_management) {
+            targetFragment = managementFragment;
+        } else if (itemId == R.id.navigation_profile) {
+            targetFragment = profileFragment;
+        }
+
+        if (targetFragment != null && targetFragment != activeFragment) {
+            fm.beginTransaction().hide(activeFragment).show(targetFragment).commit();
+            activeFragment = targetFragment;
+        }
     }
 }
