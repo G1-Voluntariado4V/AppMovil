@@ -163,7 +163,7 @@ public class UserProfileFragment extends Fragment implements LanguageDialog.OnLa
         }
 
         if (userId != -1) {
-            ApiClient.getService().getVoluntario(userId).enqueue(new Callback<VoluntarioResponse>() {
+            ApiClient.getService().getVoluntarioDetail(userId).enqueue(new Callback<VoluntarioResponse>() {
                 @Override
                 public void onResponse(Call<VoluntarioResponse> call, Response<VoluntarioResponse> response) {
                     if (!isAdded())

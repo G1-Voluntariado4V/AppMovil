@@ -153,7 +153,7 @@ public class EditUserActivity extends AppCompatActivity {
     }
 
     private void loadVoluntarioData() {
-        apiService.getVoluntario(targetUserId).enqueue(new Callback<VoluntarioResponse>() {
+        apiService.getVoluntarioDetail(targetUserId).enqueue(new Callback<VoluntarioResponse>() {
             @Override
             public void onResponse(Call<VoluntarioResponse> call, Response<VoluntarioResponse> response) {
                 showLoading(false);

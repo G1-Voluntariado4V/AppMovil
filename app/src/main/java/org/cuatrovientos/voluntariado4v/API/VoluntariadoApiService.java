@@ -1,27 +1,6 @@
 package org.cuatrovientos.voluntariado4v.API;
 
-import org.cuatrovientos.voluntariado4v.Models.ActividadCreateRequest;
-import org.cuatrovientos.voluntariado4v.Models.ActividadResponse;
-import org.cuatrovientos.voluntariado4v.Models.ActividadUpdateRequest;
-import org.cuatrovientos.voluntariado4v.Models.CoordinatorStatsResponse;
-import org.cuatrovientos.voluntariado4v.Models.CursoResponse;
-import org.cuatrovientos.voluntariado4v.Models.EstadoRequest;
-import org.cuatrovientos.voluntariado4v.Models.HistorialApiResponse;
-import org.cuatrovientos.voluntariado4v.Models.IdiomaRequest;
-import org.cuatrovientos.voluntariado4v.Models.IdiomaResponse;
-import org.cuatrovientos.voluntariado4v.Models.ImagenRequest;
-import org.cuatrovientos.voluntariado4v.Models.InscripcionResponse;
-import org.cuatrovientos.voluntariado4v.Models.LoginRequest;
-import org.cuatrovientos.voluntariado4v.Models.LoginResponse;
-import org.cuatrovientos.voluntariado4v.Models.MensajeResponse;
-import org.cuatrovientos.voluntariado4v.Models.OdsResponse;
-import org.cuatrovientos.voluntariado4v.Models.OrganizacionResponse;
-import org.cuatrovientos.voluntariado4v.Models.OrganizacionUpdateRequest;
-import org.cuatrovientos.voluntariado4v.Models.RegisterRequest;
-import org.cuatrovientos.voluntariado4v.Models.TipoVoluntariadoResponse;
-import org.cuatrovientos.voluntariado4v.Models.UserResponse;
-import org.cuatrovientos.voluntariado4v.Models.VoluntarioResponse;
-import org.cuatrovientos.voluntariado4v.Models.VoluntarioUpdateRequest;
+import org.cuatrovientos.voluntariado4v.Models.*;
 
 import java.util.List;
 
@@ -69,19 +48,19 @@ public interface VoluntariadoApiService {
         // ACTIVIDADES (Búsqueda y Detalle)
         // ═══════════════════════════════════════════════════════════════════
 
+        // Listar todas (User Explore) - Puede usarse el endpoint de catálogo o el genérico
         @GET("actividades")
         Call<List<ActividadResponse>> getActividades();
 
         @GET("actividades")
         Call<List<ActividadResponse>> getActividadesFiltradas(
-                        @Query("ods_id") Integer odsId,
-                        @Query("tipo_id") Integer tipoId);
+                @Query("ods_id") Integer odsId,
+                @Query("tipo_id") Integer tipoId);
 
         @GET("actividades/{id}")
         Call<ActividadResponse> getActividadDetalle(@Path("id") int id);
 
-        // FIX: Usar InscripcionResponse para mapear correctamente la respuesta de la
-        // API
+        // Obtener lista de inscritos a una actividad (Para Organizaciones)
         @GET("actividades/{id}/inscripciones")
         Call<List<InscripcionResponse>> getInscritos(@Path("id") int idActividad);
 
@@ -92,8 +71,8 @@ public interface VoluntariadoApiService {
         // Opción A: Crear vinculada a la organización en la URL
         @POST("organizaciones/{id}/actividades")
         Call<ActividadResponse> crearActividad(
-                        @Path("id") int idOrganizacion,
-                        @Body ActividadCreateRequest request);
+                @Path("id") int idOrganizacion,
+                @Body ActividadCreateRequest request);
 
         // Opción B: Crear actividad genérica (si el backend lo soporta así)
         @POST("actividades")
@@ -101,60 +80,60 @@ public interface VoluntariadoApiService {
 
         @PUT("actividades/{id}")
         Call<ActividadResponse> updateActividad(
-                        @Path("id") int idActividad,
-                        @Body ActividadUpdateRequest request);
+                @Path("id") int idActividad,
+                @Body ActividadUpdateRequest request);
 
         @DELETE("actividades/{id}")
         Call<Void> deleteActividad(@Path("id") int id);
 
         @POST("actividades/{id}/imagenes")
         Call<MensajeResponse> addImagenActividad(
-                        @Path("id") int idActividad,
-                        @Body ImagenRequest request);
+                @Path("id") int idActividad,
+                @Body ImagenRequest request);
 
         // ═══════════════════════════════════════════════════════════════════
         // VOLUNTARIOS (Perfil propio y acciones)
         // ═══════════════════════════════════════════════════════════════════
 
         @GET("voluntarios/{id}")
-        Call<VoluntarioResponse> getVoluntario(@Path("id") int id);
+        Call<VoluntarioResponse> getVoluntarioDetail(@Path("id") int id);
 
         // Actualización del propio perfil (User Context)
         @PUT("voluntarios/{id}")
         Call<VoluntarioResponse> updateVoluntario(
-                        @Path("id") int id,
-                        @Header("X-User-Id") int userId,
-                        @Body VoluntarioUpdateRequest request);
+                @Path("id") int id,
+                @Header("X-User-Id") int userId,
+                @Body VoluntarioUpdateRequest request);
 
         @POST("voluntarios/{idVol}/idiomas")
         Call<MensajeResponse> addIdioma(
-                        @Path("idVol") int idVoluntario,
-                        @Body IdiomaRequest request);
+                @Path("idVol") int idVoluntario,
+                @Body IdiomaRequest request);
 
         @DELETE("voluntarios/{idVol}/idiomas/{idIdioma}")
         Call<MensajeResponse> deleteIdioma(
-                        @Path("idVol") int idVoluntario,
-                        @Path("idIdioma") int idIdioma);
+                @Path("idVol") int idVoluntario,
+                @Path("idIdioma") int idIdioma);
 
         @GET("voluntarios/{id}/recomendaciones")
         Call<List<ActividadResponse>> getRecomendaciones(@Path("id") int id);
 
         @GET("voluntarios/{id}/historial")
         Call<HistorialApiResponse> getHistorial(
-                        @Path("id") int id,
-                        @Header("X-User-Id") int userId);
+                @Path("id") int id,
+                @Header("X-User-Id") int userId);
 
         @POST("voluntarios/{idVol}/actividades/{idAct}")
         Call<MensajeResponse> inscribirse(
-                        @Path("idVol") int idVoluntario,
-                        @Header("X-User-Id") int userId,
-                        @Path("idAct") int idActividad);
+                @Path("idVol") int idVoluntario,
+                @Header("X-User-Id") int userId,
+                @Path("idAct") int idActividad);
 
         @DELETE("voluntarios/{idVol}/actividades/{idAct}")
         Call<MensajeResponse> desapuntarse(
-                        @Path("idVol") int idVoluntario,
-                        @Header("X-User-Id") int userId,
-                        @Path("idAct") int idActividad);
+                @Path("idVol") int idVoluntario,
+                @Header("X-User-Id") int userId,
+                @Path("idAct") int idActividad);
 
         // ═══════════════════════════════════════════════════════════════════
         // ORGANIZACIONES (Perfil público y Gestión propia)
@@ -172,8 +151,8 @@ public interface VoluntariadoApiService {
         // Actualización propia (Owner Context)
         @PUT("organizaciones/{id}")
         Call<OrganizacionResponse> updateOrganizacion(
-                        @Path("id") int id,
-                        @Body OrganizacionUpdateRequest request);
+                @Path("id") int id,
+                @Body OrganizacionUpdateRequest request);
 
         // ═══════════════════════════════════════════════════════════════════
         // COORDINADOR / ADMIN (Gestión global)
@@ -188,22 +167,30 @@ public interface VoluntariadoApiService {
         // Cambiar estado (Aprobar/Rechazar/Bloquear)
         @PATCH("coord/{rol}/{id}/estado")
         Call<MensajeResponse> updateUserStatus(
-                        @Header("X-Admin-Id") int adminId,
-                        @Path("rol") String rolPath, // "voluntarios" u "organizaciones"
-                        @Path("id") int userId,
-                        @Body EstadoRequest request);
+                @Header("X-Admin-Id") int adminId,
+                @Path("rol") String rolPath, // "voluntarios" u "organizaciones"
+                @Path("id") int userId,
+                @Body EstadoRequest request);
+
+        // CAMBIAR ROL (Endpoint PUT específico)
+        // Ruta: /usuarios/{id}/rol
+        @PUT("usuarios/{id}/rol")
+        Call<MensajeResponse> updateUserRole(
+                @Header("X-Admin-Id") int adminId,
+                @Path("id") int userId,
+                @Body RoleUpdateRequest request);
 
         // Edición Admin de Voluntario (Admin Context)
         @PUT("voluntarios/{id}")
         Call<MensajeResponse> updateVoluntarioAdmin(
-                        @Header("X-Admin-Id") int adminId,
-                        @Path("id") int id,
-                        @Body VoluntarioUpdateRequest request);
+                @Header("X-Admin-Id") int adminId,
+                @Path("id") int id,
+                @Body VoluntarioUpdateRequest request);
 
         // Edición Admin de Organización (Admin Context)
         @PUT("organizaciones/{id}")
         Call<MensajeResponse> updateOrganizacionAdmin(
-                        @Header("X-Admin-Id") int adminId,
-                        @Path("id") int id,
-                        @Body OrganizacionUpdateRequest request);
+                @Header("X-Admin-Id") int adminId,
+                @Path("id") int id,
+                @Body OrganizacionUpdateRequest request);
 }
