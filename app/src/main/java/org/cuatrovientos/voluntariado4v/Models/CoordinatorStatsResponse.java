@@ -4,36 +4,34 @@ import com.google.gson.annotations.SerializedName;
 
 public class CoordinatorStatsResponse {
 
-    // Usamos @SerializedName para coincidir con el JSON habitual de APIS REST (snake_case)
-    @SerializedName("total_volunteers")
-    private int totalVolunteers;
+    @SerializedName("titulo")
+    private String titulo;
 
-    @SerializedName("total_organizations")
-    private int totalOrganizations;
+    @SerializedName("metricas")
+    private Metricas metricas;
 
-    @SerializedName("total_activities")
-    private int totalActivities;
-
-    @SerializedName("pending_volunteer_requests")
-    private int pendingVolunteerRequests;
-
-    @SerializedName("pending_activity_requests")
-    private int pendingActivityRequests;
-
-    // Constructor vacío necesario para Gson
-    public CoordinatorStatsResponse() {}
-
-    public CoordinatorStatsResponse(int totalVolunteers, int totalOrganizations, int totalActivities, int pendingVolunteerRequests, int pendingActivityRequests) {
-        this.totalVolunteers = totalVolunteers;
-        this.totalOrganizations = totalOrganizations;
-        this.totalActivities = totalActivities;
-        this.pendingVolunteerRequests = pendingVolunteerRequests;
-        this.pendingActivityRequests = pendingActivityRequests;
+    public Metricas getMetricas() {
+        return metricas;
     }
 
-    public int getTotalVolunteers() { return totalVolunteers; }
-    public int getTotalOrganizations() { return totalOrganizations; }
-    public int getTotalActivities() { return totalActivities; }
-    public int getPendingVolunteerRequests() { return pendingVolunteerRequests; }
-    public int getPendingActivityRequests() { return pendingActivityRequests; }
+    // Clase interna para mapear el objeto "metricas" del JSON
+    public static class Metricas {
+        // Asegúrate de que estos nombres coincidan con las columnas de tu SP SQL o vista
+        // Usualmente: snake_case en JSON -> camelCase en Java
+
+        @SerializedName("total_usuarios") // Según tu fallback PHP
+        public int totalVolunteers;
+
+        @SerializedName("total_organizaciones") // Ajustar según tu SP real
+        public int totalOrganizations;
+
+        @SerializedName("actividades_publicadas") // Según tu fallback PHP
+        public int totalActivities;
+
+        @SerializedName("inscripciones_pendientes") // Según tu fallback PHP (Voluntarios pendientes)
+        public int pendingVolunteerRequests;
+
+        @SerializedName("actividades_revision") // Ajustar según tu SP real
+        public int pendingActivityRequests;
+    }
 }

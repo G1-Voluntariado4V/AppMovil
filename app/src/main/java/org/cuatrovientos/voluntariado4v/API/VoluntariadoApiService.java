@@ -1,13 +1,16 @@
 package org.cuatrovientos.voluntariado4v.API;
 
 import org.cuatrovientos.voluntariado4v.Models.ActividadResponse;
+import org.cuatrovientos.voluntariado4v.Models.CoordinatorStatsResponse;
 import org.cuatrovientos.voluntariado4v.Models.CursoResponse;
+import org.cuatrovientos.voluntariado4v.Models.EstadoRequest;
 import org.cuatrovientos.voluntariado4v.Models.HistorialResponse;
 import org.cuatrovientos.voluntariado4v.Models.IdiomaRequest;
 import org.cuatrovientos.voluntariado4v.Models.LoginRequest;
 import org.cuatrovientos.voluntariado4v.Models.LoginResponse;
 import org.cuatrovientos.voluntariado4v.Models.MensajeResponse;
 import org.cuatrovientos.voluntariado4v.Models.RegisterRequest;
+import org.cuatrovientos.voluntariado4v.Models.UserResponse;
 import org.cuatrovientos.voluntariado4v.Models.VoluntarioResponse;
 import org.cuatrovientos.voluntariado4v.Models.VoluntarioUpdateRequest;
 import org.cuatrovientos.voluntariado4v.Models.OrganizacionResponse;
@@ -19,6 +22,7 @@ import retrofit2.http.Body;
 import retrofit2.http.DELETE;
 import retrofit2.http.GET;
 import retrofit2.http.Header;
+import retrofit2.http.PATCH;
 import retrofit2.http.POST;
 import retrofit2.http.PUT;
 import retrofit2.http.Path;
@@ -144,6 +148,25 @@ public interface VoluntariadoApiService {
         // COORDINADOR
         // ═══════════════════════════════════════════════════════════════════
 
-        @GET("coordinator/stats")
-        Call<org.cuatrovientos.voluntariado4v.Models.CoordinatorStatsResponse> getCoordinatorStats();
+        // Estadísticas
+        @GET("coord/stats")
+        Call<CoordinatorStatsResponse> getCoordinatorStats(@Header("X-Admin-Id") int adminId);
+
+        // Listado GLOBAL de usuarios (Tu API devuelve todo junto)
+        @GET("usuarios")
+        Call<List<UserResponse>> getAllUsers();
+
+        // Cambiar estado (Aprobar/Rechazar/Bloquear)
+        // Ruta en API: /coord/{rol}/{id}/estado
+        @PATCH("coord/{rol}/{id}/estado")
+        Call<MensajeResponse> updateUserStatus(
+                @Header("X-Admin-Id") int adminId,
+                @Path("rol") String rolPath,  // "voluntarios" u "organizaciones"
+                @Path("id") int userId,
+                @Body EstadoRequest request
+        );
+
+        // Ver detalle de un voluntario específico (útil antes de aprobar)
+        @GET("voluntarios/{id}")
+        Call<VoluntarioResponse> getVoluntarioDetail(@Path("id") int id);
 }

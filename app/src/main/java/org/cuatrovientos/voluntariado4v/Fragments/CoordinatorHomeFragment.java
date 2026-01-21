@@ -13,7 +13,6 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.cardview.widget.CardView;
 import androidx.fragment.app.Fragment;
 
 import org.cuatrovientos.voluntariado4v.API.ApiClient;
@@ -32,7 +31,7 @@ public class CoordinatorHomeFragment extends Fragment {
     private TextView tvWelcomeTitle, tvWelcomeSubtitle;
     private ImageView ivUserAvatar;
 
-    // Contenedores interactivos (Clicks)
+    // Contenedores interactivos
     private LinearLayout layoutPendingVolunteers, layoutPendingActivities;
 
     // Contadores
@@ -40,6 +39,7 @@ public class CoordinatorHomeFragment extends Fragment {
     private TextView tvTotalVolunteers, tvTotalOrganizations, tvTotalActivities;
 
     private VoluntariadoApiService apiService;
+    private int currentAdminId; // ID del coordinador
 
     @Nullable
     @Override
@@ -47,8 +47,8 @@ public class CoordinatorHomeFragment extends Fragment {
         View view = inflater.inflate(R.layout.fragment_coordinator_home, container, false);
 
         initViews(view);
-        setupUserHeader();
-        setupClickListeners(); // <--- Nueva funcionalidad: Navegación
+        setupUserHeader(); // Aquí recuperamos el ID
+        setupClickListeners();
 
         try {
             apiService = ApiClient.getService();
@@ -66,15 +66,9 @@ public class CoordinatorHomeFragment extends Fragment {
         tvWelcomeSubtitle = view.findViewById(R.id.tvWelcomeSubtitle);
         ivUserAvatar = view.findViewById(R.id.ivUserAvatar);
 
-        // Importante: En el XML, estos LinearLayouts son los contenedores de las columnas "Pendientes"
-        // Necesitamos asignarles IDs en el XML si no los tienen, o usar el padre.
-        // TRUCO: Como en el XML anterior no les pusimos ID a los LinearLayout internos,
-        // vamos a buscar los TextViews y asignar el click listener a su padre directo.
-
         tvPendingVolunteers = view.findViewById(R.id.tvPendingVolunteers);
         tvPendingActivities = view.findViewById(R.id.tvPendingActivities);
 
-        // Obtenemos los padres para hacerlos clickeables (Área de toque más grande)
         layoutPendingVolunteers = (LinearLayout) tvPendingVolunteers.getParent();
         layoutPendingActivities = (LinearLayout) tvPendingActivities.getParent();
 
@@ -84,14 +78,12 @@ public class CoordinatorHomeFragment extends Fragment {
     }
 
     private void setupClickListeners() {
-        // Al hacer clic en VOLUNTARIOS PENDIENTES -> Ir a Pestaña Usuarios
         layoutPendingVolunteers.setOnClickListener(v -> {
             if (getActivity() instanceof CoordinatorDashboard) {
                 ((CoordinatorDashboard) getActivity()).switchToTab(R.id.navigation_users);
             }
         });
 
-        // Al hacer clic en ACTIVIDADES PENDIENTES -> Ir a Pestaña Actividades
         layoutPendingActivities.setOnClickListener(v -> {
             if (getActivity() instanceof CoordinatorDashboard) {
                 ((CoordinatorDashboard) getActivity()).switchToTab(R.id.navigation_activities);
@@ -102,7 +94,9 @@ public class CoordinatorHomeFragment extends Fragment {
     private void setupUserHeader() {
         if (getActivity() == null) return;
         SharedPreferences prefs = getActivity().getSharedPreferences("AppPrefs", Context.MODE_PRIVATE);
+
         String userName = prefs.getString("user_name", "Coordinador");
+        currentAdminId = prefs.getInt("user_id", -1); // <-- Recuperar ID
 
         tvWelcomeTitle.setText("Hola, " + userName);
         tvWelcomeSubtitle.setText("Panel de Control");
@@ -116,7 +110,9 @@ public class CoordinatorHomeFragment extends Fragment {
     }
 
     private void loadStats() {
-        Call<CoordinatorStatsResponse> call = apiService.getCoordinatorStats();
+        // CORRECCIÓN: Pasar el ID del admin
+        Call<CoordinatorStatsResponse> call = apiService.getCoordinatorStats(currentAdminId);
+
         call.enqueue(new Callback<CoordinatorStatsResponse>() {
             @Override
             public void onResponse(Call<CoordinatorStatsResponse> call, Response<CoordinatorStatsResponse> response) {
@@ -134,14 +130,21 @@ public class CoordinatorHomeFragment extends Fragment {
         });
     }
 
-    private void updateUI(CoordinatorStatsResponse stats) {
+    private void updateUI(CoordinatorStatsResponse response) {
         if (tvPendingVolunteers == null) return;
 
-        tvPendingVolunteers.setText(String.valueOf(stats.getPendingVolunteerRequests()));
-        tvPendingActivities.setText(String.valueOf(stats.getPendingActivityRequests()));
-        tvTotalVolunteers.setText(String.valueOf(stats.getTotalVolunteers()));
-        tvTotalOrganizations.setText(String.valueOf(stats.getTotalOrganizations()));
-        tvTotalActivities.setText(String.valueOf(stats.getTotalActivities()));
+        // CORRECCIÓN: Acceder al objeto interno "metricas"
+        CoordinatorStatsResponse.Metricas stats = response.getMetricas();
+
+        if (stats != null) {
+            tvPendingVolunteers.setText(String.valueOf(stats.pendingVolunteerRequests));
+            tvPendingActivities.setText(String.valueOf(stats.pendingActivityRequests));
+            tvTotalVolunteers.setText(String.valueOf(stats.totalVolunteers));
+            tvTotalOrganizations.setText(String.valueOf(stats.totalOrganizations));
+            tvTotalActivities.setText(String.valueOf(stats.totalActivities));
+        } else {
+            setEmptyStats();
+        }
     }
 
     private void setEmptyStats() {
