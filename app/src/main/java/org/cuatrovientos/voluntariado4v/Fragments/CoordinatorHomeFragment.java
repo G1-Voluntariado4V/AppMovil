@@ -2,21 +2,29 @@ package org.cuatrovientos.voluntariado4v.Fragments;
 
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 
 import org.cuatrovientos.voluntariado4v.API.ApiClient;
+import org.cuatrovientos.voluntariado4v.API.VoluntariadoApiService;
+import org.cuatrovientos.voluntariado4v.Models.ActividadResponse;
 import org.cuatrovientos.voluntariado4v.Models.CoordinadorResponse;
 import org.cuatrovientos.voluntariado4v.Models.CoordinatorStatsResponse;
 import org.cuatrovientos.voluntariado4v.R;
+
+import java.util.List;
 
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -24,12 +32,19 @@ import retrofit2.Response;
 
 public class CoordinatorHomeFragment extends Fragment {
 
-    private TextView tvWelcome;
+    // Vistas Principales
+    private TextView tvWelcome, tvStatusHeader;
+    private ImageView ivStatusIcon;
+
+    // Contadores
     private TextView tvPendingVolunteers, tvPendingActivities;
     private TextView tvTotalVolunteers, tvTotalOrganizations, tvTotalActivities;
 
+    // Datos y Estado
     private Context context;
     private int currentUserId;
+    private int pendingVolunteersCount = 0;
+    private int pendingActivitiesCount = 0;
 
     @Nullable
     @Override
@@ -37,24 +52,15 @@ public class CoordinatorHomeFragment extends Fragment {
         View view = inflater.inflate(R.layout.fragment_coordinator_home, container, false);
         context = requireContext();
 
-        // Recuperar ID
         SharedPreferences prefs = context.getSharedPreferences("VoluntariadoPrefs", Context.MODE_PRIVATE);
         currentUserId = prefs.getInt("user_id", -1);
 
-        // 1. Vincular Vistas
-        // Ajusta "tvWelcome" si en tu XML se llama "tvWelcomeTitle" o diferente
-        tvWelcome = view.findViewById(R.id.tvWelcomeTitle);
+        initViews(view);
 
-        tvPendingVolunteers = view.findViewById(R.id.tvPendingVolunteers);
-        tvPendingActivities = view.findViewById(R.id.tvPendingActivities);
-        tvTotalVolunteers = view.findViewById(R.id.tvTotalVolunteers);
-        tvTotalOrganizations = view.findViewById(R.id.tvTotalOrganizations);
-        tvTotalActivities = view.findViewById(R.id.tvTotalActivities);
-
-        // 2. Cargar Datos
         if (currentUserId != -1) {
-            loadUserProfile();    // Cargar Nombre
-            loadDashboardStats(); // Cargar Números
+            loadUserProfile();
+            loadDashboardStats();           // Carga voluntarios pendientes y totales
+            countPendingActivitiesManually(); // Carga actividades pendientes reales
         } else {
             setEmptyStats();
         }
@@ -62,8 +68,24 @@ public class CoordinatorHomeFragment extends Fragment {
         return view;
     }
 
+    private void initViews(View view) {
+        // Encabezado de Estado
+        tvWelcome = view.findViewById(R.id.tvWelcomeTitle);
+        tvStatusHeader = view.findViewById(R.id.tvStatusHeader);
+        ivStatusIcon = view.findViewById(R.id.ivStatusIcon);
+
+        // Tarjetas Grandes (Pendientes)
+        tvPendingVolunteers = view.findViewById(R.id.tvPendingVolunteers);
+        tvPendingActivities = view.findViewById(R.id.tvPendingActivities);
+
+        // Tarjetas Pequeñas (Totales)
+        tvTotalVolunteers = view.findViewById(R.id.tvTotalVolunteers);
+        tvTotalOrganizations = view.findViewById(R.id.tvTotalOrganizations);
+        tvTotalActivities = view.findViewById(R.id.tvTotalActivities);
+    }
+
+    // 1. CARGAR NOMBRE
     private void loadUserProfile() {
-        // Usamos el método getCoordinadorDetail que definimos en la Interfaz
         ApiClient.getService().getCoordinadorDetail(currentUserId, currentUserId).enqueue(new Callback<CoordinadorResponse>() {
             @Override
             public void onResponse(Call<CoordinadorResponse> call, Response<CoordinadorResponse> response) {
@@ -74,49 +96,86 @@ public class CoordinatorHomeFragment extends Fragment {
                     }
                 }
             }
-            @Override
-            public void onFailure(Call<CoordinadorResponse> call, Throwable t) {
-                Log.e("Home", "Error perfil: " + t.getMessage());
-            }
+            @Override public void onFailure(Call<CoordinadorResponse> call, Throwable t) { }
         });
     }
 
+    // 2. CARGAR ESTADÍSTICAS GENERALES (Voluntarios + Totales)
     private void loadDashboardStats() {
         ApiClient.getService().getCoordinatorStats(currentUserId).enqueue(new Callback<CoordinatorStatsResponse>() {
             @Override
             public void onResponse(Call<CoordinatorStatsResponse> call, Response<CoordinatorStatsResponse> response) {
                 if (response.isSuccessful() && response.body() != null) {
-                    updateUI(response.body());
-                } else {
-                    setEmptyStats();
+                    CoordinatorStatsResponse.Metricas stats = response.body().getMetricas();
+
+                    // Guardamos el dato de voluntarios pendientes
+                    pendingVolunteersCount = stats.pendingVolunteerRequests;
+
+                    // Actualizamos UI
+                    if (tvPendingVolunteers != null) tvPendingVolunteers.setText(String.valueOf(pendingVolunteersCount));
+                    if (tvTotalVolunteers != null) tvTotalVolunteers.setText(String.valueOf(stats.totalVolunteers));
+                    if (tvTotalOrganizations != null) tvTotalOrganizations.setText(String.valueOf(stats.totalOrganizations));
+                    if (tvTotalActivities != null) tvTotalActivities.setText(String.valueOf(stats.totalActivities));
+
+                    // Refrescamos el mensaje de cabecera
+                    refreshStatusHeader();
                 }
             }
-            @Override
-            public void onFailure(Call<CoordinatorStatsResponse> call, Throwable t) {
-                setEmptyStats();
-            }
+            @Override public void onFailure(Call<CoordinatorStatsResponse> call, Throwable t) { }
         });
     }
 
-    private void updateUI(CoordinatorStatsResponse response) {
-        if (getContext() == null) return;
+    // 3. CARGAR ACTIVIDADES PENDIENTES (Manual y Preciso)
+    private void countPendingActivitiesManually() {
+        ApiClient.getService().getAllActivitiesCoord(currentUserId).enqueue(new Callback<List<ActividadResponse>>() {
+            @Override
+            public void onResponse(Call<List<ActividadResponse>> call, Response<List<ActividadResponse>> response) {
+                if (response.isSuccessful() && response.body() != null) {
+                    int conteo = 0;
+                    for (ActividadResponse act : response.body()) {
+                        String estado = act.getEstadoPublicacion();
+                        if (estado != null) {
+                            String e = estado.toLowerCase();
+                            if (e.contains("revis") || e.contains("pend") || e.contains("solicit")) {
+                                conteo++;
+                            }
+                        }
+                    }
 
-        CoordinatorStatsResponse.Metricas stats = response.getMetricas();
+                    // Guardamos el dato real
+                    pendingActivitiesCount = conteo;
 
-        if (tvPendingVolunteers != null)
-            tvPendingVolunteers.setText(String.valueOf(stats.pendingVolunteerRequests));
+                    if (tvPendingActivities != null) {
+                        tvPendingActivities.setText(String.valueOf(pendingActivitiesCount));
+                    }
 
-        if (tvPendingActivities != null)
-            tvPendingActivities.setText(String.valueOf(stats.pendingActivityRequests));
+                    // Refrescamos el mensaje de cabecera
+                    refreshStatusHeader();
+                }
+            }
+            @Override public void onFailure(Call<List<ActividadResponse>> call, Throwable t) { }
+        });
+    }
 
-        if (tvTotalVolunteers != null)
-            tvTotalVolunteers.setText(String.valueOf(stats.totalVolunteers));
+    // 4. LÓGICA DEL MENSAJE DE ESTADO
+    private void refreshStatusHeader() {
+        if (tvStatusHeader == null || ivStatusIcon == null || getContext() == null) return;
 
-        if (tvTotalOrganizations != null)
-            tvTotalOrganizations.setText(String.valueOf(stats.totalOrganizations));
+        boolean hayPendientes = (pendingVolunteersCount > 0 || pendingActivitiesCount > 0);
 
-        if (tvTotalActivities != null)
-            tvTotalActivities.setText(String.valueOf(stats.totalActivities));
+        if (hayPendientes) {
+            // CASO: HAY TRABAJO PENDIENTE
+            tvStatusHeader.setText("ATENCIÓN REQUERIDA");
+            tvStatusHeader.setTextColor(Color.parseColor("#E65100")); // Naranja oscuro / Rojo
+            ivStatusIcon.setImageResource(R.drawable.warning); // Asegúrate de tener este icono
+            ivStatusIcon.setColorFilter(Color.parseColor("#E65100"));
+        } else {
+            // CASO: TODO LIMPIO
+            tvStatusHeader.setText("TODO ESTÁ AL DÍA");
+            tvStatusHeader.setTextColor(Color.parseColor("#2E7D32")); // Verde
+            ivStatusIcon.setImageResource(R.drawable.ic_check_circle); // Asegúrate de tener este icono
+            ivStatusIcon.setColorFilter(Color.parseColor("#2E7D32"));
+        }
     }
 
     private void setEmptyStats() {
