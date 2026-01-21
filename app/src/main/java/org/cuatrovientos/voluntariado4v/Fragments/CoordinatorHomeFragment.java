@@ -4,21 +4,19 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 
+import com.google.android.material.bottomnavigation.BottomNavigationView;
+
 import org.cuatrovientos.voluntariado4v.API.ApiClient;
-import org.cuatrovientos.voluntariado4v.API.VoluntariadoApiService;
 import org.cuatrovientos.voluntariado4v.Models.ActividadResponse;
 import org.cuatrovientos.voluntariado4v.Models.CoordinadorResponse;
 import org.cuatrovientos.voluntariado4v.Models.CoordinatorStatsResponse;
@@ -57,6 +55,9 @@ public class CoordinatorHomeFragment extends Fragment {
 
         initViews(view);
 
+        // Configurar navegación al hacer clic en los contadores
+        setupDashboardLinks();
+
         if (currentUserId != -1) {
             loadUserProfile();
             loadDashboardStats();           // Carga voluntarios pendientes y totales
@@ -84,6 +85,42 @@ public class CoordinatorHomeFragment extends Fragment {
         tvTotalActivities = view.findViewById(R.id.tvTotalActivities);
     }
 
+    /**
+     * Configura los clics en las secciones de pendientes para navegar
+     * a sus respectivas pestañas.
+     */
+    private void setupDashboardLinks() {
+        // Clic en zona "Voluntarios pendientes" -> Ir a Pestaña Usuarios
+        if (tvPendingVolunteers != null) {
+            // Obtenemos el contenedor padre (LinearLayout) para hacer clicable toda la zona
+            View containerVolunteers = (View) tvPendingVolunteers.getParent();
+            if (containerVolunteers != null) {
+                containerVolunteers.setOnClickListener(v -> navigateToTab(R.id.navigation_users));
+            }
+        }
+
+        // Clic en zona "Actividades pendientes" -> Ir a Pestaña Actividades
+        if (tvPendingActivities != null) {
+            // Obtenemos el contenedor padre (LinearLayout) para hacer clicable toda la zona
+            View containerActivities = (View) tvPendingActivities.getParent();
+            if (containerActivities != null) {
+                containerActivities.setOnClickListener(v -> navigateToTab(R.id.navigation_activities));
+            }
+        }
+    }
+
+    /**
+     * Método auxiliar para cambiar la pestaña del BottomNavigationView
+     */
+    private void navigateToTab(int menuItemId) {
+        if (getActivity() != null) {
+            BottomNavigationView bottomNav = getActivity().findViewById(R.id.nav_view_coordinator);
+            if (bottomNav != null) {
+                bottomNav.setSelectedItemId(menuItemId);
+            }
+        }
+    }
+
     // 1. CARGAR NOMBRE
     private void loadUserProfile() {
         ApiClient.getService().getCoordinadorDetail(currentUserId, currentUserId).enqueue(new Callback<CoordinadorResponse>() {
@@ -92,7 +129,7 @@ public class CoordinatorHomeFragment extends Fragment {
                 if (response.isSuccessful() && response.body() != null) {
                     String nombre = response.body().getNombre();
                     if (tvWelcome != null) {
-                        tvWelcome.setText("Hola, " + (nombre.isEmpty() ? "Coordinador" : nombre));
+                        tvWelcome.setText("Hola, " + (nombre != null && !nombre.isEmpty() ? nombre : "Coordinador"));
                     }
                 }
             }
@@ -136,6 +173,7 @@ public class CoordinatorHomeFragment extends Fragment {
                         String estado = act.getEstadoPublicacion();
                         if (estado != null) {
                             String e = estado.toLowerCase();
+                            // Contamos como pendientes: "revision", "pendiente", "solicitada"
                             if (e.contains("revis") || e.contains("pend") || e.contains("solicit")) {
                                 conteo++;
                             }
@@ -167,13 +205,13 @@ public class CoordinatorHomeFragment extends Fragment {
             // CASO: HAY TRABAJO PENDIENTE
             tvStatusHeader.setText("ATENCIÓN REQUERIDA");
             tvStatusHeader.setTextColor(Color.parseColor("#E65100")); // Naranja oscuro / Rojo
-            ivStatusIcon.setImageResource(R.drawable.warning); // Asegúrate de tener este icono
+            ivStatusIcon.setImageResource(R.drawable.warning);
             ivStatusIcon.setColorFilter(Color.parseColor("#E65100"));
         } else {
             // CASO: TODO LIMPIO
             tvStatusHeader.setText("TODO ESTÁ AL DÍA");
             tvStatusHeader.setTextColor(Color.parseColor("#2E7D32")); // Verde
-            ivStatusIcon.setImageResource(R.drawable.ic_check_circle); // Asegúrate de tener este icono
+            ivStatusIcon.setImageResource(R.drawable.ic_check_circle);
             ivStatusIcon.setColorFilter(Color.parseColor("#2E7D32"));
         }
     }
