@@ -13,6 +13,9 @@
         android:roundIcon="@mipmap/squarelogo"
         android:theme="@style/Theme.Voluntariado4V">
         <activity
+            android:name=".Activities.EditUserActivity"
+            android:exported="false" />
+        <activity
             android:name=".Activities.CoordinatorDashboard"
             android:exported="false" />
         <activity

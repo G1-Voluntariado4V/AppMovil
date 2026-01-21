@@ -1,6 +1,7 @@
 package org.cuatrovientos.voluntariado4v.Fragments;
 
 import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.text.Editable;
@@ -23,6 +24,7 @@ import com.google.android.material.tabs.TabLayout;
 
 import org.cuatrovientos.voluntariado4v.API.ApiClient;
 import org.cuatrovientos.voluntariado4v.API.VoluntariadoApiService;
+import org.cuatrovientos.voluntariado4v.Activities.EditUserActivity;
 import org.cuatrovientos.voluntariado4v.Adapters.CoordinatorUsersAdapter;
 import org.cuatrovientos.voluntariado4v.Adapters.FilterAdapter;
 import org.cuatrovientos.voluntariado4v.Models.EstadoRequest;
@@ -249,7 +251,11 @@ public class CoordinatorUsersFragment extends Fragment implements CoordinatorUse
 
     @Override
     public void onEditRole(UserResponse user) {
-        Toast.makeText(getContext(), "Edición de rol no habilitada en API", Toast.LENGTH_SHORT).show();
+        // En lugar de AlertDialog, lanzamos la Activity completa
+        Intent intent = new Intent(getContext(), EditUserActivity.class);
+        intent.putExtra("USER_ID", user.getId());
+        intent.putExtra("USER_ROLE", user.getRol()); // Pasamos el rol actual para saber qué campos cargar
+        startActivity(intent);
     }
 
     private void changeStatus(int userId, String nuevoEstado) {

@@ -1,19 +1,26 @@
 package org.cuatrovientos.voluntariado4v.API;
 
+import org.cuatrovientos.voluntariado4v.Models.ActividadCreateRequest;
 import org.cuatrovientos.voluntariado4v.Models.ActividadResponse;
+import org.cuatrovientos.voluntariado4v.Models.ActividadUpdateRequest;
 import org.cuatrovientos.voluntariado4v.Models.CoordinatorStatsResponse;
 import org.cuatrovientos.voluntariado4v.Models.CursoResponse;
 import org.cuatrovientos.voluntariado4v.Models.EstadoRequest;
-import org.cuatrovientos.voluntariado4v.Models.HistorialResponse;
+import org.cuatrovientos.voluntariado4v.Models.HistorialApiResponse;
 import org.cuatrovientos.voluntariado4v.Models.IdiomaRequest;
+import org.cuatrovientos.voluntariado4v.Models.IdiomaResponse;
+import org.cuatrovientos.voluntariado4v.Models.ImagenRequest;
 import org.cuatrovientos.voluntariado4v.Models.LoginRequest;
 import org.cuatrovientos.voluntariado4v.Models.LoginResponse;
 import org.cuatrovientos.voluntariado4v.Models.MensajeResponse;
+import org.cuatrovientos.voluntariado4v.Models.OdsResponse;
+import org.cuatrovientos.voluntariado4v.Models.OrganizacionResponse;
+import org.cuatrovientos.voluntariado4v.Models.OrganizacionUpdateRequest;
 import org.cuatrovientos.voluntariado4v.Models.RegisterRequest;
+import org.cuatrovientos.voluntariado4v.Models.TipoVoluntariadoResponse;
 import org.cuatrovientos.voluntariado4v.Models.UserResponse;
 import org.cuatrovientos.voluntariado4v.Models.VoluntarioResponse;
 import org.cuatrovientos.voluntariado4v.Models.VoluntarioUpdateRequest;
-import org.cuatrovientos.voluntariado4v.Models.OrganizacionResponse;
 
 import java.util.List;
 
@@ -30,134 +37,163 @@ import retrofit2.http.Query;
 
 public interface VoluntariadoApiService {
 
+        // ═══════════════════════════════════════════════════════════════════
+        // AUTHENTICATION
+        // ═══════════════════════════════════════════════════════════════════
+
         @POST("auth/login")
         Call<LoginResponse> login(@Body LoginRequest request);
 
+        // Registro estándar (crea recurso voluntario)
         @POST("voluntarios")
         Call<VoluntarioResponse> register(@Body RegisterRequest request);
+
+        // ═══════════════════════════════════════════════════════════════════
+        // CATALOGOS (Auxiliares para formularios)
+        // ═══════════════════════════════════════════════════════════════════
 
         @GET("catalogos/cursos")
         Call<List<CursoResponse>> getCursos();
 
         @GET("catalogos/idiomas")
-        Call<List<org.cuatrovientos.voluntariado4v.Models.IdiomaResponse>> getIdiomas();
+        Call<List<IdiomaResponse>> getIdiomas();
 
         @GET("catalogos/tipos-voluntariado")
-        Call<List<org.cuatrovientos.voluntariado4v.Models.TipoVoluntariadoResponse>> getTiposVoluntariado();
+        Call<List<TipoVoluntariadoResponse>> getTiposVoluntariado();
+
+        @GET("catalogos/ods")
+        Call<List<OdsResponse>> getOds();
+
+        // ═══════════════════════════════════════════════════════════════════
+        // ACTIVIDADES (Búsqueda y Detalle)
+        // ═══════════════════════════════════════════════════════════════════
 
         @GET("actividades")
         Call<List<ActividadResponse>> getActividades();
 
         @GET("actividades")
         Call<List<ActividadResponse>> getActividadesFiltradas(
-                        @Query("ods_id") Integer odsId,
-                        @Query("tipo_id") Integer tipoId);
+                @Query("ods_id") Integer odsId,
+                @Query("tipo_id") Integer tipoId
+        );
 
         @GET("actividades/{id}")
         Call<ActividadResponse> getActividadDetalle(@Path("id") int id);
 
+        @GET("actividades/{id}/inscripciones")
+        Call<List<VoluntarioResponse>> getInscritos(@Path("id") int idActividad);
+
+        // ═══════════════════════════════════════════════════════════════════
+        // GESTIÓN DE ACTIVIDADES (Creación/Edición/Borrado)
+        // ═══════════════════════════════════════════════════════════════════
+
+        // Opción A: Crear vinculada a la organización en la URL
+        @POST("organizaciones/{id}/actividades")
+        Call<ActividadResponse> crearActividad(
+                @Path("id") int idOrganizacion,
+                @Body ActividadCreateRequest request
+        );
+
+        // Opción B: Crear actividad genérica (si el backend lo soporta así)
+        @POST("actividades")
+        Call<MensajeResponse> createActividadGenerica(@Body ActividadCreateRequest request);
+
+        @PUT("actividades/{id}")
+        Call<ActividadResponse> updateActividad(
+                @Path("id") int idActividad,
+                @Body ActividadUpdateRequest request
+        );
+
+        @DELETE("actividades/{id}")
+        Call<Void> deleteActividad(@Path("id") int id);
+
+        @POST("actividades/{id}/imagenes")
+        Call<MensajeResponse> addImagenActividad(
+                @Path("id") int idActividad,
+                @Body ImagenRequest request
+        );
+
+        // ═══════════════════════════════════════════════════════════════════
+        // VOLUNTARIOS (Perfil propio y acciones)
+        // ═══════════════════════════════════════════════════════════════════
+
         @GET("voluntarios/{id}")
         Call<VoluntarioResponse> getVoluntario(@Path("id") int id);
 
+        // Actualización del propio perfil (User Context)
         @PUT("voluntarios/{id}")
         Call<VoluntarioResponse> updateVoluntario(
-                        @Path("id") int id,
-                        @Header("X-User-Id") int userId,
-                        @Body VoluntarioUpdateRequest request);
+                @Path("id") int id,
+                @Header("X-User-Id") int userId,
+                @Body VoluntarioUpdateRequest request
+        );
 
-        // Idiomas del voluntario
         @POST("voluntarios/{idVol}/idiomas")
         Call<MensajeResponse> addIdioma(
-                        @Path("idVol") int idVoluntario,
-                        @Body IdiomaRequest request);
+                @Path("idVol") int idVoluntario,
+                @Body IdiomaRequest request
+        );
 
         @DELETE("voluntarios/{idVol}/idiomas/{idIdioma}")
         Call<MensajeResponse> deleteIdioma(
-                        @Path("idVol") int idVoluntario,
-                        @Path("idIdioma") int idIdioma);
+                @Path("idVol") int idVoluntario,
+                @Path("idIdioma") int idIdioma
+        );
 
         @GET("voluntarios/{id}/recomendaciones")
         Call<List<ActividadResponse>> getRecomendaciones(@Path("id") int id);
 
         @GET("voluntarios/{id}/historial")
-        Call<org.cuatrovientos.voluntariado4v.Models.HistorialApiResponse> getHistorial(
-                        @Path("id") int id,
-                        @Header("X-User-Id") int userId);
+        Call<HistorialApiResponse> getHistorial(
+                @Path("id") int id,
+                @Header("X-User-Id") int userId
+        );
 
         @POST("voluntarios/{idVol}/actividades/{idAct}")
         Call<MensajeResponse> inscribirse(
-                        @Path("idVol") int idVoluntario,
-                        @Header("X-User-Id") int userId,
-                        @Path("idAct") int idActividad);
+                @Path("idVol") int idVoluntario,
+                @Header("X-User-Id") int userId,
+                @Path("idAct") int idActividad
+        );
 
         @DELETE("voluntarios/{idVol}/actividades/{idAct}")
         Call<MensajeResponse> desapuntarse(
-                        @Path("idVol") int idVoluntario,
-                        @Header("X-User-Id") int userId,
-                        @Path("idAct") int idActividad);
+                @Path("idVol") int idVoluntario,
+                @Header("X-User-Id") int userId,
+                @Path("idAct") int idActividad
+        );
+
+        // ═══════════════════════════════════════════════════════════════════
+        // ORGANIZACIONES (Perfil público y Gestión propia)
+        // ═══════════════════════════════════════════════════════════════════
 
         @GET("organizaciones/{id}")
-        Call<OrganizacionResponse> getOrganizacion(@Path("id") int id);
+        Call<OrganizacionResponse> getOrganizationDetail(@Path("id") int id);
 
         @GET("organizaciones/{id}/actividades")
         Call<List<ActividadResponse>> getActividadesOrganizacion(@Path("id") int id);
 
-        @GET("actividades/{id}/inscripciones")
-        Call<List<VoluntarioResponse>> getInscritos(@Path("id") int idActividad);
-
         @GET("organizaciones/top-voluntarios")
         Call<List<OrganizacionResponse>> getTopOrganizaciones();
 
-        // ═══════════════════════════════════════════════════════════════════
-        // ENDPOINTS ORGANIZACIONES
-        // ═══════════════════════════════════════════════════════════════════
-
+        // Actualización propia (Owner Context)
         @PUT("organizaciones/{id}")
         Call<OrganizacionResponse> updateOrganizacion(
-                        @Path("id") int id,
-                        @Body org.cuatrovientos.voluntariado4v.Models.OrganizacionUpdateRequest request);
-
-        @POST("organizaciones/{id}/actividades")
-        Call<ActividadResponse> crearActividad(
-                        @Path("id") int idOrganizacion,
-                        @Body org.cuatrovientos.voluntariado4v.Models.ActividadCreateRequest request);
+                @Path("id") int id,
+                @Body OrganizacionUpdateRequest request
+        );
 
         // ═══════════════════════════════════════════════════════════════════
-        // CATALOGOS (para el formulario de crear actividad)
+        // COORDINADOR / ADMIN (Gestión global)
         // ═══════════════════════════════════════════════════════════════════
 
-        @GET("catalogos/ods")
-        Call<List<org.cuatrovientos.voluntariado4v.Models.OdsResponse>> getOds();
-
-        // ═══════════════════════════════════════════════════════════════════
-        // ACTIVIDADES - IMAGEN Y EDICION
-        // ═══════════════════════════════════════════════════════════════════
-
-        @POST("actividades/{id}/imagenes")
-        Call<MensajeResponse> addImagenActividad(
-                        @Path("id") int idActividad,
-                        @Body org.cuatrovientos.voluntariado4v.Models.ImagenRequest request);
-
-        @PUT("actividades/{id}")
-        Call<ActividadResponse> updateActividad(
-                        @Path("id") int idActividad,
-                        @Body org.cuatrovientos.voluntariado4v.Models.ActividadUpdateRequest request);
-
-
-        // ═══════════════════════════════════════════════════════════════════
-        // COORDINADOR
-        // ═══════════════════════════════════════════════════════════════════
-
-        // Estadísticas
         @GET("coord/stats")
         Call<CoordinatorStatsResponse> getCoordinatorStats(@Header("X-Admin-Id") int adminId);
 
-        // Listado GLOBAL de usuarios (Tu API devuelve todo junto)
         @GET("usuarios")
         Call<List<UserResponse>> getAllUsers();
 
         // Cambiar estado (Aprobar/Rechazar/Bloquear)
-        // Ruta en API: /coord/{rol}/{id}/estado
         @PATCH("coord/{rol}/{id}/estado")
         Call<MensajeResponse> updateUserStatus(
                 @Header("X-Admin-Id") int adminId,
@@ -166,7 +202,19 @@ public interface VoluntariadoApiService {
                 @Body EstadoRequest request
         );
 
-        // Ver detalle de un voluntario específico (útil antes de aprobar)
-        @GET("voluntarios/{id}")
-        Call<VoluntarioResponse> getVoluntarioDetail(@Path("id") int id);
+        // Edición Admin de Voluntario (Admin Context)
+        @PUT("voluntarios/{id}")
+        Call<MensajeResponse> updateVoluntarioAdmin(
+                @Header("X-Admin-Id") int adminId,
+                @Path("id") int id,
+                @Body VoluntarioUpdateRequest request
+        );
+
+        // Edición Admin de Organización (Admin Context)
+        @PUT("organizaciones/{id}")
+        Call<MensajeResponse> updateOrganizacionAdmin(
+                @Header("X-Admin-Id") int adminId,
+                @Path("id") int id,
+                @Body OrganizacionUpdateRequest request
+        );
 }

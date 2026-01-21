@@ -102,7 +102,7 @@ public class OrganizationProfileFragment extends Fragment {
         tvOrgRole.setText(savedRole);
 
         if (orgId != -1) {
-            ApiClient.getService().getOrganizacion(orgId).enqueue(new Callback<OrganizacionResponse>() {
+            ApiClient.getService().getOrganizationDetail(orgId).enqueue(new Callback<OrganizacionResponse>() {
                 @Override
                 public void onResponse(Call<OrganizacionResponse> call, Response<OrganizacionResponse> response) {
                     if (response.isSuccessful() && response.body() != null) {

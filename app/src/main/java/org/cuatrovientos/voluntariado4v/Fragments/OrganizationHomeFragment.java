@@ -87,7 +87,7 @@ public class OrganizationHomeFragment extends Fragment {
     }
 
     private void fetchOrganizationProfile() {
-        ApiClient.getService().getOrganizacion(orgId).enqueue(new Callback<OrganizacionResponse>() {
+        ApiClient.getService().getOrganizationDetail(orgId).enqueue(new Callback<OrganizacionResponse>() {
             @Override
             public void onResponse(Call<OrganizacionResponse> call, Response<OrganizacionResponse> response) {
                 if (response.isSuccessful() && response.body() != null) {

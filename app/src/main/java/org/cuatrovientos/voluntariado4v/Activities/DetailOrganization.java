@@ -83,7 +83,7 @@ public class DetailOrganization extends AppCompatActivity {
     }
 
     private void loadOrganizationData(int id) {
-        ApiClient.getService().getOrganizacion(id).enqueue(new Callback<OrganizacionResponse>() {
+        ApiClient.getService().getOrganizationDetail(id).enqueue(new Callback<OrganizacionResponse>() {
             @Override
             public void onResponse(Call<OrganizacionResponse> call, Response<OrganizacionResponse> response) {
                 if (response.isSuccessful() && response.body() != null) {
