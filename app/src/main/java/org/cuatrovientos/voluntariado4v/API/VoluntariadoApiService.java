@@ -193,4 +193,25 @@ public interface VoluntariadoApiService {
                 @Header("X-Admin-Id") int adminId,
                 @Path("id") int id,
                 @Body OrganizacionUpdateRequest request);
+
+        // ═══════════════════════════════════════════════════════════════════
+        // GESTIÓN DE ACTIVIDADES (COORDINADOR)
+        // ═══════════════════════════════════════════════════════════════════
+
+        // Obtener TODAS las actividades (incluidas pendientes, rechazadas, etc.)
+        @GET("coord/actividades")
+        Call<List<ActividadResponse>> getAllActivitiesCoord(@Header("X-Admin-Id") int adminId);
+
+        // Cambiar estado (Publicar/Rechazar/Cancelar)
+        @PATCH("coord/actividades/{id}/estado")
+        Call<MensajeResponse> updateActivityStatus(
+                @Header("X-Admin-Id") int adminId,
+                @Path("id") int idActividad,
+                @Body EstadoRequest request);
+
+        // Borrado forzoso (Admin)
+        @DELETE("coord/actividades/{id}")
+        Call<Void> deleteActivityCoord(
+                @Header("X-Admin-Id") int adminId,
+                @Path("id") int idActividad);
 }
