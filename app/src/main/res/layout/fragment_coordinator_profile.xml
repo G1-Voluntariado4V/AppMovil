@@ -1,14 +1,217 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".Fragments.CoordinatorProfileFragment">
+    android:background="#F9FAFB">
 
-    <!-- TODO: Update blank fragment layout -->
-    <TextView
+    <androidx.core.widget.NestedScrollView
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:text="@string/hello_blank_fragment" />
+        android:layout_height="0dp"
+        android:fillViewport="true"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
 
-</FrameLayout>
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:paddingBottom="40dp">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:orientation="vertical"
+                android:paddingVertical="20dp">
+
+                <FrameLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content">
+                    <View
+                        android:layout_width="80dp"
+                        android:layout_height="80dp"
+                        android:background="@drawable/bg_circle_light_blue"
+                        android:backgroundTint="#EEF4FF" />
+
+                    <ImageView
+                        android:id="@+id/ivCoordAvatar"
+                        android:layout_width="40dp"
+                        android:layout_height="40dp"
+                        android:layout_gravity="center"
+                        android:src="@drawable/ic_user"
+                        app:tint="#4A7DFF" />
+                </FrameLayout>
+
+                <TextView
+                    android:id="@+id/tvHeaderName"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="12dp"
+                    android:text="Cargando..."
+                    android:textColor="#101828"
+                    android:textSize="20sp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:id="@+id/tvCoordRole"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="4dp"
+                    android:text="Coordinador"
+                    android:textColor="#667085"
+                    android:textSize="14sp" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:paddingHorizontal="24dp">
+
+                <com.google.android.material.card.MaterialCardView
+                    android:id="@+id/cardInfo"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="10dp"
+                    app:cardBackgroundColor="#FFFFFF"
+                    app:cardCornerRadius="16dp"
+                    app:cardElevation="0dp"
+                    app:strokeColor="#EAECF0"
+                    app:strokeWidth="1dp">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        android:padding="20dp">
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:gravity="center_vertical"
+                            android:orientation="horizontal"
+                            android:layout_marginBottom="16dp">
+
+                            <ImageView
+                                android:layout_width="24dp"
+                                android:layout_height="24dp"
+                                android:src="@drawable/ic_content"
+                                app:tint="#4A7DFF"/>
+
+                            <TextView
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="1"
+                                android:layout_marginStart="10dp"
+                                android:text="Datos Personales"
+                                android:textStyle="bold"
+                                android:textSize="16sp"
+                                android:textColor="#344054"/>
+
+                            <ImageView
+                                android:id="@+id/btnEditInfo"
+                                android:layout_width="32dp"
+                                android:layout_height="32dp"
+                                android:background="@drawable/bg_tag_blue"
+                                android:padding="8dp"
+                                android:src="@drawable/ic_edit"
+                                app:tint="#FFFFFF"/>
+                        </LinearLayout>
+
+                        <TextView
+                            android:text="Nombre"
+                            android:textColor="#344054"
+                            android:textSize="12sp"
+                            android:layout_marginBottom="6dp"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"/>
+                        <EditText
+                            android:id="@+id/etCoordName"
+                            android:inputType="textPersonName"
+                            android:textColor="#101828"
+                            android:textSize="14sp"
+                            android:padding="10dp"
+                            android:clickable="false"
+                            android:focusable="false"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"/>
+
+                        <TextView
+                            android:text="Apellidos"
+                            android:textColor="#344054"
+                            android:textSize="12sp"
+                            android:layout_marginTop="16dp"
+                            android:layout_marginBottom="6dp"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"/>
+                        <EditText
+                            android:id="@+id/etCoordSurname"
+                            android:inputType="textPersonName"
+                            android:textColor="#101828"
+                            android:textSize="14sp"
+                            android:padding="10dp"
+                            android:clickable="false"
+                            android:focusable="false"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"/>
+
+                        <TextView
+                            android:text="Email"
+                            android:textColor="#344054"
+                            android:textSize="12sp"
+                            android:layout_marginTop="16dp"
+                            android:layout_marginBottom="6dp"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"/>
+                        <EditText
+                            android:id="@+id/etCoordEmail"
+                            android:inputType="textEmailAddress"
+                            android:textColor="#101828"
+                            android:textSize="14sp"
+                            android:padding="10dp"
+                            android:clickable="false"
+                            android:focusable="false"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"/>
+
+                        <TextView
+                            android:text="Teléfono"
+                            android:textColor="#344054"
+                            android:textSize="12sp"
+                            android:layout_marginTop="16dp"
+                            android:layout_marginBottom="6dp"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"/>
+                        <EditText
+                            android:id="@+id/etCoordPhone"
+                            android:inputType="phone"
+                            android:textColor="#101828"
+                            android:textSize="14sp"
+                            android:padding="10dp"
+                            android:clickable="false"
+                            android:focusable="false"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"/>
+
+                    </LinearLayout>
+                </com.google.android.material.card.MaterialCardView>
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnLogout"
+                    android:layout_width="match_parent"
+                    android:layout_height="56dp"
+                    android:layout_marginTop="30dp"
+                    android:text="Cerrar Sesión"
+                    android:textColor="#D92D20"
+                    android:textStyle="bold"
+                    app:backgroundTint="#FEF3F2"
+                    app:cornerRadius="12dp"
+                    app:elevation="0dp" />
+
+            </LinearLayout>
+        </LinearLayout>
+    </androidx.core.widget.NestedScrollView>
+</androidx.constraintlayout.widget.ConstraintLayout>

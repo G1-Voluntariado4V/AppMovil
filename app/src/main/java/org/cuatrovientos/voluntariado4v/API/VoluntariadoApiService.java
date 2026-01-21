@@ -178,6 +178,15 @@ public interface VoluntariadoApiService {
                 @Path("id") int userId,
                 @Body EstadoRequest request);
 
+        // Añade esto en la sección de COORDINADOR en VoluntariadoApiService.java
+
+        @PUT("coordinadores/{id}")
+        Call<CoordinadorResponse> updateCoordinador(
+                @Path("id") int id,
+                @Header("X-Admin-Id") int adminId,
+                @Body CoordinadorUpdateRequest request
+        );
+
         // CAMBIAR ROL (Endpoint PUT específico)
         // Ruta: /usuarios/{id}/rol
         @PUT("usuarios/{id}/rol")

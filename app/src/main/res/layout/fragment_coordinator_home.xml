@@ -88,7 +88,6 @@
                         android:layout_width="20dp"
                         android:layout_height="20dp"
                         android:layout_marginEnd="8dp"
-                        android:src="@drawable/warning"
                         app:tint="#D32F2F" />
 
                     <TextView
@@ -96,7 +95,6 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:letterSpacing="0.05"
-                        android:text="ATENCIÓN REQUERIDA"
                         android:textColor="#D32F2F"
                         android:textSize="12sp"
                         android:textStyle="bold" />
