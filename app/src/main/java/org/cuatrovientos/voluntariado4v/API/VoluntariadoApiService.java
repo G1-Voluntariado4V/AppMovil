@@ -168,7 +168,7 @@ public interface VoluntariadoApiService {
         @PATCH("coord/{rol}/{id}/estado")
         Call<MensajeResponse> updateUserStatus(
                 @Header("X-Admin-Id") int adminId,
-                @Path("rol") String rolPath, // "voluntarios" u "organizaciones"
+                @Path("rol") String rolPath,
                 @Path("id") int userId,
                 @Body EstadoRequest request);
 

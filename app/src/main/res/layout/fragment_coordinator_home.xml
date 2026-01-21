@@ -54,7 +54,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="4dp"
-            android:text="Panel de Control"
+            android:text="Panel de Coordinación"
             android:textColor="#757575"
             android:textSize="16sp"
             app:layout_constraintStart_toStartOf="@+id/tvWelcomeTitle"
@@ -228,7 +228,7 @@
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Voluntarios\nTotales"
+                        android:text="Voluntarios\nActivos"
                         android:textSize="13sp"
                         android:textColor="#616161"/>
                 </LinearLayout>

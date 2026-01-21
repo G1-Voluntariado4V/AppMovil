@@ -10,12 +10,17 @@ public class CoordinatorStatsResponse {
     @SerializedName("metricas")
     private Metricas metricas;
 
+    // Getter seguro: si viene nulo, devolvemos un objeto vacío para evitar NullPointerException
     public Metricas getMetricas() {
-        return metricas;
+        return metricas != null ? metricas : new Metricas();
+    }
+
+    public String getTitulo() {
+        return titulo;
     }
 
     public static class Metricas {
-        // Estas claves coinciden 1:1 con $safeStats en CoordinadorController.php
+        // COINCIDENCIA EXACTA con las claves del JSON que envía tu API PHP
 
         @SerializedName("voluntarios_activos")
         public int totalVolunteers;
@@ -31,5 +36,14 @@ public class CoordinatorStatsResponse {
 
         @SerializedName("actividades_pendientes")
         public int pendingActivityRequests;
+
+        // Constructor por defecto para inicializar a 0 si falla Gson
+        public Metricas() {
+            this.totalVolunteers = 0;
+            this.totalOrganizations = 0;
+            this.totalActivities = 0;
+            this.pendingVolunteerRequests = 0;
+            this.pendingActivityRequests = 0;
+        }
     }
 }
