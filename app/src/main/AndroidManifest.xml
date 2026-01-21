@@ -13,7 +13,7 @@
         android:roundIcon="@mipmap/squarelogo"
         android:theme="@style/Theme.Voluntariado4V">
         <activity
-            android:name=".Activities.AuthLogin"
+            android:name=".Activities.CoordinatorDashboard"
             android:exported="false" />
         <activity
             android:name=".Activities.OrganizationDashboard"
@@ -25,7 +25,7 @@
             android:name=".Activities.DetailActivity"
             android:exported="false" />
         <activity
-            android:name=".Activities.CoordinatorDashboard"
+            android:name=".Activities.AuthLogin"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
