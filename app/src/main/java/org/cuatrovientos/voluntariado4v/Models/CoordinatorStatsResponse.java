@@ -14,24 +14,22 @@ public class CoordinatorStatsResponse {
         return metricas;
     }
 
-    // Clase interna para mapear el objeto "metricas" del JSON
     public static class Metricas {
-        // Asegúrate de que estos nombres coincidan con las columnas de tu SP SQL o vista
-        // Usualmente: snake_case en JSON -> camelCase en Java
+        // Estas claves coinciden 1:1 con $safeStats en CoordinadorController.php
 
-        @SerializedName("total_usuarios") // Según tu fallback PHP
+        @SerializedName("voluntarios_activos")
         public int totalVolunteers;
 
-        @SerializedName("total_organizaciones") // Ajustar según tu SP real
+        @SerializedName("organizaciones_activas")
         public int totalOrganizations;
 
-        @SerializedName("actividades_publicadas") // Según tu fallback PHP
+        @SerializedName("actividades_publicadas")
         public int totalActivities;
 
-        @SerializedName("inscripciones_pendientes") // Según tu fallback PHP (Voluntarios pendientes)
+        @SerializedName("voluntarios_pendientes")
         public int pendingVolunteerRequests;
 
-        @SerializedName("actividades_revision") // Ajustar según tu SP real
+        @SerializedName("actividades_pendientes")
         public int pendingActivityRequests;
     }
 }

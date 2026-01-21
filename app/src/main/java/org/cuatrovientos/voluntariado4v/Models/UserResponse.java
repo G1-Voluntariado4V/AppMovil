@@ -1,21 +1,25 @@
 package org.cuatrovientos.voluntariado4v.Models;
 
 import com.google.gson.annotations.SerializedName;
+import java.io.Serializable;
 
-public class UserResponse {
+public class UserResponse implements Serializable {
     @SerializedName("id_usuario")
     private int idUsuario;
 
     @SerializedName("correo")
     private String correo;
 
-    @SerializedName("nombre_rol")
-    private String nombreRol; // Ej: "Voluntario", "Organizacion"
+    @SerializedName("nombre_rol") // Coincide con alias SQL en UsuarioController
+    private String nombreRol;
 
-    @SerializedName("estado_cuenta")
-    private String estadoCuenta; // Ej: "Pendiente", "Activa", "Bloqueada"
+    @SerializedName("estado_cuenta") // Coincide con alias SQL en UsuarioController
+    private String estadoCuenta;
 
-    // Constructor vacío necesario para Gson
+    @SerializedName("img_perfil")
+    private String imgPerfil;
+
+    // Constructor vacío
     public UserResponse() {}
 
     public int getId() {
@@ -26,9 +30,8 @@ public class UserResponse {
         return correo != null ? correo : "";
     }
 
-    // Como el endpoint /usuarios no devuelve nombre, usamos el correo como identificador visual
     public String getNombre() {
-        return correo;
+        return correo; // Usamos el correo como nombre visual
     }
 
     public String getRol() {
@@ -37,5 +40,9 @@ public class UserResponse {
 
     public String getEstadoCuenta() {
         return estadoCuenta != null ? estadoCuenta : "Pendiente";
+    }
+
+    public String getImgPerfil() {
+        return imgPerfil;
     }
 }
