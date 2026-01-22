@@ -137,19 +137,18 @@ public class CoordinatorHomeFragment extends Fragment {
             });
         }
 
-        // Botón Gestionar Tipos (Placeholder hasta que creemos la Activity)
+        // Botón Gestionar Tipos
         if (btnManageTypes != null) {
             btnManageTypes.setOnClickListener(v -> {
-                // TODO: Descomentar cuando crees ManageTypesActivity
-                // Intent intent = new Intent(context, ManageTypesActivity.class);
-                // startActivity(intent);
-                Toast.makeText(context, "Gestión de Tipos: Próximamente", Toast.LENGTH_SHORT).show();
+                // AHORA SÍ: Abrimos la nueva Activity
+                Intent intent = new Intent(context, org.cuatrovientos.voluntariado4v.Activities.ManageTiposActivity.class);
+                startActivity(intent);
             });
         }
     }
 
     /**
-     * Método auxiliar para cambiar la pestaña del BottomNavigationView
+     * Metodo auxiliar para cambiar la pestaña del BottomNavigationView
      */
     private void navigateToTab(int menuItemId) {
         if (getActivity() != null) {

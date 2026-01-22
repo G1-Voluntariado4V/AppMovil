@@ -112,8 +112,7 @@
                         android:layout_height="38dp"
                         android:background="@drawable/bg_circle_white"
                         android:backgroundTint="#FFEBEE"
-                        android:src="@drawable/ic_add"
-                        android:rotation="45"
+                        android:src="@drawable/ic_delete"
                         app:tint="#D32F2F"
                         android:padding="8dp"
                         android:contentDescription="Rechazar" />

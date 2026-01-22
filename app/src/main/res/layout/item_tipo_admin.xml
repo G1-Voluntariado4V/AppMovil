@@ -15,50 +15,30 @@
         android:padding="16dp">
 
         <ImageView
-            android:id="@+id/imgOdsIcon"
+            android:id="@+id/imgTipoIcon"
             android:layout_width="48dp"
             android:layout_height="48dp"
-            android:src="@drawable/ic_globe"
+            android:src="@drawable/ic_content"
             app:tint="@color/primary"
             android:background="@drawable/bg_circle_light_blue"
             android:padding="10dp"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintBottom_toBottomOf="parent" />
-
-        <LinearLayout
+        <TextView
+            android:id="@+id/txtTipoName"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:orientation="vertical"
             android:layout_marginStart="16dp"
             android:layout_marginEnd="8dp"
-            app:layout_constraintStart_toEndOf="@id/imgOdsIcon"
+            android:text="Nombre del Tipo"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            android:textColor="@color/black"
+            app:layout_constraintStart_toEndOf="@id/imgTipoIcon"
             app:layout_constraintEnd_toStartOf="@+id/layoutActions"
             app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintBottom_toBottomOf="parent">
-
-            <TextView
-                android:id="@+id/txtOdsName"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="Nombre ODS"
-                android:textSize="16sp"
-                android:textStyle="bold"
-                android:textColor="@color/black"
-                android:maxLines="1"
-                android:ellipsize="end" />
-
-            <TextView
-                android:id="@+id/txtOdsDesc"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="4dp"
-                android:text="Descripción..."
-                android:textSize="13sp"
-                android:textColor="@color/text_gray"
-                android:maxLines="2"
-                android:ellipsize="end" />
-        </LinearLayout>
+            app:layout_constraintBottom_toBottomOf="parent"/>
 
         <LinearLayout
             android:id="@+id/layoutActions"

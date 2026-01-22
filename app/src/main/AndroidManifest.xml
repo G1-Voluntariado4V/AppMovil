@@ -13,7 +13,7 @@
         android:roundIcon="@mipmap/squarelogo"
         android:theme="@style/Theme.Voluntariado4V">
         <activity
-            android:name=".Dialogs.AddEditOdsDialog"
+            android:name=".Activities.ManageTiposActivity"
             android:exported="false" />
         <activity
             android:name=".Activities.ManageOdsActivity"
