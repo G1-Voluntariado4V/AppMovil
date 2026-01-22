@@ -14,7 +14,7 @@
     <item
         android:id="@+id/navigation_activities"
         android:icon="@drawable/ic_content"
-        android:title="Activ." />
+        android:title="Actividades" />
 
     <item
         android:id="@+id/navigation_profile"
