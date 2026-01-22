@@ -73,8 +73,6 @@ public class CoordinatorDashboard extends AppCompatActivity {
             targetFragment = usersFragment;
         } else if (itemId == R.id.navigation_activities) {
             targetFragment = activitiesFragment;
-        } else if (itemId == R.id.navigation_management) {
-            targetFragment = managementFragment;
         } else if (itemId == R.id.navigation_profile) {
             targetFragment = profileFragment;
         }

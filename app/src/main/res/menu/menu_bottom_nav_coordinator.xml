@@ -17,11 +17,6 @@
         android:title="Activ." />
 
     <item
-        android:id="@+id/navigation_management"
-        android:icon="@drawable/ic_filter"
-        android:title="Gestión" />
-
-    <item
         android:id="@+id/navigation_profile"
         android:icon="@drawable/ic_user"
         android:title="Perfil" />
