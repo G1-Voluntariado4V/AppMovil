@@ -5,19 +5,26 @@ import android.view.View;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
+
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.appcompat.widget.SearchView;
+import androidx.appcompat.widget.Toolbar;
+import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
+
 import org.cuatrovientos.voluntariado4v.API.ApiClient;
 import org.cuatrovientos.voluntariado4v.API.VoluntariadoApiService;
 import org.cuatrovientos.voluntariado4v.Adapters.OdsAdminAdapter;
 import org.cuatrovientos.voluntariado4v.Dialogs.AddEditOdsDialog;
 import org.cuatrovientos.voluntariado4v.Models.OdsResponse;
 import org.cuatrovientos.voluntariado4v.R;
+
 import java.util.ArrayList;
 import java.util.List;
+
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -28,9 +35,14 @@ public class ManageOdsActivity extends AppCompatActivity {
     private OdsAdminAdapter adapter;
     private ProgressBar progressBar;
     private TextView txtEmptyView;
-    private androidx.appcompat.widget.Toolbar toolbar;
+    private Toolbar toolbar;
+    private SearchView searchView;
+    private FloatingActionButton fab;
     private VoluntariadoApiService apiService;
-    private List<OdsResponse> odsList = new ArrayList<>();
+
+    // Listas para manejar el filtrado
+    private List<OdsResponse> displayList = new ArrayList<>();
+    private List<OdsResponse> fullOdsList = new ArrayList<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -42,6 +54,7 @@ public class ManageOdsActivity extends AppCompatActivity {
 
         initViews();
         setupRecyclerView();
+        setupSearch(); // Configurar el buscador
 
         // Cargar datos iniciales
         loadOds();
@@ -51,31 +64,34 @@ public class ManageOdsActivity extends AppCompatActivity {
         recyclerView = findViewById(R.id.recyclerManageOds);
         progressBar = findViewById(R.id.progressBar);
         txtEmptyView = findViewById(R.id.txtEmptyView);
-        FloatingActionButton fab = findViewById(R.id.fabAddOds);
+        fab = findViewById(R.id.fabAddOds);
         toolbar = findViewById(R.id.toolbar);
+        searchView = findViewById(R.id.searchView);
 
         // Configurar Toolbar
         setSupportActionBar(toolbar);
+        if (getSupportActionBar() != null) {
+            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+            getSupportActionBar().setDisplayShowHomeEnabled(true);
+        }
         toolbar.setNavigationOnClickListener(v -> finish());
 
-        // Botón Crear Nuevo -> Abre el Dialog (Popup)
+        // Botón Crear Nuevo
         fab.setOnClickListener(v -> openAddEditDialog(null));
     }
 
     private void setupRecyclerView() {
-        recyclerView.setLayoutManager(new LinearLayoutManager(this));
+        // Mantenemos GridLayoutManager con 2 columnas como pediste
+        recyclerView.setLayoutManager(new GridLayoutManager(this, 2));
 
-        // Configuramos el adaptador con las acciones de click
-        adapter = new OdsAdminAdapter(odsList, new OdsAdminAdapter.OnItemClickListener() {
+        adapter = new OdsAdminAdapter(displayList, new OdsAdminAdapter.OnItemClickListener() {
             @Override
             public void onEditClick(OdsResponse ods) {
-                // EDITAR: Abrimos el Dialog pasando el objeto ODS
                 openAddEditDialog(ods);
             }
 
             @Override
             public void onDeleteClick(OdsResponse ods) {
-                // ELIMINAR: Pedimos confirmación antes
                 confirmDelete(ods);
             }
         });
@@ -83,26 +99,53 @@ public class ManageOdsActivity extends AppCompatActivity {
         recyclerView.setAdapter(adapter);
     }
 
-    /**
-     * Método para abrir el Popup de Crear/Editar
-     */
-    private void openAddEditDialog(OdsResponse ods) {
-        // Creamos una instancia del Dialog usando el método estático
-        AddEditOdsDialog dialog = AddEditOdsDialog.newInstance(ods);
+    private void setupSearch() {
+        searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+            @Override
+            public boolean onQueryTextSubmit(String query) {
+                filter(query);
+                searchView.clearFocus(); // Ocultar teclado
+                return true;
+            }
 
-        // Asignamos el listener para recargar la lista cuando se guarde correctamente
-        dialog.setListener(() -> {
-            loadOds(); // Recargar la lista para ver los cambios
+            @Override
+            public boolean onQueryTextChange(String newText) {
+                filter(newText);
+                return true;
+            }
         });
-
-        // Mostramos el Dialog
-        dialog.show(getSupportFragmentManager(), "AddEditOdsDialog");
     }
 
-    @Override
-    protected void onResume() {
-        super.onResume();
-        loadOds();
+    // Lógica de filtrado
+    private void filter(String text) {
+        List<OdsResponse> filteredList = new ArrayList<>();
+
+        if (text == null || text.trim().isEmpty()) {
+            filteredList.addAll(fullOdsList);
+        } else {
+            String filterPattern = text.toLowerCase().trim();
+            for (OdsResponse item : fullOdsList) {
+                if (item.getNombre() != null && item.getNombre().toLowerCase().contains(filterPattern)) {
+                    filteredList.add(item);
+                }
+            }
+        }
+
+        // Actualizar adaptador y vista vacía
+        adapter.updateList(filteredList);
+
+        if (filteredList.isEmpty()) {
+            txtEmptyView.setVisibility(View.VISIBLE);
+            txtEmptyView.setText("No se encontraron resultados");
+        } else {
+            txtEmptyView.setVisibility(View.GONE);
+        }
+    }
+
+    private void openAddEditDialog(OdsResponse ods) {
+        AddEditOdsDialog dialog = AddEditOdsDialog.newInstance(ods);
+        dialog.setListener(() -> loadOds());
+        dialog.show(getSupportFragmentManager(), "AddEditOdsDialog");
     }
 
     private void loadOds() {
@@ -116,15 +159,14 @@ public class ManageOdsActivity extends AppCompatActivity {
                 progressBar.setVisibility(View.GONE);
                 if (response.isSuccessful() && response.body() != null) {
                     List<OdsResponse> results = response.body();
-                    odsList.clear();
-                    odsList.addAll(results);
 
-                    if (odsList.isEmpty()) {
-                        txtEmptyView.setVisibility(View.VISIBLE);
-                    } else {
-                        txtEmptyView.setVisibility(View.GONE); // Aseguramos ocultarlo si hay datos
-                        adapter.updateList(odsList);
-                    }
+                    // Actualizamos la lista maestra y aplicamos el filtro actual
+                    fullOdsList.clear();
+                    fullOdsList.addAll(results);
+
+                    String currentQuery = searchView.getQuery().toString();
+                    filter(currentQuery);
+
                 } else {
                     Toast.makeText(ManageOdsActivity.this, "Error al cargar datos", Toast.LENGTH_SHORT).show();
                 }
@@ -157,7 +199,7 @@ public class ManageOdsActivity extends AppCompatActivity {
                 progressBar.setVisibility(View.GONE);
                 if (response.isSuccessful()) {
                     Toast.makeText(ManageOdsActivity.this, "ODS eliminada", Toast.LENGTH_SHORT).show();
-                    loadOds(); // Recargar la lista para quitar el elemento borrado
+                    loadOds();
                 } else {
                     Toast.makeText(ManageOdsActivity.this, "No se pudo eliminar: " + response.code(), Toast.LENGTH_SHORT).show();
                 }

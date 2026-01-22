@@ -5,19 +5,25 @@ import android.view.View;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
+
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.SearchView; // Import necesario
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
+
 import org.cuatrovientos.voluntariado4v.API.ApiClient;
 import org.cuatrovientos.voluntariado4v.API.VoluntariadoApiService;
 import org.cuatrovientos.voluntariado4v.Adapters.TiposAdminAdapter;
 import org.cuatrovientos.voluntariado4v.Dialogs.AddEditTipoDialog;
 import org.cuatrovientos.voluntariado4v.Models.TipoVoluntariadoResponse;
 import org.cuatrovientos.voluntariado4v.R;
+
 import java.util.ArrayList;
 import java.util.List;
+
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -29,8 +35,13 @@ public class ManageTiposActivity extends AppCompatActivity {
     private ProgressBar progressBar;
     private TextView txtEmptyView;
     private androidx.appcompat.widget.Toolbar toolbar;
+    private SearchView searchView; // Nuevo componente
+    private FloatingActionButton fab;
     private VoluntariadoApiService apiService;
-    private List<TipoVoluntariadoResponse> tiposList = new ArrayList<>();
+
+    // Listas para manejar el filtrado
+    private List<TipoVoluntariadoResponse> displayList = new ArrayList<>();
+    private List<TipoVoluntariadoResponse> fullTiposList = new ArrayList<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -41,6 +52,8 @@ public class ManageTiposActivity extends AppCompatActivity {
 
         initViews();
         setupRecyclerView();
+        setupSearch(); // Inicializar búsqueda
+
         loadTipos();
     }
 
@@ -48,8 +61,9 @@ public class ManageTiposActivity extends AppCompatActivity {
         recyclerView = findViewById(R.id.recyclerManageTipos);
         progressBar = findViewById(R.id.progressBar);
         txtEmptyView = findViewById(R.id.txtEmptyView);
-        FloatingActionButton fab = findViewById(R.id.fabAddTipo);
+        fab = findViewById(R.id.fabAddTipo);
         toolbar = findViewById(R.id.toolbar);
+        searchView = findViewById(R.id.searchView); // Referencia al buscador
 
         setSupportActionBar(toolbar);
         toolbar.setNavigationOnClickListener(v -> finish());
@@ -58,9 +72,10 @@ public class ManageTiposActivity extends AppCompatActivity {
     }
 
     private void setupRecyclerView() {
+        // Mantenemos LinearLayoutManager (lista vertical) como pediste
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
 
-        adapter = new TiposAdminAdapter(tiposList, new TiposAdminAdapter.OnItemClickListener() {
+        adapter = new TiposAdminAdapter(displayList, new TiposAdminAdapter.OnItemClickListener() {
             @Override
             public void onEditClick(TipoVoluntariadoResponse tipo) {
                 openAddEditDialog(tipo);
@@ -73,6 +88,51 @@ public class ManageTiposActivity extends AppCompatActivity {
         });
 
         recyclerView.setAdapter(adapter);
+    }
+
+    // Configuración del Listener del Buscador
+    private void setupSearch() {
+        searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+            @Override
+            public boolean onQueryTextSubmit(String query) {
+                filter(query);
+                searchView.clearFocus();
+                return true;
+            }
+
+            @Override
+            public boolean onQueryTextChange(String newText) {
+                filter(newText);
+                return true;
+            }
+        });
+    }
+
+    // Lógica de filtrado
+    private void filter(String text) {
+        List<TipoVoluntariadoResponse> filteredList = new ArrayList<>();
+
+        if (text == null || text.trim().isEmpty()) {
+            filteredList.addAll(fullTiposList);
+        } else {
+            String filterPattern = text.toLowerCase().trim();
+            for (TipoVoluntariadoResponse item : fullTiposList) {
+                if (item.getNombre() != null && item.getNombre().toLowerCase().contains(filterPattern)) {
+                    filteredList.add(item);
+                }
+            }
+        }
+
+        // Actualizamos el adaptador con la lista filtrada
+        adapter.updateList(filteredList);
+
+        // Controlamos el mensaje de "Sin resultados"
+        if (filteredList.isEmpty()) {
+            txtEmptyView.setVisibility(View.VISIBLE);
+            txtEmptyView.setText("No se encontraron resultados");
+        } else {
+            txtEmptyView.setVisibility(View.GONE);
+        }
     }
 
     private void openAddEditDialog(TipoVoluntariadoResponse tipo) {
@@ -91,12 +151,15 @@ public class ManageTiposActivity extends AppCompatActivity {
             public void onResponse(Call<List<TipoVoluntariadoResponse>> call, Response<List<TipoVoluntariadoResponse>> response) {
                 progressBar.setVisibility(View.GONE);
                 if (response.isSuccessful() && response.body() != null) {
-                    tiposList = response.body();
-                    if (tiposList.isEmpty()) {
-                        txtEmptyView.setVisibility(View.VISIBLE);
-                    } else {
-                        adapter.updateList(tiposList);
-                    }
+                    List<TipoVoluntariadoResponse> results = response.body();
+
+                    // Guardamos la lista completa original
+                    fullTiposList.clear();
+                    fullTiposList.addAll(results);
+
+                    // Aplicamos el filtro (si el usuario ya escribió algo) o mostramos todo
+                    filter(searchView.getQuery().toString());
+
                 } else {
                     Toast.makeText(ManageTiposActivity.this, "Error al cargar datos", Toast.LENGTH_SHORT).show();
                 }
