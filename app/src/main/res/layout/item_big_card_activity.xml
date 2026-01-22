@@ -115,8 +115,7 @@
             <ImageView
                 android:layout_width="16dp"
                 android:layout_height="16dp"
-                android:src="@android:drawable/ic_menu_mapmode"
-                app:tint="@color/primary" />
+                android:src="@drawable/ic_location" />
 
             <TextView
                 android:id="@+id/tvLocation"

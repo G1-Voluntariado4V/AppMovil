@@ -41,8 +41,8 @@ public class SmallActivityAdapter extends RecyclerView.Adapter<SmallActivityAdap
         holder.tvTitle.setText(act.getTitulo());
 
         String ubicacion = act.getUbicacion();
-        if (ubicacion == null || ubicacion.trim().isEmpty() || ubicacion.equalsIgnoreCase("No definida")) {
-            holder.tvLocation.setText("No definido");
+        if (ubicacion == null || ubicacion.trim().isEmpty() || ubicacion.equalsIgnoreCase("No definido")) {
+            holder.tvLocation.setText("Sin ubicación");
         } else {
             holder.tvLocation.setText(ubicacion);
         }

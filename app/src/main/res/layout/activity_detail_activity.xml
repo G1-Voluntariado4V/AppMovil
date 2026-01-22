@@ -205,8 +205,7 @@
                         <ImageView
                             android:layout_width="24dp"
                             android:layout_height="24dp"
-                            android:src="@android:drawable/ic_menu_mapmode"
-                            app:tint="#9C27B0"
+                            android:src="@drawable/ic_location"
                             android:background="@drawable/bg_circle_light_blue"
                             android:padding="4dp"/>
                         <LinearLayout

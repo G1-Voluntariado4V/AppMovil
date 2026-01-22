@@ -81,8 +81,10 @@ public class DetailActivity extends AppCompatActivity {
             tvTitle.setText(activity.getTitulo());
         if (tvOrg != null)
             tvOrg.setText(activity.getNombreOrganizacion());
-        if (tvLocation != null)
-            tvLocation.setText(activity.getUbicacion());
+        if (tvLocation != null) {
+            String ubicacion = activity.getUbicacion();
+            tvLocation.setText(ubicacion != null && !ubicacion.trim().isEmpty() ? ubicacion : "Sin ubicación");
+        }
         if (tvDate != null)
             tvDate.setText(formatFecha(activity.getFechaInicio()));
         if (tvDesc != null)

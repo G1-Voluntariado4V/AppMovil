@@ -131,6 +131,7 @@
                         <EditText
                             android:id="@+id/etCoordName"
                             android:inputType="textPersonName"
+                            android:maxLength="100"
                             android:textColor="#101828"
                             android:textSize="14sp"
                             android:padding="10dp"
@@ -150,6 +151,7 @@
                         <EditText
                             android:id="@+id/etCoordSurname"
                             android:inputType="textPersonName"
+                            android:maxLength="100"
                             android:textColor="#101828"
                             android:textSize="14sp"
                             android:padding="10dp"
@@ -169,6 +171,7 @@
                         <EditText
                             android:id="@+id/etCoordEmail"
                             android:inputType="textEmailAddress"
+                            android:maxLength="150"
                             android:textColor="#101828"
                             android:textSize="14sp"
                             android:padding="10dp"
@@ -188,6 +191,7 @@
                         <EditText
                             android:id="@+id/etCoordPhone"
                             android:inputType="phone"
+                            android:maxLength="15"
                             android:textColor="#101828"
                             android:textSize="14sp"
                             android:padding="10dp"

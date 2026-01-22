@@ -121,6 +121,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:inputType="textPersonName"
+                    android:maxLength="100"
                     android:textColor="#212121"/>
             </com.google.android.material.textfield.TextInputLayout>
 
@@ -144,6 +145,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:inputType="textPersonName"
+                    android:maxLength="100"
                     android:textColor="#212121"/>
             </com.google.android.material.textfield.TextInputLayout>
 
@@ -192,6 +194,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:inputType="phone"
+                    android:maxLength="15"
                     android:textColor="#212121"/>
             </com.google.android.material.textfield.TextInputLayout>
 
@@ -227,6 +230,7 @@
                     android:layout_height="wrap_content"
                     android:inputType="textMultiLine"
                     android:minLines="3"
+                    android:maxLength="500"
                     android:gravity="top|start"
                     android:textColor="#212121"/>
             </com.google.android.material.textfield.TextInputLayout>
@@ -254,6 +258,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:inputType="textPostalAddress"
+                    android:maxLength="300"
                     android:textColor="#212121"/>
             </com.google.android.material.textfield.TextInputLayout>
 
@@ -280,6 +285,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:inputType="textUri"
+                    android:maxLength="200"
                     android:textColor="#212121"/>
             </com.google.android.material.textfield.TextInputLayout>
 
