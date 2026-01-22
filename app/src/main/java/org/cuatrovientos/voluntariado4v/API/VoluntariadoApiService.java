@@ -229,4 +229,30 @@ public interface VoluntariadoApiService {
         Call<Void> deleteActivityCoord(
                 @Header("X-Admin-Id") int adminId,
                 @Path("id") int idActividad);
+
+        // ═══════════════════════════════════════════════════════════════════
+        // GESTIÓN DE CATÁLOGOS
+        // ═══════════════════════════════════════════════════════════════════
+
+        // --- ODS ---
+        @POST("ods")
+        Call<OdsResponse> createOds(@Body OdsResponse ods);
+
+        @PUT("ods/{id}")
+        Call<OdsResponse> updateOds(@Path("id") int id, @Body OdsResponse ods);
+
+        @DELETE("ods/{id}")
+        Call<Void> deleteOds(@Path("id") int id);
+
+        // --- TIPOS DE VOLUNTARIADO ---
+        // Nota: He puesto 'tipos-voluntariado' para coincidir con tu GET existente.
+        // Si tu backend usa 'tipo_voluntariado' o 'tipos', ajústalo aquí.
+        @POST("tipos-voluntariado")
+        Call<TipoVoluntariadoResponse> createTipoVoluntariado(@Body TipoVoluntariadoResponse tipo);
+
+        @PUT("tipos-voluntariado/{id}")
+        Call<TipoVoluntariadoResponse> updateTipoVoluntariado(@Path("id") int id, @Body TipoVoluntariadoResponse tipo);
+
+        @DELETE("tipos-voluntariado/{id}")
+        Call<Void> deleteTipoVoluntariado(@Path("id") int id);
 }
