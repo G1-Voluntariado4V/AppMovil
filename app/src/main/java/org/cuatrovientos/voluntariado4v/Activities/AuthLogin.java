@@ -46,7 +46,7 @@ public class AuthLogin extends AppCompatActivity {
     // │ "Organizacion" → ID 2 (Tech For Good) │
     // │ "Coordinador" → ID 1 (Admin) │
     // └─────────────────────────────────────────────────────────────────┘
-    private static final String DEBUG_CURRENT_ROL = "Coordinador";
+    private static final String DEBUG_CURRENT_ROL = "Organizacion";
 
     // IDs de prueba por rol (no modificar a menos que cambien en BD)
     private static final int DEBUG_ID_VOLUNTARIO = 8; // Carlos

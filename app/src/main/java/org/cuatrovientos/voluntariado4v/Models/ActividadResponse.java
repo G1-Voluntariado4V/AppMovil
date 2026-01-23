@@ -236,10 +236,20 @@ public class ActividadResponse implements Serializable {
     public String getImageUrl() {
         // Prioridad: imagen_actividad > img_organizacion > placeholder
         if (imagenActividad != null && !imagenActividad.isEmpty()) {
-            return imagenActividad;
+            if (imagenActividad.startsWith("http") || imagenActividad.startsWith("data:")) {
+                return imagenActividad;
+            } else {
+                // Construir URL completa para desarrollo local (Emulador)
+                // Ajustar si se despliega en otro servidor
+                return "http://10.0.2.2:8000/uploads/actividades/" + imagenActividad;
+            }
         }
         if (imgOrganizacion != null && !imgOrganizacion.isEmpty()) {
-            return imgOrganizacion;
+            if (imgOrganizacion.startsWith("http")) {
+                return imgOrganizacion;
+            } else {
+                return "http://10.0.2.2:8000/uploads/organizaciones/" + imgOrganizacion;
+            }
         }
         return "https://placehold.co/600x400/F2F4F7/000000.png?text=Image+Not+Found";
     }

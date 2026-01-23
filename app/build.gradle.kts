@@ -56,4 +56,7 @@ dependencies {
 
     // Glide - Cargar imágenes desde URL
     implementation("com.github.bumptech.glide:glide:4.16.0")
+
+    // Http Logging Interceptor
+    implementation("com.squareup.okhttp3:logging-interceptor:4.12.0")
 }
