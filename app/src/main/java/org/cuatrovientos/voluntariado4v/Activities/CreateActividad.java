@@ -313,11 +313,41 @@ public class CreateActividad extends AppCompatActivity {
             return;
         }
 
+        if (titulo.length() > 150) {
+            etTitulo.setError("Máximo 150 caracteres");
+            return;
+        }
+        if (descripcion.length() > 2000) {
+            etDescripcion.setError("Máximo 2000 caracteres");
+            return;
+        }
+        if (ubicacion.length() > 255) {
+            etUbicacion.setError("Máximo 255 caracteres");
+            return;
+        }
+
+        // Date Validation
+        if (selectedDateTime.before(Calendar.getInstance())) {
+            etFecha.setError("La fecha debe ser futura");
+            Toast.makeText(this, "La actividad no puede ser en el pasado", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
         int duracion = 0, cupo = 0;
         try {
             duracion = Integer.parseInt(duracionStr);
             cupo = Integer.parseInt(cupoStr);
         } catch (NumberFormatException e) {
+            etDuracion.setError("Valor inválido");
+            return;
+        }
+
+        if (duracion <= 0) {
+            etDuracion.setError("Debe ser mayor a 0");
+            return;
+        }
+        if (cupo <= 0) {
+            etCupo.setError("Debe ser mayor a 0");
             return;
         }
 

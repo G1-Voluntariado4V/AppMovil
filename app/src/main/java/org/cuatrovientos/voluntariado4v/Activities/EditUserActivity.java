@@ -74,7 +74,7 @@ public class EditUserActivity extends AppCompatActivity {
         // findViewById(R.id.btnBack).setOnClickListener(v -> finish()); <-- BORRAR ESTO
 
         // Listener seguro
-        if(btnSave != null) {
+        if (btnSave != null) {
             btnSave.setOnClickListener(v -> saveChanges());
         }
     }
@@ -113,12 +113,14 @@ public class EditUserActivity extends AppCompatActivity {
     }
 
     private void setupSpinners() {
-        String[] roles = new String[]{"Voluntario", "Organización", "Coordinador"};
-        ArrayAdapter<String> adapterRoles = new ArrayAdapter<>(this, android.R.layout.simple_dropdown_item_1line, roles);
+        String[] roles = new String[] { "Voluntario", "Organización", "Coordinador" };
+        ArrayAdapter<String> adapterRoles = new ArrayAdapter<>(this, android.R.layout.simple_dropdown_item_1line,
+                roles);
         spinnerRole.setAdapter(adapterRoles);
 
-        String[] estados = new String[]{"Pendiente", "Activa", "Bloqueada", "Rechazada"};
-        ArrayAdapter<String> adapterStatus = new ArrayAdapter<>(this, android.R.layout.simple_dropdown_item_1line, estados);
+        String[] estados = new String[] { "Pendiente", "Activa", "Bloqueada", "Rechazada" };
+        ArrayAdapter<String> adapterStatus = new ArrayAdapter<>(this, android.R.layout.simple_dropdown_item_1line,
+                estados);
         spinnerStatus.setAdapter(adapterStatus);
     }
 
@@ -166,7 +168,11 @@ public class EditUserActivity extends AppCompatActivity {
                     etDescription.setText(v.getDescripcion());
                 }
             }
-            @Override public void onFailure(Call<VoluntarioResponse> call, Throwable t) { showLoading(false); }
+
+            @Override
+            public void onFailure(Call<VoluntarioResponse> call, Throwable t) {
+                showLoading(false);
+            }
         });
     }
 
@@ -185,7 +191,11 @@ public class EditUserActivity extends AppCompatActivity {
                     etAddress.setText(o.getDireccion());
                 }
             }
-            @Override public void onFailure(Call<OrganizacionResponse> call, Throwable t) { showLoading(false); }
+
+            @Override
+            public void onFailure(Call<OrganizacionResponse> call, Throwable t) {
+                showLoading(false);
+            }
         });
     }
 
@@ -211,58 +221,123 @@ public class EditUserActivity extends AppCompatActivity {
 
         apiService.updateUserStatus(currentAdminId, rolPath, targetUserId, new EstadoRequest(status))
                 .enqueue(new Callback<MensajeResponse>() {
-                    @Override public void onResponse(Call<MensajeResponse> c, Response<MensajeResponse> r) {}
-                    @Override public void onFailure(Call<MensajeResponse> c, Throwable t) {}
+                    @Override
+                    public void onResponse(Call<MensajeResponse> c, Response<MensajeResponse> r) {
+                    }
+
+                    @Override
+                    public void onFailure(Call<MensajeResponse> c, Throwable t) {
+                    }
                 });
     }
 
     private void updateVoluntarioData() {
-        String nombre = etName.getText().toString();
-        String apellidos = etSurname.getText().toString();
-        String telefono = etPhone.getText().toString();
-        String descripcion = etDescription.getText().toString();
+        String nombre = etName.getText().toString().trim();
+        String apellidos = etSurname.getText().toString().trim();
+        String telefono = etPhone.getText().toString().trim();
+        String descripcion = etDescription.getText().toString().trim();
 
-        VoluntarioUpdateRequest request = new VoluntarioUpdateRequest(nombre, apellidos, telefono, descripcion, true, null);
+        if (nombre.isEmpty()) {
+            etName.setError("Requerido");
+            return;
+        }
+        if (nombre.length() > 100) {
+            etName.setError("Máx 100 caracteres");
+            return;
+        }
+        if (apellidos.length() > 100) {
+            etSurname.setError("Máx 100 caracteres");
+            return;
+        }
+        if (telefono.length() > 15) {
+            etPhone.setError("Teléfono muy largo");
+            return;
+        } // General check
+        if (descripcion.length() > 2000) {
+            etDescription.setError("Máx 2000 caracteres");
+            return;
+        }
 
-        apiService.updateVoluntarioAdmin(currentAdminId, targetUserId, request).enqueue(new Callback<MensajeResponse>() {
-            @Override
-            public void onResponse(Call<MensajeResponse> call, Response<MensajeResponse> response) {
-                showLoading(false);
-                if (response.isSuccessful()) {
-                    Toast.makeText(EditUserActivity.this, "Usuario actualizado", Toast.LENGTH_SHORT).show();
-                    finish();
-                } else {
-                    Toast.makeText(EditUserActivity.this, "Error al guardar", Toast.LENGTH_SHORT).show();
-                }
-            }
-            @Override public void onFailure(Call<MensajeResponse> call, Throwable t) { showLoading(false); }
-        });
+        VoluntarioUpdateRequest request = new VoluntarioUpdateRequest(nombre, apellidos, telefono, descripcion, true,
+                null);
+
+        apiService.updateVoluntarioAdmin(currentAdminId, targetUserId, request)
+                .enqueue(new Callback<MensajeResponse>() {
+                    @Override
+                    public void onResponse(Call<MensajeResponse> call, Response<MensajeResponse> response) {
+                        showLoading(false);
+                        if (response.isSuccessful()) {
+                            Toast.makeText(EditUserActivity.this, "Usuario actualizado", Toast.LENGTH_SHORT).show();
+                            finish();
+                        } else {
+                            Toast.makeText(EditUserActivity.this, "Error al guardar", Toast.LENGTH_SHORT).show();
+                        }
+                    }
+
+                    @Override
+                    public void onFailure(Call<MensajeResponse> call, Throwable t) {
+                        showLoading(false);
+                    }
+                });
     }
 
     private void updateOrganizacionData() {
-        String nombre = etName.getText().toString();
-        String descripcion = etDescription.getText().toString();
-        String web = etWeb.getText().toString();
-        String direccion = etAddress.getText().toString();
-        String telefono = etPhone.getText().toString();
+        String nombre = etName.getText().toString().trim();
+        String descripcion = etDescription.getText().toString().trim();
+        String web = etWeb.getText().toString().trim();
+        String direccion = etAddress.getText().toString().trim();
+        String telefono = etPhone.getText().toString().trim();
 
-        if (descripcion.isEmpty()) descripcion = "Sin descripción";
+        if (nombre.isEmpty()) {
+            etName.setError("Requerido");
+            return;
+        }
+        if (nombre.length() > 100) {
+            etName.setError("Máx 100 caracteres");
+            return;
+        }
+        if (descripcion.length() > 2000) {
+            etDescription.setError("Máx 2000 caracteres");
+            return;
+        }
+        if (web.length() > 255) {
+            etWeb.setError("Máx 255 caracteres");
+            return;
+        }
+        if (direccion.length() > 255) {
+            etAddress.setError("Máx 255 caracteres");
+            return;
+        }
+        if (telefono.length() > 15) {
+            etPhone.setError("Teléfono muy largo");
+            return;
+        }
 
-        OrganizacionUpdateRequest request = new OrganizacionUpdateRequest(nombre, descripcion, web, direccion, telefono);
+        if (descripcion.isEmpty())
+            descripcion = "Sin descripción";
 
-        apiService.updateOrganizacionAdmin(currentAdminId, targetUserId, request).enqueue(new Callback<MensajeResponse>() {
-            @Override
-            public void onResponse(Call<MensajeResponse> call, Response<MensajeResponse> response) {
-                showLoading(false);
-                if (response.isSuccessful()) {
-                    Toast.makeText(EditUserActivity.this, "Organización actualizada", Toast.LENGTH_SHORT).show();
-                    finish();
-                } else {
-                    Toast.makeText(EditUserActivity.this, "Error al guardar", Toast.LENGTH_SHORT).show();
-                }
-            }
-            @Override public void onFailure(Call<MensajeResponse> call, Throwable t) { showLoading(false); }
-        });
+        OrganizacionUpdateRequest request = new OrganizacionUpdateRequest(nombre, descripcion, web, direccion,
+                telefono);
+
+        apiService.updateOrganizacionAdmin(currentAdminId, targetUserId, request)
+                .enqueue(new Callback<MensajeResponse>() {
+                    @Override
+                    public void onResponse(Call<MensajeResponse> call, Response<MensajeResponse> response) {
+                        showLoading(false);
+                        if (response.isSuccessful()) {
+                            Toast.makeText(EditUserActivity.this, "Organización actualizada", Toast.LENGTH_SHORT)
+                                    .show();
+                            finish();
+                        } else {
+                            Toast.makeText(EditUserActivity.this, "Error al guardar", Toast.LENGTH_SHORT).show();
+                        }
+                    }
+
+                    @Override
+                    public void onFailure(Call<MensajeResponse> call, Throwable t) {
+                        showLoading(false);
+                    }
+                });
     }
 
     private void showLoading(boolean show) {

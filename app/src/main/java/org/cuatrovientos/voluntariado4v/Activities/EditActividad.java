@@ -357,11 +357,49 @@ public class EditActividad extends AppCompatActivity {
             return;
         }
 
+        if (titulo.length() > 150) {
+            etTitulo.setError("Máximo 150 caracteres");
+            return;
+        }
+        if (descripcion.length() > 2000) {
+            etDescripcion.setError("Máximo 2000 caracteres");
+            return;
+        }
+        if (ubicacion.length() > 255) {
+            etUbicacion.setError("Máximo 255 caracteres");
+            return;
+        }
+
+      //Date Validation
+        try {
+            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault());
+            java.util.Date date = sdf.parse(fecha);
+            if (date != null && date.before(new java.util.Date())) {
+                etFecha.setError("La fecha debe ser futura");
+                Toast.makeText(this, "La fecha debe ser futura", Toast.LENGTH_SHORT).show();
+                return;
+            }
+        } catch (Exception e) {
+            etFecha.setError("Formato inválido");
+            return;
+        }
+
         int duracion = 0, cupo = 0;
         try {
             duracion = Integer.parseInt(duracionStr);
             cupo = Integer.parseInt(cupoStr);
         } catch (Exception e) {
+            etDuracion.setError("Valor inválido");
+            return;
+        }
+
+        if (duracion <= 0) {
+            etDuracion.setError("Debe ser mayor a 0");
+            return;
+        }
+        if (cupo <= 0) {
+            etCupo.setError("Debe ser mayor a 0");
+            return;
         }
 
         List<Integer> tiposIds = getSelectedIds(chipGroupTipos);
