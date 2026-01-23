@@ -219,7 +219,7 @@ public class EditUserActivity extends AppCompatActivity {
         String status = spinnerStatus.getText().toString();
         String rolPath = originalRole.toLowerCase().contains("org") ? "organizaciones" : "voluntarios";
 
-        apiService.updateUserStatus(currentAdminId, rolPath, targetUserId, new EstadoRequest(status))
+        apiService.updateAccountStatus(currentAdminId, targetUserId, new EstadoRequest(status))
                 .enqueue(new Callback<MensajeResponse>() {
                     @Override
                     public void onResponse(Call<MensajeResponse> c, Response<MensajeResponse> r) {

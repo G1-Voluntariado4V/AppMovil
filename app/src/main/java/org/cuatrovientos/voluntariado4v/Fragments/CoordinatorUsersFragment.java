@@ -12,23 +12,30 @@ import android.view.ViewGroup;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.recyclerview.widget.ConcatAdapter;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.google.android.material.bottomsheet.BottomSheetDialog;
 import com.google.android.material.tabs.TabLayout;
 
 import org.cuatrovientos.voluntariado4v.API.ApiClient;
 import org.cuatrovientos.voluntariado4v.API.VoluntariadoApiService;
+import org.cuatrovientos.voluntariado4v.Activities.DetailActivity;
 import org.cuatrovientos.voluntariado4v.Activities.EditUserActivity;
+import org.cuatrovientos.voluntariado4v.Adapters.CoordinatorEnrollmentsSimpleAdapter;
 import org.cuatrovientos.voluntariado4v.Adapters.CoordinatorUsersAdapter;
 import org.cuatrovientos.voluntariado4v.Adapters.FilterAdapter;
+import org.cuatrovientos.voluntariado4v.Models.ActividadResponse;
 import org.cuatrovientos.voluntariado4v.Models.EstadoRequest;
 import org.cuatrovientos.voluntariado4v.Models.MensajeResponse;
+import org.cuatrovientos.voluntariado4v.Models.PendingEnrollmentResponse;
 import org.cuatrovientos.voluntariado4v.Models.UserResponse;
 import org.cuatrovientos.voluntariado4v.R;
 
@@ -40,48 +47,48 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
-public class CoordinatorUsersFragment extends Fragment implements CoordinatorUsersAdapter.OnUserActionListener {
+public class CoordinatorUsersFragment extends Fragment implements CoordinatorUsersAdapter.OnUserActionListener,
+        CoordinatorEnrollmentsSimpleAdapter.OnEnrollmentActionListener {
 
-    // Vistas
     private TabLayout tabLayout;
     private RecyclerView rvPending, rvAllUsers, rvFilters;
     private ProgressBar progressBar;
     private LinearLayout layoutEmptyState;
     private EditText etSearch;
 
-    // Adaptadores
     private CoordinatorUsersAdapter pendingAdapter;
     private CoordinatorUsersAdapter allUsersAdapter;
+    private CoordinatorEnrollmentsSimpleAdapter enrollmentsSimpleAdapter;
+    private ConcatAdapter concatAdapter;
     private FilterAdapter filterAdapter;
 
-    // Datos
     private VoluntariadoApiService apiService;
-    private List<UserResponse> masterList = new ArrayList<>(); // Lista completa descargada
-    private int currentAdminId; // ID del coordinador logueado
+    private List<UserResponse> masterList = new ArrayList<>();
+    private List<PendingEnrollmentResponse> masterEnrollments = new ArrayList<>();
+    private int currentAdminId;
 
-    // Estado filtros
     private String currentSearchText = "";
     private String currentRoleFilter = "Todos";
-    private int currentTabPosition = 0; // 0 = Directorio, 1 = Solicitudes
+    private int currentTabPosition = 0;
 
     @Nullable
     @Override
-    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
+            @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_coordinator_users, container, false);
 
-        // Recuperar ID del Coordinador
-        SharedPreferences prefs = getActivity().getSharedPreferences("AppPrefs", Context.MODE_PRIVATE);
+        SharedPreferences prefs = requireActivity().getSharedPreferences("VoluntariadoPrefs", Context.MODE_PRIVATE);
         currentAdminId = prefs.getInt("user_id", -1);
 
         initViews(view);
         setupAdapters();
         setupFilters();
         setupSearch();
-        setupTabs(); // Configura pestañas y visibilidad inicial
+        setupTabs();
 
         try {
             apiService = ApiClient.getService();
-            loadData();
+            loadAllData();
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -101,8 +108,11 @@ public class CoordinatorUsersFragment extends Fragment implements CoordinatorUse
 
     private void setupAdapters() {
         pendingAdapter = new CoordinatorUsersAdapter(getContext(), CoordinatorUsersAdapter.TYPE_PENDING, this);
+        enrollmentsSimpleAdapter = new CoordinatorEnrollmentsSimpleAdapter(getContext(), this);
+        concatAdapter = new ConcatAdapter(pendingAdapter, enrollmentsSimpleAdapter);
+
         rvPending.setLayoutManager(new LinearLayoutManager(getContext()));
-        rvPending.setAdapter(pendingAdapter);
+        rvPending.setAdapter(concatAdapter);
 
         allUsersAdapter = new CoordinatorUsersAdapter(getContext(), CoordinatorUsersAdapter.TYPE_ALL_USERS, this);
         rvAllUsers.setLayoutManager(new LinearLayoutManager(getContext()));
@@ -110,11 +120,9 @@ public class CoordinatorUsersFragment extends Fragment implements CoordinatorUse
     }
 
     private void setupFilters() {
-        rvFilters.setLayoutManager(new LinearLayoutManager(getContext(), LinearLayoutManager.HORIZONTAL, false));
-        List<String> roles = Arrays.asList("Todos", "Voluntario", "Organización", "Coordinador");
-
-        filterAdapter = new FilterAdapter(roles, category -> {
-            currentRoleFilter = category;
+        List<String> filters = Arrays.asList("Todos", "Voluntario", "Organización", "Coordinador");
+        filterAdapter = new FilterAdapter(filters, filter -> {
+            currentRoleFilter = filter;
             applyFilters();
         });
         rvFilters.setAdapter(filterAdapter);
@@ -139,7 +147,6 @@ public class CoordinatorUsersFragment extends Fragment implements CoordinatorUse
     }
 
     private void setupTabs() {
-        // Orden: Directorio (0) -> Solicitudes (1)
         tabLayout.addTab(tabLayout.newTab().setText("Directorio"));
         tabLayout.addTab(tabLayout.newTab().setText("Solicitudes"));
 
@@ -150,15 +157,15 @@ public class CoordinatorUsersFragment extends Fragment implements CoordinatorUse
                 updateVisibility();
                 applyFilters();
             }
+
             @Override
             public void onTabUnselected(TabLayout.Tab tab) {
             }
+
             @Override
             public void onTabReselected(TabLayout.Tab tab) {
             }
         });
-
-    
         updateVisibility();
     }
 
@@ -166,106 +173,131 @@ public class CoordinatorUsersFragment extends Fragment implements CoordinatorUse
         rvFilters.setVisibility(View.VISIBLE);
 
         if (currentTabPosition == 0) {
-            // Pestaña 0: Directorio (Mostrar lista usuarios, ocultar pendientes)
-            rvPending.setVisibility(View.GONE);
             rvAllUsers.setVisibility(View.VISIBLE);
+            rvPending.setVisibility(View.GONE);
         } else {
-            // Pestaña 1: Solicitudes
-            rvPending.setVisibility(View.VISIBLE);
             rvAllUsers.setVisibility(View.GONE);
+            rvPending.setVisibility(View.VISIBLE);
         }
     }
 
-    // ---------------- API Calls ----------------
-
-    private void loadData() {
+    private void loadAllData() {
         showLoading(true);
+        loadUsers(false);
+        loadEnrollments(false);
+    }
+
+    private void loadUsers(boolean exclusiveLoading) {
+        if (exclusiveLoading)
+            showLoading(true);
         apiService.getAllUsers().enqueue(new Callback<List<UserResponse>>() {
             @Override
             public void onResponse(Call<List<UserResponse>> call, Response<List<UserResponse>> response) {
-                showLoading(false);
+                if (exclusiveLoading)
+                    showLoading(false);
                 if (response.isSuccessful() && response.body() != null) {
                     masterList = response.body();
-                    applyFilters(); // Aplica filtros y actualiza el adaptador correcto
-                } else {
-                    toggleEmptyState(true);
+                    applyFilters();
                 }
             }
 
             @Override
             public void onFailure(Call<List<UserResponse>> call, Throwable t) {
+                if (exclusiveLoading)
+                    showLoading(false);
+            }
+        });
+    }
+
+    private void loadEnrollments(boolean exclusiveLoading) {
+        if (exclusiveLoading)
+            showLoading(true);
+        apiService.getPendingEnrollments(currentAdminId).enqueue(new Callback<List<PendingEnrollmentResponse>>() {
+            @Override
+            public void onResponse(Call<List<PendingEnrollmentResponse>> call,
+                    Response<List<PendingEnrollmentResponse>> response) {
                 showLoading(false);
-                toggleEmptyState(true);
+                if (response.isSuccessful() && response.body() != null) {
+                    masterEnrollments = response.body();
+                    applyFilters();
+                }
+            }
+
+            @Override
+            public void onFailure(Call<List<PendingEnrollmentResponse>> call, Throwable t) {
+                showLoading(false);
             }
         });
     }
 
     private void applyFilters() {
-        List<UserResponse> pendingList = new ArrayList<>();
         List<UserResponse> activeList = new ArrayList<>();
+        List<UserResponse> pendingRegisterList = new ArrayList<>();
 
         for (UserResponse user : masterList) {
-            // 1. Buscador
             String nombre = user.getNombre() != null ? user.getNombre().toLowerCase() : "";
             String correo = user.getCorreo() != null ? user.getCorreo().toLowerCase() : "";
 
-            if (!correo.contains(currentSearchText) && !nombre.contains(currentSearchText)) {
+            if (!correo.contains(currentSearchText) && !nombre.contains(currentSearchText))
                 continue;
-            }
 
-            // 2. Filtro de Rol
-            boolean matchesRole = true;
             if (!currentRoleFilter.equals("Todos")) {
-                String userRol = user.getRol().toLowerCase();
-                String filterRol = currentRoleFilter.toLowerCase();
-
-                if (filterRol.startsWith("org") && !userRol.startsWith("org")) matchesRole = false;
-                if (filterRol.startsWith("vol") && !userRol.startsWith("vol")) matchesRole = false;
-                if (filterRol.startsWith("coor") && !userRol.startsWith("coor")) matchesRole = false;
+                String uRol = user.getRol().toLowerCase();
+                String fRol = currentRoleFilter.toLowerCase();
+                if (fRol.startsWith("org") && !uRol.startsWith("org"))
+                    continue;
+                if (fRol.startsWith("vol") && !uRol.startsWith("vol"))
+                    continue;
+                if (fRol.startsWith("coor") && !uRol.startsWith("coor"))
+                    continue;
             }
 
-            if (!matchesRole) continue;
-
-            // 3. Separación por Estado
-            String estado = user.getEstadoCuenta();
-            if ("Pendiente".equalsIgnoreCase(estado)) {
-                pendingList.add(user);
+            if ("Pendiente".equalsIgnoreCase(user.getEstadoCuenta())) {
+                pendingRegisterList.add(user);
             } else {
                 activeList.add(user);
             }
         }
 
-        // Actualizar la lista visible según la pestaña actual
+        List<PendingEnrollmentResponse> filteredEnrollments = new ArrayList<>();
+        for (PendingEnrollmentResponse item : masterEnrollments) {
+            String nombre = (item.getNombreVoluntario() + " " + item.getApellidosVoluntario()).toLowerCase();
+            String titulo = item.getTituloActividad().toLowerCase();
+            if (nombre.contains(currentSearchText) || titulo.contains(currentSearchText)) {
+                filteredEnrollments.add(item);
+            }
+        }
+
         if (currentTabPosition == 0) {
-            // Pestaña Directorio
             allUsersAdapter.setUsersList(activeList);
             toggleEmptyState(activeList.isEmpty());
         } else {
-            // Pestaña Solicitudes
-            pendingAdapter.setUsersList(pendingList);
-            toggleEmptyState(pendingList.isEmpty());
+            pendingAdapter.setUsersList(pendingRegisterList);
+            enrollmentsSimpleAdapter.setList(filteredEnrollments);
+            boolean empty = pendingRegisterList.isEmpty() && filteredEnrollments.isEmpty();
+            toggleEmptyState(empty);
         }
     }
 
-    // ---------------- Acciones ----------------
-
-    @Override
-    public void onApprove(int id) {
-        changeStatus(id, "Activa");
+    private void showLoading(boolean show) {
+        progressBar.setVisibility(show ? View.VISIBLE : View.GONE);
+        layoutEmptyState.setVisibility(View.GONE);
+        if (show) {
+            rvAllUsers.setVisibility(View.GONE);
+            rvPending.setVisibility(View.GONE);
+        } else {
+            updateVisibility();
+        }
     }
 
-    @Override
-    public void onReject(int id) {
-        changeStatus(id, "Rechazada");
-    }
-
-    @Override
-    public void onEditRole(UserResponse user) {
-        // En lugar de AlertDialog, lanzamos la Activity completa
-        Intent intent = new Intent(getContext(), EditUserActivity.class);
-        intent.putExtra("USER_ID", user.getId());
-        intent.putExtra("USER_ROLE", user.getRol()); // Pasamos el rol actual para saber qué campos cargar
-        startActivity(intent);
+    private void toggleEmptyState(boolean isEmpty) {
+        layoutEmptyState.setVisibility(isEmpty ? View.VISIBLE : View.GONE);
+        if (isEmpty) {
+            rvAllUsers.setVisibility(View.GONE);
+            rvPending.setVisibility(View.GONE);
+        } else {
+            updateVisibility();
+        }
     }
 
     @Override
@@ -276,43 +308,152 @@ public class CoordinatorUsersFragment extends Fragment implements CoordinatorUse
         startActivity(intent);
     }
 
-    private void changeStatus(int userId, String nuevoEstado) {
-        String rolPath = "voluntarios"; // Por defecto
-        for (UserResponse u : masterList) {
-            if (u.getId() == userId) {
-                if (u.getRol().toLowerCase().startsWith("org")) {
-                    rolPath = "organizaciones";
-                }
-                break;
-            }
-        }
+    @Override
+    public void onApprove(int userId) {
+        updateUserStatus(userId, "Activa");
+    }
 
-        EstadoRequest body = new EstadoRequest(nuevoEstado);
+    @Override
+    public void onReject(int userId) {
+        updateUserStatus(userId, "Rechazada");
+    }
 
-        apiService.updateUserStatus(currentAdminId, rolPath, userId, body).enqueue(new Callback<MensajeResponse>() {
+    @Override
+    public void onEditRole(UserResponse user) {
+        onUserClick(user);
+    }
+
+    private void updateUserStatus(int userId, String status) {
+        showLoading(true);
+        EstadoRequest request = new EstadoRequest(status);
+        apiService.updateAccountStatus(currentAdminId, userId, request).enqueue(new Callback<MensajeResponse>() {
             @Override
             public void onResponse(Call<MensajeResponse> call, Response<MensajeResponse> response) {
                 if (response.isSuccessful()) {
-                    Toast.makeText(getContext(), "Usuario " + nuevoEstado, Toast.LENGTH_SHORT).show();
-                    loadData(); // Recargar datos
+                    Toast.makeText(getContext(), "Estado actualizado", Toast.LENGTH_SHORT).show();
+                    loadUsers(true);
                 } else {
-                    Toast.makeText(getContext(), "Error: " + response.code(), Toast.LENGTH_SHORT).show();
+                    showLoading(false);
                 }
             }
 
             @Override
             public void onFailure(Call<MensajeResponse> call, Throwable t) {
+                showLoading(false);
+            }
+        });
+    }
+
+    @Override
+    public void onApprove(PendingEnrollmentResponse item) {
+        updateEnrollmentStatus(item, "Aceptada");
+    }
+
+    @Override
+    public void onReject(PendingEnrollmentResponse item) {
+        updateEnrollmentStatus(item, "Rechazada");
+    }
+
+    @Override
+    public void onViewUser(PendingEnrollmentResponse item) {
+        BottomSheetDialog sheet = new BottomSheetDialog(getContext());
+        View sheetView = getLayoutInflater().inflate(R.layout.dialog_enrollment_detail, null);
+        sheet.setContentView(sheetView);
+
+        TextView tvTitle = sheetView.findViewById(R.id.tvDialogTitle);
+        TextView tvAct = sheetView.findViewById(R.id.tvActivityTitle);
+        TextView tvName = sheetView.findViewById(R.id.tvVolunteerName);
+        TextView tvEmail = sheetView.findViewById(R.id.tvVolunteerEmail);
+
+        if (tvTitle != null)
+            tvTitle.setText("Solicitud de Inscripción");
+        if (tvAct != null)
+            tvAct.setText(item.getTituloActividad());
+        if (tvName != null)
+            tvName.setText(item.getNombreVoluntario() + " " + item.getApellidosVoluntario());
+        if (tvEmail != null)
+            tvEmail.setText(item.getEmailVoluntario());
+
+        View cardAct = sheetView.findViewById(R.id.cardActivity);
+        if (cardAct != null) {
+            cardAct.setOnClickListener(v -> {
+                sheet.dismiss();
+                fetchAndOpenActivity(item.getIdActividad());
+            });
+        }
+
+        View cardVol = sheetView.findViewById(R.id.cardVolunteer);
+        if (cardVol != null) {
+            cardVol.setOnClickListener(v -> {
+                Intent intent = new Intent(getContext(), EditUserActivity.class);
+                intent.putExtra("USER_ID", item.getIdVoluntario());
+                intent.putExtra("USER_ROLE", "Voluntario");
+                startActivity(intent);
+                sheet.dismiss();
+            });
+        }
+
+        View btnApprove = sheetView.findViewById(R.id.btnApprove);
+        if (btnApprove != null) {
+            btnApprove.setOnClickListener(v -> {
+                onApprove(item);
+                sheet.dismiss();
+            });
+        }
+
+        View btnReject = sheetView.findViewById(R.id.btnReject);
+        if (btnReject != null) {
+            btnReject.setOnClickListener(v -> {
+                onReject(item);
+                sheet.dismiss();
+            });
+        }
+
+        sheet.show();
+    }
+
+    private void fetchAndOpenActivity(int idActividad) {
+        showLoading(true);
+        apiService.getActividadDetalle(idActividad).enqueue(new Callback<ActividadResponse>() {
+            @Override
+            public void onResponse(Call<ActividadResponse> call, Response<ActividadResponse> response) {
+                showLoading(false);
+                if (response.isSuccessful() && response.body() != null) {
+                    Intent intent = new Intent(getContext(), DetailActivity.class);
+                    intent.putExtra("actividad", response.body());
+                    startActivity(intent);
+                } else {
+                    Toast.makeText(getContext(), "Error al cargar actividad", Toast.LENGTH_SHORT).show();
+                }
+            }
+
+            @Override
+            public void onFailure(Call<ActividadResponse> call, Throwable t) {
+                showLoading(false);
                 Toast.makeText(getContext(), "Error de red", Toast.LENGTH_SHORT).show();
             }
         });
     }
 
-    private void showLoading(boolean isLoading) {
-        if (progressBar != null) progressBar.setVisibility(isLoading ? View.VISIBLE : View.GONE);
-        if (isLoading && layoutEmptyState != null) layoutEmptyState.setVisibility(View.GONE);
-    }
+    private void updateEnrollmentStatus(PendingEnrollmentResponse item, String status) {
+        showLoading(true);
+        EstadoRequest request = new EstadoRequest(status);
+        apiService.updateEstadoInscripcion(item.getIdActividad(), item.getIdVoluntario(), request)
+                .enqueue(new Callback<MensajeResponse>() {
+                    @Override
+                    public void onResponse(Call<MensajeResponse> call, Response<MensajeResponse> response) {
+                        if (response.isSuccessful()) {
+                            Toast.makeText(getContext(), "Inscripción " + status, Toast.LENGTH_SHORT).show();
+                            loadEnrollments(true);
+                        } else {
+                            showLoading(false);
+                        }
+                    }
 
-    private void toggleEmptyState(boolean isEmpty) {
-        if (layoutEmptyState != null)layoutEmptyState.setVisibility(isEmpty ? View.VISIBLE : View.GONE);
+                    @Override
+                    public void onFailure(Call<MensajeResponse> call, Throwable t) {
+                        showLoading(false);
+                    }
+                });
     }
 }

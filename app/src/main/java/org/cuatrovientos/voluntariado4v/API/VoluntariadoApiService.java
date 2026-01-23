@@ -187,14 +187,11 @@ public interface VoluntariadoApiService {
         Call<List<UserResponse>> getAllUsers();
 
         // Cambiar estado (Aprobar/Rechazar/Bloquear)
-        @PATCH("coord/{rol}/{id}/estado")
-        Call<MensajeResponse> updateUserStatus(
+        @PATCH("coord/usuarios/{id}/estado")
+        Call<MensajeResponse> updateAccountStatus(
                         @Header("X-Admin-Id") int adminId,
-                        @Path("rol") String rolPath,
                         @Path("id") int userId,
                         @Body EstadoRequest request);
-
-        // Añade esto en la sección de COORDINADOR en VoluntariadoApiService.java
 
         @PUT("coordinadores/{id}")
         Call<CoordinadorResponse> updateCoordinador(
@@ -270,4 +267,11 @@ public interface VoluntariadoApiService {
 
         @DELETE("tipos-voluntariado/{id}")
         Call<Void> deleteTipoVoluntariado(@Path("id") int id);
+
+        // ═══════════════════════════════════════════════════════════════════
+        // GESTIÓN DE INSCRIPCIONES (COORDINADOR)
+        // ═══════════════════════════════════════════════════════════════════
+
+        @GET("coord/inscripciones/pendientes")
+        Call<List<PendingEnrollmentResponse>> getPendingEnrollments(@Header("X-Admin-Id") int adminId);
 }

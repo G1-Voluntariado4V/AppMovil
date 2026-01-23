@@ -1,0 +1,153 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:padding="24dp"
+    android:background="@drawable/bg_bottom_sheet">
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Solicitud de Inscripción"
+        android:textSize="20sp"
+        android:id="@+id/tvDialogTitle"
+        android:textStyle="bold"
+        android:textColor="#212121"
+        android:layout_marginBottom="16dp"/>
+
+    <!-- Actividad -->
+    <com.google.android.material.card.MaterialCardView
+        android:id="@+id/cardActivity"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:cardCornerRadius="12dp"
+        app:cardBackgroundColor="#F5F5F5"
+        app:strokeWidth="0dp"
+        android:layout_marginBottom="12dp">
+        
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:padding="12dp"
+            android:gravity="center_vertical">
+            
+            <ImageView
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:src="@drawable/ic_event"
+                app:tint="#616161"/>
+                
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:orientation="vertical"
+                android:layout_marginStart="12dp">
+                <TextView
+                    android:id="@+id/tvActivityTitle"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Título Actividad"
+                    android:textStyle="bold"
+                    android:textColor="#212121"/>
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Ver detalles de la actividad"
+                    android:textSize="12sp"
+                    android:textColor="#757575"/>
+            </LinearLayout>
+            
+            <ImageView
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:src="@drawable/ic_arrow_right"
+                app:tint="#BDBDBD"/>
+        </LinearLayout>
+    </com.google.android.material.card.MaterialCardView>
+
+    <!-- Voluntario -->
+    <com.google.android.material.card.MaterialCardView
+        android:id="@+id/cardVolunteer"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:cardCornerRadius="12dp"
+        app:cardBackgroundColor="#F5F5F5"
+        app:strokeWidth="0dp"
+        android:layout_marginBottom="24dp">
+        
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:padding="12dp"
+            android:gravity="center_vertical">
+            
+            <ImageView
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:src="@drawable/ic_user"
+                app:tint="#616161"/>
+                
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:orientation="vertical"
+                android:layout_marginStart="12dp">
+                <TextView
+                    android:id="@+id/tvVolunteerName"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Nombre Voluntario"
+                    android:textStyle="bold"
+                    android:textColor="#212121"/>
+                <TextView
+                    android:id="@+id/tvVolunteerEmail"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="email@ejemplo.com"
+                    android:textSize="12sp"
+                    android:textColor="#757575"/>
+            </LinearLayout>
+             <ImageView
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:src="@drawable/ic_arrow_right"
+                app:tint="#BDBDBD"/>
+        </LinearLayout>
+    </com.google.android.material.card.MaterialCardView>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:weightSum="2">
+        
+        <Button
+            android:id="@+id/btnReject"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="Rechazar"
+            android:backgroundTint="#FFEBEE"
+            android:textColor="#D32F2F"
+            android:layout_marginEnd="8dp"
+            style="@style/Widget.MaterialComponents.Button.UnelevatedButton"/>
+
+        <Button
+            android:id="@+id/btnApprove"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="Aprobar"
+            android:backgroundTint="#E8F5E9"
+            android:textColor="#2E7D32"
+            android:layout_marginStart="8dp"
+            style="@style/Widget.MaterialComponents.Button.UnelevatedButton"/>
+    </LinearLayout>
+
+</LinearLayout>
