@@ -30,8 +30,12 @@ public class CoordinatorUsersAdapter extends RecyclerView.Adapter<CoordinatorUse
 
     public interface OnUserActionListener {
         void onApprove(int id);
+
         void onReject(int id);
+
         void onEditRole(UserResponse user);
+
+        void onUserClick(UserResponse user); // Nuevo metodo
     }
 
     public CoordinatorUsersAdapter(Context context, int type, OnUserActionListener listener) {
@@ -57,6 +61,9 @@ public class CoordinatorUsersAdapter extends RecyclerView.Adapter<CoordinatorUse
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
         UserResponse user = items.get(position);
+
+        // Habilitar clic en toda la tarjeta para ver detalles
+        holder.itemView.setOnClickListener(v -> listener.onUserClick(user));
 
         if (currentType == TYPE_PENDING) {
             bindPending(holder, user);

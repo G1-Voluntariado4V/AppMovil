@@ -239,9 +239,9 @@ public class ActividadResponse implements Serializable {
             if (imagenActividad.startsWith("http") || imagenActividad.startsWith("data:")) {
                 return imagenActividad;
             } else {
-                // Construir URL completa para desarrollo local (Emulador)
-                // Ajustar si se despliega en otro servidor
-                return "http://10.0.2.2:8000/uploads/actividades/" + imagenActividad;
+                // Construir URL completa usando la Base URL centralizada
+                return org.cuatrovientos.voluntariado4v.API.ApiClient.BASE_URL + "uploads/actividades/"
+                        + imagenActividad;
             }
         }
         if (imgOrganizacion != null && !imgOrganizacion.isEmpty()) {

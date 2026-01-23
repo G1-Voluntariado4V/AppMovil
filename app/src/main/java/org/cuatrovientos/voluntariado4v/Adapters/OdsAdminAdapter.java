@@ -11,6 +11,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.resource.bitmap.CenterCrop;
 import com.bumptech.glide.load.resource.bitmap.RoundedCorners;
+import org.cuatrovientos.voluntariado4v.API.ApiClient;
 import org.cuatrovientos.voluntariado4v.Models.OdsResponse;
 import org.cuatrovientos.voluntariado4v.R;
 import java.util.List;
@@ -22,6 +23,7 @@ public class OdsAdminAdapter extends RecyclerView.Adapter<OdsAdminAdapter.ViewHo
 
     public interface OnItemClickListener {
         void onEditClick(OdsResponse ods);
+
         void onDeleteClick(OdsResponse ods);
     }
 
@@ -33,7 +35,6 @@ public class OdsAdminAdapter extends RecyclerView.Adapter<OdsAdminAdapter.ViewHo
     @NonNull
     @Override
     public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        // Asegúrate de que el layout sea el correcto (item_ods_admin.xml)
         View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_ods_admin, parent, false);
         return new ViewHolder(view);
     }
@@ -46,20 +47,25 @@ public class OdsAdminAdapter extends RecyclerView.Adapter<OdsAdminAdapter.ViewHo
         holder.description.setText(ods.getDescripcion());
 
         // CARGAR IMAGEN CON GLIDE
-        // Validamos si viene URL o no
-        if (ods.getImagen() != null && !ods.getImagen().isEmpty()) {
+        String imgUrl = ods.getImagen();
+        if (imgUrl != null && !imgUrl.isEmpty()) {
+            // Si es relativa, se antepone el host
+            if (!imgUrl.startsWith("http") && !imgUrl.startsWith("content")) {
+                imgUrl = ApiClient.BASE_URL + "uploads/ods/" + imgUrl;
+            }
+
             Glide.with(holder.itemView.getContext())
-                    .load(ods.getImagen()) // URL de la imagen
-                    .transform(new CenterCrop(), new RoundedCorners(12)) // Opcional: Redondear esquinas
-                    .placeholder(R.drawable.bg_circle_light_blue) // Mientras carga
-                    .error(R.drawable.ic_globe) // Si falla
+                    .load(imgUrl)
+                    .transform(new CenterCrop(), new RoundedCorners(12))
+                    .placeholder(R.drawable.bg_circle_light_blue)
+                    .error(R.drawable.ic_globe)
                     .into(holder.icon);
 
-            // Quitamos el padding si es una imagen real para que se vea bien
-            holder.icon.setPadding(0,0,0,0);
+            // Se quita el padding para imagen real
+            holder.icon.setPadding(0, 0, 0, 0);
             holder.icon.setBackground(null);
         } else {
-            // Imagen por defecto si no tiene
+            // Imagen por defecto
             holder.icon.setImageResource(R.drawable.ic_globe);
             holder.icon.setBackgroundResource(R.drawable.bg_circle_light_blue);
             int padding = (int) (10 * holder.itemView.getContext().getResources().getDisplayMetrics().density);

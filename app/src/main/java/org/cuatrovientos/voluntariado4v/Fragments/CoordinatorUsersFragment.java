@@ -122,12 +122,19 @@ public class CoordinatorUsersFragment extends Fragment implements CoordinatorUse
 
     private void setupSearch() {
         etSearch.addTextChangedListener(new TextWatcher() {
-            @Override public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
-            @Override public void onTextChanged(CharSequence s, int start, int before, int count) {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
                 currentSearchText = s.toString().toLowerCase();
                 applyFilters();
             }
-            @Override public void afterTextChanged(Editable s) {}
+
+            @Override
+            public void afterTextChanged(Editable s) {
+            }
         });
     }
 
@@ -143,12 +150,15 @@ public class CoordinatorUsersFragment extends Fragment implements CoordinatorUse
                 updateVisibility();
                 applyFilters();
             }
-            @Override public void onTabUnselected(TabLayout.Tab tab) {}
-            @Override public void onTabReselected(TabLayout.Tab tab) {}
+            @Override
+            public void onTabUnselected(TabLayout.Tab tab) {
+            }
+            @Override
+            public void onTabReselected(TabLayout.Tab tab) {
+            }
         });
 
-        // CORRECCIÓN: Forzar actualización de visibilidad inicial (para mostrar Directorio y ocultar Solicitudes)
-        // Ya que el XML por defecto podría tener rvPending visible y rvAllUsers gone.
+    
         updateVisibility();
     }
 
@@ -258,6 +268,14 @@ public class CoordinatorUsersFragment extends Fragment implements CoordinatorUse
         startActivity(intent);
     }
 
+    @Override
+    public void onUserClick(UserResponse user) {
+        Intent intent = new Intent(getContext(), EditUserActivity.class);
+        intent.putExtra("USER_ID", user.getId());
+        intent.putExtra("USER_ROLE", user.getRol());
+        startActivity(intent);
+    }
+
     private void changeStatus(int userId, String nuevoEstado) {
         String rolPath = "voluntarios"; // Por defecto
         for (UserResponse u : masterList) {
@@ -295,6 +313,6 @@ public class CoordinatorUsersFragment extends Fragment implements CoordinatorUse
     }
 
     private void toggleEmptyState(boolean isEmpty) {
-        if (layoutEmptyState != null) layoutEmptyState.setVisibility(isEmpty ? View.VISIBLE : View.GONE);
+        if (layoutEmptyState != null)layoutEmptyState.setVisibility(isEmpty ? View.VISIBLE : View.GONE);
     }
 }

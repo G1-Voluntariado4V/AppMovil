@@ -6,6 +6,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -29,9 +30,13 @@ public class CoordinatorActivitiesAdapter extends RecyclerView.Adapter<Coordinat
 
     public interface OnActivityActionListener {
         void onPublish(int id);
+
         void onReject(int id);
+
         void onDelete(int id);
+
         void onEdit(ActividadResponse actividad);
+
         void onClick(ActividadResponse actividad);
     }
 
@@ -58,6 +63,14 @@ public class CoordinatorActivitiesAdapter extends RecyclerView.Adapter<Coordinat
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
         ActividadResponse actividad = items.get(position);
 
+        // Cargar imagen de actividad
+        com.bumptech.glide.Glide.with(holder.itemView.getContext())
+                .load(actividad.getImageUrl())
+                .centerCrop()
+                .placeholder(R.drawable.ic_content)
+                .error(R.drawable.ic_content)
+                .into(holder.ivActivity);
+
         holder.tvTitle.setText(actividad.getTitulo());
         holder.tvOrg.setText(actividad.getNombreOrganizacion());
 
@@ -71,10 +84,9 @@ public class CoordinatorActivitiesAdapter extends RecyclerView.Adapter<Coordinat
     }
 
     private void bindPending(ViewHolder holder, ActividadResponse act) {
-        // CAMBIO: Ahora mostramos "PENDIENTE" en lugar de "REVISIÓN"
         holder.tvStatus.setText("PENDIENTE");
         holder.tvStatus.setBackgroundResource(R.drawable.bg_tag_orange);
-        holder.viewStatus.setBackgroundColor(Color.parseColor("#FF9800")); // Naranja
+        holder.viewStatus.setBackgroundColor(Color.parseColor("#FF9800"));
 
         holder.btnApproveContainer.setVisibility(View.VISIBLE);
         holder.btnRejectContainer.setVisibility(View.VISIBLE);
@@ -87,7 +99,6 @@ public class CoordinatorActivitiesAdapter extends RecyclerView.Adapter<Coordinat
     private void bindCatalog(ViewHolder holder, ActividadResponse act) {
         String estado = act.getEstadoPublicacion() != null ? act.getEstadoPublicacion().toUpperCase() : "DESCONOCIDO";
 
-        // Mapeo visual de estados para el catálogo
         switch (estado) {
             case "PUBLICADA":
                 holder.tvStatus.setText("PUBLICADA");
@@ -96,12 +107,11 @@ public class CoordinatorActivitiesAdapter extends RecyclerView.Adapter<Coordinat
                 break;
             case "CANCELADA":
             case "RECHAZADA":
-                holder.tvStatus.setText(estado); // "CANCELADA" o "RECHAZADA"
+                holder.tvStatus.setText(estado);
                 holder.tvStatus.setBackgroundResource(R.drawable.bg_tag_red);
                 holder.viewStatus.setBackgroundColor(Color.parseColor("#E53935"));
                 break;
             default:
-                // Por si se cuela alguna otra cosa
                 holder.tvStatus.setText(estado);
                 holder.tvStatus.setBackgroundResource(R.drawable.bg_tag_blue);
                 holder.viewStatus.setBackgroundColor(Color.parseColor("#1E88E5"));
@@ -122,12 +132,14 @@ public class CoordinatorActivitiesAdapter extends RecyclerView.Adapter<Coordinat
 
     public static class ViewHolder extends RecyclerView.ViewHolder {
         TextView tvTitle, tvOrg, tvStatus;
+        ImageView ivActivity; // Cambio de nombre a ivActivity
         View viewStatus;
         View btnApproveContainer, btnRejectContainer;
         ImageButton btnApprove, btnReject, btnEdit;
 
         public ViewHolder(@NonNull View itemView) {
             super(itemView);
+            ivActivity = itemView.findViewById(R.id.ivActivityIcon); // Bind correcto
             tvTitle = itemView.findViewById(R.id.tvTitle);
             tvOrg = itemView.findViewById(R.id.tvOrganization);
             tvStatus = itemView.findViewById(R.id.tvStatusBadge);

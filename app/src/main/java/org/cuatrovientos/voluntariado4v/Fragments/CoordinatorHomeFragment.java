@@ -54,7 +54,8 @@ public class CoordinatorHomeFragment extends Fragment {
 
     @Nullable
     @Override
-    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
+            @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_coordinator_home, container, false);
         context = requireContext();
 
@@ -71,7 +72,7 @@ public class CoordinatorHomeFragment extends Fragment {
 
         if (currentUserId != -1) {
             loadUserProfile();
-            loadDashboardStats();           // Carga voluntarios pendientes y totales
+            loadDashboardStats(); // Carga voluntarios pendientes y totales
             countPendingActivitiesManually(); // Carga actividades pendientes reales
         } else {
             setEmptyStats();
@@ -141,7 +142,8 @@ public class CoordinatorHomeFragment extends Fragment {
         if (btnManageTypes != null) {
             btnManageTypes.setOnClickListener(v -> {
                 // AHORA SÍ: Abrimos la nueva Activity
-                Intent intent = new Intent(context, org.cuatrovientos.voluntariado4v.Activities.ManageTiposActivity.class);
+                Intent intent = new Intent(context,
+                        org.cuatrovientos.voluntariado4v.Activities.ManageTiposActivity.class);
                 startActivity(intent);
             });
         }
@@ -161,47 +163,77 @@ public class CoordinatorHomeFragment extends Fragment {
 
     // 1. CARGAR NOMBRE
     private void loadUserProfile() {
-        ApiClient.getService().getCoordinadorDetail(currentUserId, currentUserId).enqueue(new Callback<CoordinadorResponse>() {
-            @Override
-            public void onResponse(Call<CoordinadorResponse> call, Response<CoordinadorResponse> response) {
-                if (response.isSuccessful() && response.body() != null) {
-                    String nombre = response.body().getNombre();
-                    if (tvWelcome != null) {
-                        tvWelcome.setText("Hola, " + (nombre != null && !nombre.isEmpty() ? nombre : "Coordinador"));
+        ApiClient.getService().getCoordinadorDetail(currentUserId, currentUserId)
+                .enqueue(new Callback<CoordinadorResponse>() {
+                    @Override
+                    public void onResponse(Call<CoordinadorResponse> call, Response<CoordinadorResponse> response) {
+                        if (response.isSuccessful() && response.body() != null) {
+                            String nombre = response.body().getNombre();
+                            if (tvWelcome != null) {
+                                tvWelcome.setText(
+                                        "Hola, " + (nombre != null && !nombre.isEmpty() ? nombre : "Coordinador"));
+                            }
+                        }
                     }
-                }
-            }
-            @Override public void onFailure(Call<CoordinadorResponse> call, Throwable t) { }
-        });
+
+                    @Override
+                    public void onFailure(Call<CoordinadorResponse> call, Throwable t) {
+                    }
+                });
     }
 
     // 2. CARGAR ESTADÍSTICAS GENERALES (Voluntarios + Totales)
     private void loadDashboardStats() {
+        android.util.Log.d("CoordinatorHome", "Cargando estadísticas para user: " + currentUserId);
         ApiClient.getService().getCoordinatorStats(currentUserId).enqueue(new Callback<CoordinatorStatsResponse>() {
             @Override
             public void onResponse(Call<CoordinatorStatsResponse> call, Response<CoordinatorStatsResponse> response) {
                 if (response.isSuccessful() && response.body() != null) {
                     CoordinatorStatsResponse.Metricas stats = response.body().getMetricas();
 
+                    android.util.Log.d("CoordinatorHome", "Stats recibidas: " +
+                            "Vol=" + stats.totalVolunteers +
+                            ", Org=" + stats.totalOrganizations +
+                            ", Act=" + stats.totalActivities +
+                            ", PendVol=" + stats.pendingVolunteerRequests);
+
                     // Guardamos el dato de voluntarios pendientes
                     pendingVolunteersCount = stats.pendingVolunteerRequests;
 
                     // Actualizamos UI
-                    if (tvPendingVolunteers != null) tvPendingVolunteers.setText(String.valueOf(pendingVolunteersCount));
-                    if (tvTotalVolunteers != null) tvTotalVolunteers.setText(String.valueOf(stats.totalVolunteers));
-                    if (tvTotalOrganizations != null) tvTotalOrganizations.setText(String.valueOf(stats.totalOrganizations));
-                    if (tvTotalActivities != null) tvTotalActivities.setText(String.valueOf(stats.totalActivities));
+                    if (tvPendingVolunteers != null)
+                        tvPendingVolunteers.setText(String.valueOf(pendingVolunteersCount));
+                    if (tvTotalVolunteers != null)
+                        tvTotalVolunteers.setText(String.valueOf(stats.totalVolunteers));
+                    if (tvTotalOrganizations != null)
+                        tvTotalOrganizations.setText(String.valueOf(stats.totalOrganizations));
+                    if (tvTotalActivities != null)
+                        tvTotalActivities.setText(String.valueOf(stats.totalActivities));
 
                     // Refrescamos el mensaje de cabecera
                     refreshStatusHeader();
+                } else {
+                    android.util.Log.e("CoordinatorHome",
+                            "Error cargando stats. Code: " + response.code() + ", Message: " + response.message());
+                    try {
+                        if (response.errorBody() != null) {
+                            android.util.Log.e("CoordinatorHome", "Error body: " + response.errorBody().string());
+                        }
+                    } catch (Exception e) {
+                    }
                 }
             }
-            @Override public void onFailure(Call<CoordinatorStatsResponse> call, Throwable t) { }
+
+            @Override
+            public void onFailure(Call<CoordinatorStatsResponse> call, Throwable t) {
+                android.util.Log.e("CoordinatorHome", "Fallo total cargando stats", t);
+            }
         });
     }
 
     // 3. CARGAR ACTIVIDADES PENDIENTES (Manual y Preciso)
     private void countPendingActivitiesManually() {
+        android.util.Log.d("CoordinatorHome", "Contando actividades manualmente...");
         ApiClient.getService().getAllActivitiesCoord(currentUserId).enqueue(new Callback<List<ActividadResponse>>() {
             @Override
             public void onResponse(Call<List<ActividadResponse>> call, Response<List<ActividadResponse>> response) {
@@ -218,6 +250,8 @@ public class CoordinatorHomeFragment extends Fragment {
                         }
                     }
 
+                    android.util.Log.d("CoordinatorHome", "Actividades pendientes contadas: " + conteo);
+
                     // Guardamos el dato real
                     pendingActivitiesCount = conteo;
 
@@ -227,15 +261,22 @@ public class CoordinatorHomeFragment extends Fragment {
 
                     // Refrescamos el mensaje de cabecera
                     refreshStatusHeader();
+                } else {
+                    android.util.Log.e("CoordinatorHome", "Error cargando lista actividades. Code: " + response.code());
                 }
             }
-            @Override public void onFailure(Call<List<ActividadResponse>> call, Throwable t) { }
+
+            @Override
+            public void onFailure(Call<List<ActividadResponse>> call, Throwable t) {
+                android.util.Log.e("CoordinatorHome", "Fallo obteniendo actividades", t);
+            }
         });
     }
 
     // 4. LÓGICA DEL MENSAJE DE ESTADO
     private void refreshStatusHeader() {
-        if (tvStatusHeader == null || ivStatusIcon == null || getContext() == null) return;
+        if (tvStatusHeader == null || ivStatusIcon == null || getContext() == null)
+            return;
 
         boolean hayPendientes = (pendingVolunteersCount > 0 || pendingActivitiesCount > 0);
 
@@ -255,7 +296,8 @@ public class CoordinatorHomeFragment extends Fragment {
     }
 
     private void setEmptyStats() {
-        if (tvPendingVolunteers == null) return;
+        if (tvPendingVolunteers == null)
+            return;
         tvPendingVolunteers.setText("0");
         tvPendingActivities.setText("0");
         tvTotalVolunteers.setText("0");
