@@ -47,19 +47,29 @@ public class OdsAdminAdapter extends RecyclerView.Adapter<OdsAdminAdapter.ViewHo
         holder.description.setText(ods.getDescripcion());
 
         // CARGAR IMAGEN CON GLIDE
-        String imgUrl = ods.getImagen();
+        // CARGAR IMAGEN CON GLIDE
+        // Priorizar el campo 'imgUrl' que devuelve la API (ruta relativa:
+        // /uploads/ods/...)
+        String imgUrl = ods.getImgUrl();
+
+        // Si es nulo, probar con 'imgOds' (nombre archivo)
+        if (imgUrl == null || imgUrl.isEmpty()) {
+            imgUrl = ods.getImagen();
+        }
+
         if (imgUrl != null && !imgUrl.isEmpty()) {
-            // Si la ruta ya es absoluta (http), usarla. Si no, construirla.
+            // Construir URL completa si es relativa
             if (!imgUrl.startsWith("http")) {
-                // Si la ruta empieza por /, asumimos que falta el dominio
                 if (imgUrl.startsWith("/")) {
-                    imgUrl = ApiClient.BASE_URL.substring(0, ApiClient.BASE_URL.length() - 1) + imgUrl;
-                } else if (!imgUrl.contains("uploads")) {
-                    // Si es solo el nombre de archivo (ej: "ods_1.jpg"), agregar ruta completa
-                    imgUrl = ApiClient.BASE_URL + "uploads/ods/" + imgUrl;
+                    // Caso: /uploads/ods/archivo.jpg
+                    // Quitar la barra final de BASE_URL si existe para evitar doble //
+                    String baseUrl = ApiClient.BASE_URL.endsWith("/")
+                            ? ApiClient.BASE_URL.substring(0, ApiClient.BASE_URL.length() - 1)
+                            : ApiClient.BASE_URL;
+                    imgUrl = baseUrl + imgUrl;
                 } else {
-                    // Caso raro: ruta relativa "uploads/ods/..."
-                    imgUrl = ApiClient.BASE_URL + imgUrl;
+                    // Caso solo nombre de archivo sin ruta
+                    imgUrl = ApiClient.BASE_URL + "uploads/ods/" + imgUrl;
                 }
             }
 
@@ -70,18 +80,23 @@ public class OdsAdminAdapter extends RecyclerView.Adapter<OdsAdminAdapter.ViewHo
                     .error(R.drawable.ic_globe)
                     .into(holder.icon);
 
-            // Se quita el padding para imagen real
-            holder.icon.setPadding(0, 0, 0, 0);
-
-            // Se quita el padding para imagen real
+            // Quitar estilos de placeholder (para imagen real)
             holder.icon.setPadding(0, 0, 0, 0);
             holder.icon.setBackground(null);
+            holder.icon.setColorFilter(null);
+            holder.icon.setScaleType(ImageView.ScaleType.CENTER_CROP);
         } else {
-            // Imagen por defecto
+            // Imagen por defecto (Estilo icono)
             holder.icon.setImageResource(R.drawable.ic_globe);
             holder.icon.setBackgroundResource(R.drawable.bg_circle_light_blue);
-            int padding = (int) (10 * holder.itemView.getContext().getResources().getDisplayMetrics().density);
+
+            // Padding para que el icono respire dentro del círculo
+            int padding = (int) (12 * holder.itemView.getContext().getResources().getDisplayMetrics().density);
             holder.icon.setPadding(padding, padding, padding, padding);
+
+            // Configuración específica para el icono
+            holder.icon.setScaleType(ImageView.ScaleType.CENTER_INSIDE);
+            holder.icon.setColorFilter(android.graphics.Color.parseColor("#424242"));
         }
 
         holder.btnEdit.setOnClickListener(v -> listener.onEditClick(ods));

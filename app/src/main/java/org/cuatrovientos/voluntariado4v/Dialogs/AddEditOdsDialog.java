@@ -143,9 +143,41 @@ public class AddEditOdsDialog extends DialogFragment {
         etDescription.setText(currentOds.getDescripcion());
         btnSave.setText("Actualizar");
 
-        // Aquí podrías cargar la imagen actual si viniera de la API (usando
-        // Glide/Picasso)
-        // Por ahora, como OdsResponse no tiene URL de imagen, dejamos el placeholder.
+        // Cargar imagen existente
+        String imgUrl = currentOds.getImgUrl();
+        if (imgUrl == null || imgUrl.isEmpty()) {
+            imgUrl = currentOds.getImagen();
+        }
+
+        if (imgUrl != null && !imgUrl.isEmpty()) {
+            // Construir URL completa
+            if (!imgUrl.startsWith("http")) {
+                if (imgUrl.startsWith("/")) {
+                    String baseUrl = ApiClient.BASE_URL.endsWith("/")
+                            ? ApiClient.BASE_URL.substring(0, ApiClient.BASE_URL.length() - 1)
+                            : ApiClient.BASE_URL;
+                    imgUrl = baseUrl + imgUrl;
+                } else {
+                    imgUrl = ApiClient.BASE_URL + "uploads/ods/" + imgUrl;
+                }
+            }
+
+            com.bumptech.glide.Glide.with(this)
+                    .load(imgUrl)
+                    .placeholder(R.drawable.bg_circle_white)
+                    .error(R.drawable.ic_globe)
+                    .into(imgOds);
+
+            imgOds.setColorFilter(null);
+            imgOds.setPadding(0, 0, 0, 0);
+            imgOds.setScaleType(ImageView.ScaleType.CENTER_CROP);
+        } else {
+            // Placeholder por defecto con tinte
+            imgOds.setImageResource(R.drawable.ic_globe);
+            imgOds.setColorFilter(getResources().getColor(R.color.primary));
+            imgOds.setPadding(2, 2, 2, 2); // Restaurar padding original aprox
+            imgOds.setScaleType(ImageView.ScaleType.CENTER_INSIDE); // O centerCrop según prefieras para el icono
+        }
     }
 
     private void saveOds() {

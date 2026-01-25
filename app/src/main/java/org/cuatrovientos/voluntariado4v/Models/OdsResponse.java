@@ -14,21 +14,60 @@ public class OdsResponse implements Serializable {
     @SerializedName("descripcion")
     private String descripcion;
 
-    @SerializedName(value = "imagen", alternate = { "imgOds", "img_ods", "imgUrl" })
-    private String imagen;
+    @SerializedName(value = "imgOds", alternate = { "img_ods" })
+    private String imgOds;
+
+    @SerializedName("imgUrl")
+    private String imgUrl;
 
     public OdsResponse() {
     }
 
     // Getters y Setters
-    public int getId() {return id;}
-    public void setId(int id) {this.id = id;}
-    public String getNombre() {return nombre;}
-    public void setNombre(String nombre) {this.nombre = nombre;}
-    public String getDescripcion() {return descripcion;}
-    public void setDescripcion(String descripcion) {this.descripcion = descripcion;}
-    public String getImagen() {return imagen;}
-    public void setImagen(String imagen) {this.imagen = imagen;}
+    public int getId() {
+        return id;
+    }
+
+    public void setId(int id) {
+        this.id = id;
+    }
+
+    public String getNombre() {
+        return nombre;
+    }
+
+    public void setNombre(String nombre) {
+        this.nombre = nombre;
+    }
+
+    public String getDescripcion() {
+        return descripcion;
+    }
+
+    public void setDescripcion(String descripcion) {
+        this.descripcion = descripcion;
+    }
+
+    public String getImgOds() {
+        return imgOds;
+    }
+
+    public void setImgOds(String imgOds) {
+        this.imgOds = imgOds;
+    }
+
+    public String getImgUrl() {
+        return imgUrl;
+    }
+
+    public void setImgUrl(String imgUrl) {
+        this.imgUrl = imgUrl;
+    }
+
+    // Método legacy para compatibilidad si algo lo usa
+    public String getImagen() {
+        return imgOds;
+    }
 
     @Override
     public String toString() {

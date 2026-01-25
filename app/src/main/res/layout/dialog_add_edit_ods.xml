@@ -63,8 +63,7 @@
                 android:src="@drawable/ic_globe"
                 android:scaleType="centerCrop"
                 android:background="@drawable/bg_circle_white"
-                android:padding="2dp"
-                app:tint="@color/primary"/>
+                android:padding="2dp"/>
 
             <ImageView
                 android:layout_width="28dp"
