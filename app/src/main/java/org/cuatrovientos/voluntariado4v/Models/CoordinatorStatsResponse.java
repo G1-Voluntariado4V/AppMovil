@@ -21,11 +21,11 @@ public class CoordinatorStatsResponse {
     public static class Metricas {
 
         // VOLUNTARIOS ACTIVOS
-        @SerializedName(value = "voluntarios_activos", alternate = {"total_usuarios", "active_volunteers", "voluntarios"})
+        @SerializedName(value = "voluntarios_activos", alternate = { "total_usuarios", "active_volunteers","voluntarios" })
         public int totalVolunteers;
 
         // ORGANIZACIONES ACTIVAS
-        @SerializedName(value = "organizaciones_activas", alternate = {"total_organizaciones", "active_organizations", "organizaciones"})
+        @SerializedName(value = "organizaciones_activas", alternate = { "total_organizaciones", "active_organizations", "organizaciones"})
         public int totalOrganizations;
 
         // ACTIVIDADES PUBLICADAS
@@ -37,8 +37,12 @@ public class CoordinatorStatsResponse {
         public int pendingVolunteerRequests;
 
         // ACTIVIDADES POR REVISAR (El que te salía a 0)
-        @SerializedName(value = "actividades_pendientes", alternate = {"actividades_revision", "en_revision", "pending_activities", "actividades_en_revision"})
+        @SerializedName(value = "actividades_pendientes", alternate = { "actividades_revision", "en_revision", "pending_activities", "actividades_en_revision" })
         public int pendingActivityRequests;
+
+        // COORDINADORES ACTIVOS
+        @SerializedName(value = "coordinadores_activos", alternate = { "total_coordinadores", "active_coordinators", "coordinadores" })
+        public int totalCoordinators;
 
         public Metricas() {
             this.totalVolunteers = 0;
@@ -46,6 +50,7 @@ public class CoordinatorStatsResponse {
             this.totalActivities = 0;
             this.pendingVolunteerRequests = 0;
             this.pendingActivityRequests = 0;
+            this.totalCoordinators = 0;
         }
     }
 }

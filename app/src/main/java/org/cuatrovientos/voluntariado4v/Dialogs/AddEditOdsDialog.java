@@ -54,10 +54,9 @@ public class AddEditOdsDialog extends DialogFragment {
                     selectedImageUri = uri;
                     imgOds.setImageURI(uri); // Mostrar la imagen seleccionada
                     imgOds.setColorFilter(null); // Quitar el tinte si tenía (para que se vea el color real)
-                    imgOds.setPadding(0,0,0,0); // Quitar padding si es necesario
+                    imgOds.setPadding(0, 0, 0, 0); // Quitar padding si es necesario
                 }
-            }
-    );
+            });
 
     // Interfaz para comunicar el éxito a la Activity padre
     public interface OnOdsSavedListener {
@@ -80,7 +79,8 @@ public class AddEditOdsDialog extends DialogFragment {
 
     @Nullable
     @Override
-    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
+            @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.dialog_add_edit_ods, container, false);
 
         // Configurar fondo transparente para el Dialog
@@ -143,7 +143,8 @@ public class AddEditOdsDialog extends DialogFragment {
         etDescription.setText(currentOds.getDescripcion());
         btnSave.setText("Actualizar");
 
-        // Aquí podrías cargar la imagen actual si viniera de la API (usando Glide/Picasso)
+        // Aquí podrías cargar la imagen actual si viniera de la API (usando
+        // Glide/Picasso)
         // Por ahora, como OdsResponse no tiene URL de imagen, dejamos el placeholder.
     }
 
@@ -160,9 +161,6 @@ public class AddEditOdsDialog extends DialogFragment {
         odsData.setNombre(name);
         odsData.setDescripcion(desc);
 
-        // NOTA: Si tu API soportara imagen, aquí la convertirías a MultipartBody.Part
-        // Como 'createOds' actualmente solo acepta JSON, enviamos los textos.
-
         Call<OdsResponse> call;
         if (currentOds == null) {
             call = apiService.createOds(odsData);
@@ -178,14 +176,21 @@ public class AddEditOdsDialog extends DialogFragment {
             @Override
             public void onResponse(Call<OdsResponse> call, Response<OdsResponse> response) {
                 if (isAdded()) {
-                    if (response.isSuccessful()) {
-                        Toast.makeText(getContext(), "Guardado correctamente", Toast.LENGTH_SHORT).show();
-                        if (listener != null) listener.onOdsSaved();
-                        dismiss();
+                    if (response.isSuccessful() && response.body() != null) {
+                        int odsId = response.body().getId();
+
+                        // Si se seleccionó imagen, la subimos ahora
+                        if (selectedImageUri != null) {
+                            uploadImage(odsId);
+                        } else {
+                            // Si no hay imagen, terminamos
+                            finishSuccess();
+                        }
                     } else {
                         btnSave.setEnabled(true);
-                        btnSave.setText("Guardar");
-                        Toast.makeText(getContext(), "Error: " + response.code(), Toast.LENGTH_SHORT).show();
+                        btnSave.setText(currentOds == null ? "Crear" : "Actualizar");
+                        Toast.makeText(getContext(), "Error al guardar datos: " + response.code(), Toast.LENGTH_SHORT)
+                                .show();
                     }
                 }
             }
@@ -194,10 +199,74 @@ public class AddEditOdsDialog extends DialogFragment {
             public void onFailure(Call<OdsResponse> call, Throwable t) {
                 if (isAdded()) {
                     btnSave.setEnabled(true);
-                    btnSave.setText("Guardar");
+                    btnSave.setText(currentOds == null ? "Crear" : "Actualizar");
                     Toast.makeText(getContext(), "Error de conexión", Toast.LENGTH_SHORT).show();
                 }
             }
         });
+    }
+
+    private void uploadImage(int odsId) {
+        if (getContext() == null || selectedImageUri == null)
+            return;
+
+        try {
+            // Preparar el archivo desde la URI
+            java.io.InputStream inputStream = getContext().getContentResolver().openInputStream(selectedImageUri);
+            if (inputStream == null) {
+                finishSuccess(); // Fallo silencioso o mostrar error
+                return;
+            }
+
+            byte[] bytes = new byte[inputStream.available()];
+            inputStream.read(bytes);
+
+            // Determinar tipo mime
+            String mimeType = getContext().getContentResolver().getType(selectedImageUri);
+            if (mimeType == null)
+                mimeType = "image/jpeg";
+
+            // Crear RequestBody
+            okhttp3.RequestBody requestFile = okhttp3.RequestBody.create(okhttp3.MediaType.parse(mimeType), bytes);
+
+            // Crear MultipartBody.Part (nombre del campo 'imagen' debe coincidir con API)
+            okhttp3.MultipartBody.Part body = okhttp3.MultipartBody.Part.createFormData("imagen", "ods_image.jpg",
+                    requestFile);
+
+            apiService.uploadOdsImage(odsId, body)
+                    .enqueue(new Callback<org.cuatrovientos.voluntariado4v.Models.MensajeResponse>() {
+                        @Override
+                        public void onResponse(Call<org.cuatrovientos.voluntariado4v.Models.MensajeResponse> call,
+                                Response<org.cuatrovientos.voluntariado4v.Models.MensajeResponse> response) {
+                            // Independientemente de si sube o falla, cerramos (o podríamos notificar error)
+                            if (!response.isSuccessful()) {
+                                Toast.makeText(getContext(), "Datos guardados pero falló imagen: " + response.code(),
+                                        Toast.LENGTH_SHORT).show();
+                            }
+                            finishSuccess();
+                        }
+
+                        @Override
+                        public void onFailure(Call<org.cuatrovientos.voluntariado4v.Models.MensajeResponse> call,
+                                Throwable t) {
+                            Toast.makeText(getContext(), "Datos guardados pero error red imagen", Toast.LENGTH_SHORT)
+                                    .show();
+                            finishSuccess();
+                        }
+                    });
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            finishSuccess();
+        }
+    }
+
+    private void finishSuccess() {
+        if (isAdded()) {
+            Toast.makeText(getContext(), "Guardado correctamente", Toast.LENGTH_SHORT).show();
+            if (listener != null)
+                listener.onOdsSaved();
+            dismiss();
+        }
     }
 }

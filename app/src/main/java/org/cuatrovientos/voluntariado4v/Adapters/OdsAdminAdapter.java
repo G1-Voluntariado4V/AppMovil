@@ -49,9 +49,18 @@ public class OdsAdminAdapter extends RecyclerView.Adapter<OdsAdminAdapter.ViewHo
         // CARGAR IMAGEN CON GLIDE
         String imgUrl = ods.getImagen();
         if (imgUrl != null && !imgUrl.isEmpty()) {
-            // Si es relativa, se antepone el host
-            if (!imgUrl.startsWith("http") && !imgUrl.startsWith("content")) {
-                imgUrl = ApiClient.BASE_URL + "uploads/ods/" + imgUrl;
+            // Si la ruta ya es absoluta (http), usarla. Si no, construirla.
+            if (!imgUrl.startsWith("http")) {
+                // Si la ruta empieza por /, asumimos que falta el dominio
+                if (imgUrl.startsWith("/")) {
+                    imgUrl = ApiClient.BASE_URL.substring(0, ApiClient.BASE_URL.length() - 1) + imgUrl;
+                } else if (!imgUrl.contains("uploads")) {
+                    // Si es solo el nombre de archivo (ej: "ods_1.jpg"), agregar ruta completa
+                    imgUrl = ApiClient.BASE_URL + "uploads/ods/" + imgUrl;
+                } else {
+                    // Caso raro: ruta relativa "uploads/ods/..."
+                    imgUrl = ApiClient.BASE_URL + imgUrl;
+                }
             }
 
             Glide.with(holder.itemView.getContext())
@@ -60,6 +69,9 @@ public class OdsAdminAdapter extends RecyclerView.Adapter<OdsAdminAdapter.ViewHo
                     .placeholder(R.drawable.bg_circle_light_blue)
                     .error(R.drawable.ic_globe)
                     .into(holder.icon);
+
+            // Se quita el padding para imagen real
+            holder.icon.setPadding(0, 0, 0, 0);
 
             // Se quita el padding para imagen real
             holder.icon.setPadding(0, 0, 0, 0);

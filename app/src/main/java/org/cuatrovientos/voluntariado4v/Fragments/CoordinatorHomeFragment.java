@@ -40,7 +40,7 @@ public class CoordinatorHomeFragment extends Fragment {
 
     // Contadores
     private TextView tvPendingVolunteers, tvPendingActivities;
-    private TextView tvTotalVolunteers, tvTotalOrganizations, tvTotalActivities;
+    private TextView tvTotalVolunteers, tvTotalOrganizations, tvTotalActivities, tvTotalCoordinators;
 
     // NUEVO: Botones de Gestión
     private View btnManageOds;
@@ -95,6 +95,7 @@ public class CoordinatorHomeFragment extends Fragment {
         tvTotalVolunteers = view.findViewById(R.id.tvTotalVolunteers);
         tvTotalOrganizations = view.findViewById(R.id.tvTotalOrganizations);
         tvTotalActivities = view.findViewById(R.id.tvTotalActivities);
+        tvTotalCoordinators = view.findViewById(R.id.tvTotalCoordinators);
 
         // NUEVO: Botones
         // Asegúrate de que los IDs en tu XML sean 'btnManageOds' y 'btnManageTypes'
@@ -209,6 +210,8 @@ public class CoordinatorHomeFragment extends Fragment {
                         tvTotalOrganizations.setText(String.valueOf(stats.totalOrganizations));
                     if (tvTotalActivities != null)
                         tvTotalActivities.setText(String.valueOf(stats.totalActivities));
+                    if (tvTotalCoordinators != null)
+                        tvTotalCoordinators.setText(String.valueOf(stats.totalCoordinators));
 
                     // Refrescamos el mensaje de cabecera
                     refreshStatusHeader();
@@ -303,5 +306,7 @@ public class CoordinatorHomeFragment extends Fragment {
         tvTotalVolunteers.setText("0");
         tvTotalOrganizations.setText("0");
         tvTotalActivities.setText("0");
+        if (tvTotalCoordinators != null)
+            tvTotalCoordinators.setText("0");
     }
 }

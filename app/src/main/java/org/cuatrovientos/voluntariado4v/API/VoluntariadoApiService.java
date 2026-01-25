@@ -259,14 +259,20 @@ public interface VoluntariadoApiService {
         // --- TIPOS DE VOLUNTARIADO ---
         // Nota: He puesto 'tipos-voluntariado' para coincidir con tu GET existente.
         // Si tu backend usa 'tipo_voluntariado' o 'tipos', ajústalo aquí.
-        @POST("tipos-voluntariado")
+        @POST("catalogos/tipos-voluntariado")
         Call<TipoVoluntariadoResponse> createTipoVoluntariado(@Body TipoVoluntariadoResponse tipo);
 
-        @PUT("tipos-voluntariado/{id}")
+        @PUT("catalogos/tipos-voluntariado/{id}")
         Call<TipoVoluntariadoResponse> updateTipoVoluntariado(@Path("id") int id, @Body TipoVoluntariadoResponse tipo);
 
-        @DELETE("tipos-voluntariado/{id}")
+        @DELETE("catalogos/tipos-voluntariado/{id}")
         Call<Void> deleteTipoVoluntariado(@Path("id") int id);
+
+        @retrofit2.http.Multipart
+        @POST("ods/{id}/imagen")
+        Call<MensajeResponse> uploadOdsImage(
+                        @Path("id") int id,
+                        @retrofit2.http.Part okhttp3.MultipartBody.Part imagen);
 
         // ═══════════════════════════════════════════════════════════════════
         // GESTIÓN DE INSCRIPCIONES (COORDINADOR)
